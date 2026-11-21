@@ -1,0 +1,98 @@
+{
+  "request_id": "fixture-oncall-0001",
+  "language": "de",
+  "triage": {
+    "type": {
+      "label": "Incident",
+      "confidence": 0.88,
+      "probabilities": {"Incident": 0.88, "Problem": 0.08, "Request": 0.03, "Change": 0.01}
+    },
+    "queue": {
+      "label": "Service Outages and Maintenance",
+      "confidence": 0.54,
+      "probabilities": {
+        "Service Outages and Maintenance": 0.54,
+        "IT Support": 0.21,
+        "Technical Support": 0.17,
+        "Product Support": 0.04,
+        "Customer Service": 0.02,
+        "General Inquiry": 0.01,
+        "Billing and Payments": 0.005,
+        "Sales and Pre-Sales": 0.002,
+        "Returns and Exchanges": 0.002,
+        "Human Resources": 0.001
+      }
+    },
+    "priority": {
+      "label": "high",
+      "confidence": 0.79,
+      "probabilities": {"high": 0.79, "medium": 0.18, "low": 0.03}
+    }
+  },
+  "decision": {
+    "status": "escalate",
+    "destination": "on_call",
+    "reasons": [
+      {
+        "code": "HIGH_IMPACT_OUTAGE",
+        "message": "[FIXTURE] Ongoing outage with broad impact on a critical service: 'alle Mitarbeitenden', 'an allen Standorten ausgefallen'."
+      },
+      {
+        "code": "PREDICTED_INCIDENT_HIGH",
+        "message": "[FIXTURE] Classifier predicts type Incident (0.88) and priority high (0.79)."
+      }
+    ]
+  },
+  "precedents": [
+    {
+      "ticket_id": "TKT-00011",
+      "score": 0.63,
+      "subject": "[FIXTURE] VPN-Verbindung an allen Standorten gestört",
+      "answer_snippet": "[FIXTURE] Wir haben die Störung an das Bereitschaftsteam weitergeleitet und melden uns mit einem Status-Update.",
+      "answer_language": "de"
+    },
+    {
+      "ticket_id": "TKT-00012",
+      "score": 0.57,
+      "subject": "[FIXTURE] Remote access down for all staff",
+      "answer_snippet": "[FIXTURE] Our on-call engineers are investigating the VPN gateway and will post updates on the status page.",
+      "answer_language": "en"
+    },
+    {
+      "ticket_id": "TKT-00013",
+      "score": 0.49,
+      "subject": "[FIXTURE] Telemedizin-Plattform nicht erreichbar",
+      "answer_snippet": "[FIXTURE] Bitte teilen Sie uns die genaue Fehlermeldung und den Zeitpunkt des Ausfalls mit.",
+      "answer_language": "de"
+    },
+    {
+      "ticket_id": "TKT-00014",
+      "score": 0.44,
+      "subject": "[FIXTURE] EHR access intermittent",
+      "answer_snippet": "[FIXTURE] We restarted the affected service and access was restored. Please confirm on your side.",
+      "answer_language": "en"
+    },
+    {
+      "ticket_id": "TKT-00015",
+      "score": 0.41,
+      "subject": "[FIXTURE] VPN client update failed",
+      "answer_snippet": "[FIXTURE] Please reinstall the VPN client from the software portal and try again.",
+      "answer_language": "en"
+    }
+  ],
+  "draft": null,
+  "stage_ms": {
+    "masking": 0.5,
+    "language": 1.4,
+    "triage": 7.1,
+    "retrieval": 10.2,
+    "gate": 0.4,
+    "generation": null,
+    "validation": null
+  },
+  "total_ms": 19.6,
+  "release_id": "fixture",
+  "retrieval_mode": "fixture",
+  "generator_mode": "none",
+  "burst": null
+}

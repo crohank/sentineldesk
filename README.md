@@ -15,6 +15,16 @@ python scripts/eda.py             # docs/eda_stats.txt, docs/figures/
 
 Data files are gitignored. Everyone regenerates the same split from the scripts.
 
+### Console and API (uv)
+
+```bash
+uv sync
+uv run serve        # http://127.0.0.1:8000  (POST /api/triage, GET /healthz)
+uv run pytest
+```
+
+Until the real components are wired, the service runs in fixture mode and the console shows a banner saying so. Shared request and response models live in `sentineldesk/schemas.py`. The exported JSON Schema is in `docs/schemas/contract.schema.json`.
+
 ## Leakage rule
 
 Inference code reads only `kb_train.parquet` and `test_inputs.parquet`. Only the eval script may read `test_labels.parquet`. Holdout answers are never saved.

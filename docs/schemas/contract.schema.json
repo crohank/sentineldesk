@@ -1,0 +1,558 @@
+{
+  "AnalysisResult": {
+    "$defs": {
+      "BurstStatus": {
+        "additionalProperties": false,
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "service": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Service"
+          },
+          "ticket_count": {
+            "default": 0,
+            "title": "Ticket Count",
+            "type": "integer"
+          },
+          "window_minutes": {
+            "default": 10,
+            "title": "Window Minutes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "active"
+        ],
+        "title": "BurstStatus",
+        "type": "object"
+      },
+      "Claim": {
+        "additionalProperties": false,
+        "properties": {
+          "evidence_span": {
+            "description": "Verbatim substring of the cited precedent's answer.",
+            "title": "Evidence Span",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "ticket_id": {
+            "pattern": "^TKT-\\d{5}$",
+            "title": "Ticket Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "ticket_id",
+          "evidence_span"
+        ],
+        "title": "Claim",
+        "type": "object"
+      },
+      "Decision": {
+        "additionalProperties": false,
+        "properties": {
+          "destination": {
+            "enum": [
+              "requester",
+              "on_call",
+              "human_review",
+              "language_review",
+              "specialist_review",
+              "operator"
+            ],
+            "title": "Destination",
+            "type": "string"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/$defs/Reason"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "needs_clarification",
+              "escalate",
+              "review",
+              "draft_ready"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "destination"
+        ],
+        "title": "Decision",
+        "type": "object"
+      },
+      "Draft": {
+        "additionalProperties": false,
+        "description": "Operator draft. Mark each citation inline in `reply_text` as `[TKT-12345]`.\n\nThe console turns those markers into links to the matching evidence card. Every\nmarked ID must appear in `cited_ticket_ids`, and every cited ID must be a\nretrieved precedent.",
+        "properties": {
+          "abstain": {
+            "title": "Abstain",
+            "type": "boolean"
+          },
+          "cited_ticket_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Cited Ticket Ids",
+            "type": "array"
+          },
+          "claims": {
+            "items": {
+              "$ref": "#/$defs/Claim"
+            },
+            "title": "Claims",
+            "type": "array"
+          },
+          "reply_text": {
+            "title": "Reply Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reply_text",
+          "cited_ticket_ids",
+          "claims",
+          "abstain"
+        ],
+        "title": "Draft",
+        "type": "object"
+      },
+      "Precedent": {
+        "additionalProperties": false,
+        "properties": {
+          "answer_language": {
+            "description": "Detected from the answer text, not the metadata column.",
+            "title": "Answer Language",
+            "type": "string"
+          },
+          "answer_snippet": {
+            "description": "Redacted excerpt of the historical answer.",
+            "title": "Answer Snippet",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "ticket_id": {
+            "pattern": "^TKT-\\d{5}$",
+            "title": "Ticket Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ticket_id",
+          "score",
+          "subject",
+          "answer_snippet",
+          "answer_language"
+        ],
+        "title": "Precedent",
+        "type": "object"
+      },
+      "Prediction": {
+        "additionalProperties": false,
+        "properties": {
+          "confidence": {
+            "description": "Calibrated probability of `label`.",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "probabilities": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "description": "Calibrated probability per class.",
+            "title": "Probabilities",
+            "type": "object"
+          }
+        },
+        "required": [
+          "label",
+          "confidence",
+          "probabilities"
+        ],
+        "title": "Prediction",
+        "type": "object"
+      },
+      "Reason": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "enum": [
+              "INSUFFICIENT_INPUT",
+              "HIGH_IMPACT_OUTAGE",
+              "PREDICTED_INCIDENT_HIGH",
+              "INSTRUCTION_OVERRIDE",
+              "UNSUPPORTED_LANGUAGE",
+              "AUTHORIZATION_REQUIRED",
+              "OUTAGE_RISK",
+              "LOW_CONFIDENCE",
+              "WEAK_EVIDENCE",
+              "DRAFT_FAILED"
+            ],
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "description": "Operator-facing text.",
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "Reason",
+        "type": "object"
+      },
+      "StageTimings": {
+        "additionalProperties": false,
+        "description": "Milliseconds per stage. A stage that did not run is null.",
+        "properties": {
+          "gate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Gate"
+          },
+          "generation": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Generation"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Language"
+          },
+          "masking": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Masking"
+          },
+          "retrieval": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Retrieval"
+          },
+          "triage": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Triage"
+          },
+          "validation": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Validation"
+          }
+        },
+        "title": "StageTimings",
+        "type": "object"
+      },
+      "Triage": {
+        "additionalProperties": false,
+        "properties": {
+          "priority": {
+            "$ref": "#/$defs/Prediction"
+          },
+          "queue": {
+            "$ref": "#/$defs/Prediction"
+          },
+          "type": {
+            "$ref": "#/$defs/Prediction"
+          }
+        },
+        "required": [
+          "type",
+          "queue",
+          "priority"
+        ],
+        "title": "Triage",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "burst": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/BurstStatus"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "decision": {
+        "$ref": "#/$defs/Decision"
+      },
+      "draft": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Draft"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "Only a draft that passed validation is ever returned."
+      },
+      "generator_mode": {
+        "enum": [
+          "fixture",
+          "offline_templates",
+          "gemma",
+          "none"
+        ],
+        "title": "Generator Mode",
+        "type": "string"
+      },
+      "language": {
+        "description": "Detected from ticket text: 'en', 'de', other ISO code, or 'und'.",
+        "title": "Language",
+        "type": "string"
+      },
+      "precedents": {
+        "items": {
+          "$ref": "#/$defs/Precedent"
+        },
+        "title": "Precedents",
+        "type": "array"
+      },
+      "release_id": {
+        "title": "Release Id",
+        "type": "string"
+      },
+      "request_id": {
+        "title": "Request Id",
+        "type": "string"
+      },
+      "retrieval_mode": {
+        "enum": [
+          "fixture",
+          "sparse",
+          "dense"
+        ],
+        "title": "Retrieval Mode",
+        "type": "string"
+      },
+      "stage_ms": {
+        "$ref": "#/$defs/StageTimings"
+      },
+      "total_ms": {
+        "title": "Total Ms",
+        "type": "number"
+      },
+      "triage": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/Triage"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "Null when gate rule 1 skips prediction."
+      }
+    },
+    "required": [
+      "request_id",
+      "language",
+      "triage",
+      "decision",
+      "precedents",
+      "draft",
+      "stage_ms",
+      "total_ms",
+      "release_id",
+      "retrieval_mode",
+      "generator_mode"
+    ],
+    "title": "AnalysisResult",
+    "type": "object"
+  },
+  "Health": {
+    "additionalProperties": false,
+    "properties": {
+      "artifacts": {
+        "additionalProperties": {
+          "type": "boolean"
+        },
+        "description": "Readiness per artifact name.",
+        "title": "Artifacts",
+        "type": "object"
+      },
+      "generator_mode": {
+        "enum": [
+          "fixture",
+          "offline_templates",
+          "gemma",
+          "none"
+        ],
+        "title": "Generator Mode",
+        "type": "string"
+      },
+      "release_id": {
+        "title": "Release Id",
+        "type": "string"
+      },
+      "retrieval_mode": {
+        "enum": [
+          "fixture",
+          "sparse",
+          "dense"
+        ],
+        "title": "Retrieval Mode",
+        "type": "string"
+      },
+      "status": {
+        "enum": [
+          "ok",
+          "degraded"
+        ],
+        "title": "Status",
+        "type": "string"
+      }
+    },
+    "required": [
+      "status",
+      "release_id",
+      "retrieval_mode",
+      "generator_mode",
+      "artifacts"
+    ],
+    "title": "Health",
+    "type": "object"
+  },
+  "TicketInput": {
+    "additionalProperties": false,
+    "description": "The only body `POST /api/triage` accepts.\n\n`body` has no minimum length on purpose: an empty body is a valid request that\ngate rule 1 answers with `needs_clarification` (HTTP 200), not a 422.",
+    "properties": {
+      "body": {
+        "title": "Body",
+        "type": "string"
+      },
+      "subject": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Subject"
+      }
+    },
+    "required": [
+      "body"
+    ],
+    "title": "TicketInput",
+    "type": "object"
+  },
+  "Validation": {
+    "additionalProperties": false,
+    "properties": {
+      "errors": {
+        "items": {
+          "type": "string"
+        },
+        "title": "Errors",
+        "type": "array"
+      },
+      "valid": {
+        "title": "Valid",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "valid"
+    ],
+    "title": "Validation",
+    "type": "object"
+  }
+}

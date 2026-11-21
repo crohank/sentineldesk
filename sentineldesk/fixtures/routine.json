@@ -1,0 +1,110 @@
+{
+  "request_id": "fixture-routine-0001",
+  "language": "en",
+  "triage": {
+    "type": {
+      "label": "Request",
+      "confidence": 0.81,
+      "probabilities": {"Request": 0.81, "Problem": 0.11, "Incident": 0.05, "Change": 0.03}
+    },
+    "queue": {
+      "label": "Customer Service",
+      "confidence": 0.67,
+      "probabilities": {
+        "Customer Service": 0.67,
+        "Technical Support": 0.14,
+        "IT Support": 0.09,
+        "Product Support": 0.05,
+        "General Inquiry": 0.02,
+        "Billing and Payments": 0.01,
+        "Sales and Pre-Sales": 0.01,
+        "Returns and Exchanges": 0.005,
+        "Human Resources": 0.003,
+        "Service Outages and Maintenance": 0.002
+      }
+    },
+    "priority": {
+      "label": "low",
+      "confidence": 0.62,
+      "probabilities": {"low": 0.62, "medium": 0.31, "high": 0.07}
+    }
+  },
+  "decision": {
+    "status": "draft_ready",
+    "destination": "operator",
+    "reasons": []
+  },
+  "precedents": [
+    {
+      "ticket_id": "TKT-00001",
+      "score": 0.74,
+      "subject": "[FIXTURE] Password reset for customer portal",
+      "answer_snippet": "[FIXTURE] Thank you for reaching out. To reset your password, open the customer portal sign-in page and select 'Forgot password'. A reset link is sent to your registered email address and stays valid for a limited time.",
+      "answer_language": "en"
+    },
+    {
+      "ticket_id": "TKT-00002",
+      "score": 0.69,
+      "subject": "[FIXTURE] Cannot log in after password change",
+      "answer_snippet": "[FIXTURE] If the reset email does not arrive, check your spam folder before requesting a new link.",
+      "answer_language": "en"
+    },
+    {
+      "ticket_id": "TKT-00003",
+      "score": 0.58,
+      "subject": "[FIXTURE] Passwort vergessen",
+      "answer_snippet": "[FIXTURE] Bitte nutzen Sie die Funktion 'Passwort vergessen' auf der Anmeldeseite des Kundenportals.",
+      "answer_language": "de"
+    },
+    {
+      "ticket_id": "TKT-00004",
+      "score": 0.51,
+      "subject": "[FIXTURE] Account locked",
+      "answer_snippet": "[FIXTURE] Accounts unlock automatically after 30 minutes. Contact us if the lock persists.",
+      "answer_language": "en"
+    },
+    {
+      "ticket_id": "TKT-00005",
+      "score": 0.47,
+      "subject": "[FIXTURE] Change registered email",
+      "answer_snippet": "[FIXTURE] To change your registered email address, please verify your identity with our support team first.",
+      "answer_language": "en"
+    }
+  ],
+  "draft": {
+    "reply_text": "[FIXTURE] To reset your password, open the customer portal sign-in page and select 'Forgot password' [TKT-00001]. A reset link is sent to your registered email address [TKT-00001]. If the email does not arrive, check your spam folder before requesting a new link [TKT-00002].",
+    "cited_ticket_ids": ["TKT-00001", "TKT-00002"],
+    "claims": [
+      {
+        "text": "Open the customer portal sign-in page and select 'Forgot password'.",
+        "ticket_id": "TKT-00001",
+        "evidence_span": "open the customer portal sign-in page and select 'Forgot password'"
+      },
+      {
+        "text": "A reset link is sent to your registered email address.",
+        "ticket_id": "TKT-00001",
+        "evidence_span": "A reset link is sent to your registered email address"
+      },
+      {
+        "text": "If the email does not arrive, check your spam folder before requesting a new link.",
+        "ticket_id": "TKT-00002",
+        "evidence_span": "check your spam folder before requesting a new link"
+      }
+    ],
+    "abstain": false
+  },
+  "stage_ms": {
+    "masking": 0.4,
+    "language": 1.2,
+    "triage": 6.8,
+    "retrieval": 9.5,
+    "gate": 0.3,
+    "generation": 2.1,
+    "validation": 0.6
+  },
+  "total_ms": 20.9,
+  "release_id": "fixture",
+  "retrieval_mode": "fixture",
+  "generator_mode": "fixture",
+  "burst": null
+}

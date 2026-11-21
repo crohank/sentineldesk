@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SentinelDesk Console</title>
+  <link rel="stylesheet" href="/static/console.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/">
+    <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    <h1><span class="brace">{</span>SentinelDesk<span class="brace">}</span></h1>
+    <span class="tagline">triage · precedents · grounded drafts</span>
+  </a>
+  <div class="modes">
+    <span class="pill blue">release {{ comps.release_id }}</span>
+    <span class="pill">retrieval: {{ comps.retrieval_mode }}</span>
+    <span class="pill">generator: {{ comps.generator_mode }}</span>
+  </div>
+</header>
+
+{% if comps.retrieval_mode == "fixture" or comps.generator_mode == "fixture" or preview %}
+<div class="banner"><div>
+  {% if preview %}<span>Showing stored fixture <strong>{{ preview }}</strong>, not a live analysis.</span>
+  {% else %}<span>Fixture mode: predictions, precedents and drafts are synthetic placeholders until the real components are wired.</span>{% endif %}
+</div></div>
+{% endif %}
+
+{% set stage_labels = [
+  ("masking", "Mask PII"), ("language", "Language"), ("triage", "Triage"), ("retrieval", "Precedents"),
+  ("gate", "Gate"), ("generation", "Draft"), ("validation", "Validate")] %}
+
+<main class="layout{% if result %} has-result{% endif %}">
+  <section class="panel input">
+    <h2>Ticket</h2>
+    <form method="post" action="/" id="ticket-form">
+      <label for="subject">Subject <span class="muted">(optional)</span></label>
+      <input id="subject" name="subject" type="text" value="{{ subject }}" autocomplete="off">
+      <label for="body">Body</label>
+      <textarea id="body" name="body" rows="9" placeholder="Paste an English or German support ticket…">{{ body }}</textarea>
+      <div class="form-row">
+        <button type="submit" id="analyze"><span class="label">Analyze</span><span class="spinner" aria-hidden="true"></span></button>
+        <span class="muted small kbd-hint"><kbd>⌘</kbd>/<kbd>Ctrl</kbd> + <kbd>Enter</kbd></span>
+      </div>
+    </form>
+
+    <h3>Try a sample</h3>
+    <div class="samples">
+      {% for s in samples %}
+      <a class="sample sample-{{ s.accent }}" href="/?sample={{ s.key }}">
+        <span class="sample-lang">{{ s.lang }}</span>
+        <span class="sample-title">{{ s.title }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    <p class="muted small">Samples only fill the form. The result comes from the live pipeline.</p>
+    <p class="muted small fixture-links">Stored fixtures:
+      {% for name in fixture_names %}<a href="/?fixture={{ name }}">{{ name }}</a>{% if not loop.last %} · {% endif %}{% endfor %}
+    </p>
+  </section>
+
+  {% if not result %}
+  <section class="panel intro">
+    <h2>How it works</h2>
+    <ol class="flow-explain">
+      <li><span class="step-dot blue"></span><div><strong>Mask and detect.</strong> Emails, phone numbers and account IDs are masked. Language is detected from the text, not from metadata.</div></li>
+      <li><span class="step-dot yellow"></span><div><strong>Triage.</strong> Three calibrated heads predict type, queue and priority.</div></li>
+      <li><span class="step-dot green"></span><div><strong>Precedents.</strong> Five similar historical tickets are retrieved, each with its answer.</div></li>
+      <li><span class="step-dot red"></span><div><strong>Gate.</strong> Outages go to on-call. Refunds, overrides, low confidence and weak evidence go to a human.</div></li>
+      <li><span class="step-dot blue"></span><div><strong>Grounded draft.</strong> Every claim cites a precedent and quotes its evidence. A draft that fails validation is withheld.</div></li>
+    </ol>
+    <p class="muted small">Nothing is sent to a customer. Every draft is for operator review.</p>
+  </section>
+  {% endif %}
+
+  {% if result %}
+  {% set d = result.decision %}
+  <section class="panel flow">
+    <ol class="stepper">
+      {% for key, label in stage_labels %}
+      {% set ms = result.stage_ms | attr(key) %}
+      <li class="step {% if ms is none %}skipped{% else %}ran{% endif %}{% if key == 'gate' %} gate-{{ d.status }}{% endif %}">
+        <span class="step-name">{{ label }}</span>
+        <span class="step-ms">{% if ms is none %}skipped{% else %}{{ "%.1f" | format(ms) }} ms{% endif %}</span>
+      </li>
+      {% endfor %}
+      <li class="step outcome status-{{ d.status }}">
+        <span class="step-name">{{ d.destination | replace("_", " ") }}</span>
+        <span class="step-ms">{{ "%.1f" | format(result.total_ms) }} ms total</span>
+      </li>
+    </ol>
+  </section>
+
+  <div class="stack side">
+  <section class="panel decision status-{{ d.status }}">
+    <h2>Decision</h2>
+    <div class="decision-head">
+      <span class="status">{{ d.status | replace("_", " ") }}</span>
+      <span class="arrow">to</span>
+      <span class="dest">{{ d.destination | replace("_", " ") }}</span>
+      <span class="pill quiet">language: {{ result.language }}</span>
+    </div>
+    {% if d.reasons %}
+    <ul class="reasons">
+      {% for r in d.reasons %}<li><code>{{ r.code }}</code> {{ r.message }}</li>{% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">No escalation rule fired. Draft is for operator review; nothing is sent to the customer.</p>
+    {% endif %}
+  </section>
+
+  <section class="panel triage">
+    <h2>Triage</h2>
+    {% if result.triage %}
+    {% for head in ["type", "queue", "priority"] %}
+    {% set p = result.triage | attr(head) %}
+    <div class="head">
+      <div class="head-row">
+        <span class="head-name">{{ head }}</span>
+        <span class="head-label">{{ p.label }}</span>
+        <span class="head-conf">{{ "%.0f" | format(p.confidence * 100) }}%</span>
+      </div>
+      <div class="bar" role="img" aria-label="{{ head }} confidence {{ '%.2f' | format(p.confidence) }}"><div class="fill" style="width: {{ (p.confidence * 100) | round(1) }}%"></div></div>
+      <details>
+        <summary>all classes</summary>
+        <table class="probs">
+          {% for label, prob in p.probabilities | dictsort(by="value", reverse=true) %}
+          <tr{% if label == p.label %} class="top-class"{% endif %}>
+            <td>{{ label }}</td>
+            <td class="mini"><span style="width: {{ (prob * 100) | round(1) }}%"></span></td>
+            <td class="num">{{ "%.3f" | format(prob) }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </details>
+    </div>
+    {% endfor %}
+    <p class="muted small">Confidence is the calibrated probability of the selected label.</p>
+    {% else %}
+    <p class="muted">Skipped: not enough text to predict.</p>
+    {% endif %}
+  </section>
+
+  </div>
+
+  <div class="stack lower">
+  <section class="panel draft">
+    <h2>Draft reply
+      {% if result.draft %}<button type="button" class="copy" data-copy="#reply-text">Copy</button>{% endif %}
+    </h2>
+    {% if result.draft %}
+    <p class="reply">{{ result.draft.reply_text | link_citations }}</p>
+    <textarea id="reply-text" class="visually-hidden" readonly tabindex="-1" aria-hidden="true">{{ result.draft.reply_text }}</textarea>
+    <div class="draft-meta">
+      <span class="pill green">{{ result.draft.claims | length }} claims grounded</span>
+      <span class="pill quiet">{{ result.draft.cited_ticket_ids | length }} precedents cited</span>
+      <span class="pill quiet">generator: {{ result.generator_mode }}</span>
+    </div>
+    <h3>Claims and evidence</h3>
+    <ol class="claims">
+      {% for c in result.draft.claims %}
+      <li>{{ c.text }}<br><span class="muted small">evidence in <a class="cite" href="#ev-{{ c.ticket_id }}">{{ c.ticket_id }}</a>: “{{ c.evidence_span }}”</span></li>
+      {% endfor %}
+    </ol>
+    {% else %}
+    <div class="empty">
+      <p>No draft{% if result.decision.status != "draft_ready" %}. Routed to <strong>{{ result.decision.destination | replace("_", " ") }}</strong>{% endif %}.</p>
+      {% if result.precedents %}<p class="muted small">The precedents stay available for the operator.</p>{% endif %}
+    </div>
+    {% endif %}
+  </section>
+
+  <section class="panel meta">
+    <h2>Run</h2>
+    <table class="timings">
+      <tr><td>request</td><td class="num"><code>{{ result.request_id }}</code></td></tr>
+      {% for key, label in stage_labels %}
+      {% set ms = result.stage_ms | attr(key) %}
+      <tr><td>{{ label }}</td><td class="num">{% if ms is none %}<span class="muted">skipped</span>{% else %}{{ "%.1f" | format(ms) }} ms{% endif %}</td></tr>
+      {% endfor %}
+      <tr class="total"><td>total</td><td class="num">{{ "%.1f" | format(result.total_ms) }} ms</td></tr>
+      <tr><td>retrieval mode</td><td class="num">{{ result.retrieval_mode }}</td></tr>
+      <tr><td>generator mode</td><td class="num">{{ result.generator_mode }}</td></tr>
+    </table>
+    <p class="small muted">JSON API: <code>POST /api/triage</code> · <a href="/healthz">/healthz</a> · <a href="/openapi.json">openapi.json</a></p>
+  </section>
+  </div>
+
+  <section class="panel precedents">
+    <h2>Precedents <span class="muted">({{ result.precedents | length }})</span></h2>
+    {% if result.precedents %}
+    {% set spans_by_id = {} %}
+    {% if result.draft %}{% for c in result.draft.claims %}{% set _ = spans_by_id.setdefault(c.ticket_id, []).append(c.evidence_span) %}{% endfor %}{% endif %}
+    {% set max_score = (result.precedents | map(attribute="score") | max) or 1 %}
+    {% for p in result.precedents %}
+    {% set cited = result.draft and p.ticket_id in result.draft.cited_ticket_ids %}
+    <article class="card{% if cited %} cited{% endif %}" id="ev-{{ p.ticket_id }}">
+      <div class="card-head">
+        <span class="rank">{{ loop.index }}</span>
+        <code>{{ p.ticket_id }}</code>
+        <span class="pill quiet">answer: {{ p.answer_language }}</span>
+        {% if cited %}<span class="pill green">cited</span>{% endif %}
+        <span class="score" title="similarity score">{{ "%.2f" | format(p.score) }}</span>
+      </div>
+      <div class="score-bar"><span style="width: {{ (p.score / max_score * 100) | round(1) }}%"></span></div>
+      <div class="card-subject">{{ p.subject }}</div>
+      <details{% if cited %} open{% endif %}>
+        <summary>historical answer</summary>
+        <p class="snippet">{{ p.answer_snippet | highlight(spans_by_id.get(p.ticket_id, [])) }}</p>
+      </details>
+    </article>
+    {% endfor %}
+    {% else %}
+    <div class="empty"><p class="muted">None retrieved.</p></div>
+    {% endif %}
+  </section>
+
+
+  {% endif %}
+</main>
+
+<footer class="foot">
+  <span>Built at the GDG Cloud Boston × Northeastern hackathon.</span>
+  <span>Data: <a href="https://huggingface.co/datasets/Tobi-Bueck/customer-support-tickets">Tobi-Bueck/customer-support-tickets</a>, CC BY-NC 4.0.</span>
+</footer>
+
+<script src="/static/console.js" defer></script>
+</body>
+</html>

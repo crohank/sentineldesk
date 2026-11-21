@@ -1,0 +1,31 @@
+{
+  "request_id": "fixture-insufficient-0001",
+  "language": "und",
+  "triage": null,
+  "decision": {
+    "status": "needs_clarification",
+    "destination": "requester",
+    "reasons": [
+      {
+        "code": "INSUFFICIENT_INPUT",
+        "message": "Add a short description of the issue."
+      }
+    ]
+  },
+  "precedents": [],
+  "draft": null,
+  "stage_ms": {
+    "masking": 0.1,
+    "language": 0.2,
+    "triage": null,
+    "retrieval": null,
+    "gate": 0.1,
+    "generation": null,
+    "validation": null
+  },
+  "total_ms": 0.4,
+  "release_id": "fixture",
+  "retrieval_mode": "fixture",
+  "generator_mode": "none",
+  "burst": null
+}

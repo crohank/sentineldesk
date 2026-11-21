@@ -1,0 +1,43 @@
+[project]
+name = "sentineldesk"
+version = "0.1.0"
+description = "Multilingual (en/de) ticket triage, escalation gate, and precedent-grounded reply drafting."
+readme = "README.md"
+# D1 runs system Python 3.14 (Windows blocks uv-managed interpreters there).
+# 3.15 is excluded: scikit-learn 1.8.0 has no 3.15 wheel and fails to build from source.
+requires-python = ">=3.12,<3.15"
+dependencies = [
+    "pandas>=3.0",
+    "pyarrow",
+    "huggingface_hub",
+    "langdetect",
+    "matplotlib",
+    "scipy",
+    # 1.9.x _loss DLL is blocked by Windows Smart App Control on some machines; 1.8.0 loads.
+    "scikit-learn==1.8.0",
+    "pydantic>=2.7",
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "jinja2>=3.1",
+    "python-multipart>=0.0.9",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "httpx>=0.27",
+]
+
+[project.scripts]
+serve = "sentineldesk.api:main"
+export_schemas = "sentineldesk.schemas:export_main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["sentineldesk"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
