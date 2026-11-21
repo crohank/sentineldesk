@@ -163,13 +163,13 @@
     $("#reader").innerHTML =
       '<header class="r-head"><h2>' + esc(c.subject || "(no subject)") + "</h2>" +
       '<p class="muted small">' + esc(c.id) + " · " + esc(c.language_name) + " · " + ago(c.received) + " · " + c.total_ms + " ms</p>" +
-      '<p><span class="decision d-' + esc(c.status) + '">' + esc(label(c.status)) + "</span> to " + esc(label(c.destination)) +
+      '<p><span class="status-badge d-' + esc(c.status) + '">' + esc(label(c.status)) + "</span> to " + esc(label(c.destination)) +
       (c.incident ? ' <span class="tag inc">' + esc(c.incident) + "</span>" : "") + "</p></header>" +
       '<section class="r-body">' + esc(c.body || "(empty body)") + "</section>" +
       (c.reason_text.length ? "<h3>Why it landed here</h3><ul class='reasons'>" + c.reason_text.map((r) => "<li><code>" + esc(r.code) + "</code> " + esc(r.message) + "</li>").join("") + "</ul>" : "") +
       (tri ? "<h3>Triage</h3><table class='small'><tr><th></th><th>predicted</th><th>known label</th></tr>" + row("type") + row("queue") + row("priority") + "</table><p class='muted small'>Source: " + esc(label(c.triage_source)) + ". Confidences are uncalibrated.</p>"
            : "<p class='muted small'>No triage (" + esc(label(c.triage_source)) + ").</p>") +
-      (c.draft ? "<h3>Draft reply</h3><section class='r-body draft'>" + esc(c.draft) + "</section>" : "") +
+      (c.draft ? "<h3>Draft reply</h3><section class='r-body reply'>" + esc(c.draft) + "</section>" : "") +
       (c.precedents.length ? "<h3>Precedents</h3><ul class='reasons'>" + c.precedents.map((p) => "<li><code>" + esc(p.ticket_id) + "</code> " + esc(p.subject) + " <span class='muted'>" + p.score + "</span></li>").join("") + "</ul>" : "");
   }
 

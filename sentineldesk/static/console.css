@@ -155,6 +155,14 @@ h1 .brace { color: var(--primary); font-weight: 400; margin: 0 0.05em; }
 .tagline { color: var(--on-surface-variant); font-size: 0.8125rem; }
 @media (max-width: 560px) { .tagline { display: none; } }
 .modes { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.topnav { display: flex; gap: 4px; }
+.topnav a {
+  display: inline-flex; align-items: center; height: 32px; padding: 0 0.9rem; border-radius: var(--corner-full);
+  color: var(--on-surface-variant); text-decoration: none; font-size: 0.875rem; font-weight: 500;
+}
+.topnav a:hover { background: var(--surface-container-high); }
+.topnav a[aria-current="page"] { background: var(--secondary-container); color: var(--on-secondary-container); }
+@media (max-width: 700px) { .topnav { order: 3; } }
 
 /* ------------------------------------------------------------ chips (M3 assist/filter) */
 .pill {

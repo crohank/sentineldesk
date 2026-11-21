@@ -7,98 +7,109 @@
   <link rel="stylesheet" href="/static/console.css">
   <link rel="stylesheet" href="/static/board.css">
 </head>
-<body class="board-page">
-<header class="board-top">
-  <div class="brand">
-    <a href="/" class="brand-link">SentinelDesk</a>
-    <span class="board-title">Live triage board</span>
-  </div>
+<body>
+<header class="top">
+  <a class="brand" href="/">
+    <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    <h1><span class="brace">{</span>SentinelDesk<span class="brace">}</span></h1>
+    <span class="tagline">triage · precedents · grounded drafts</span>
+  </a>
+  <nav class="topnav" aria-label="Pages">
+    <a href="/">Console</a>
+    <a href="/board" aria-current="page">Live board</a>
+  </nav>
   <div class="modes">
-    <span class="chip" id="mode-retrieval">retrieval: {{ comps.retrieval_mode }}</span>
-    <span class="chip" id="mode-triage">triage: loading</span>
-    <span class="chip" id="feed-status">feed: loading</span>
-  </div>
-  <div class="viewtabs" role="tablist">
-    <button class="vt active" data-view="board" role="tab">Board</button>
-    <button class="vt" data-view="inbox" role="tab">Inbox</button>
-  </div>
-  <div class="controls">
-    <button id="btn-play" class="btn primary" disabled>Start stream</button>
-    <label class="speed">Every
-      <select id="speed">
-        <option value="15000">15 s</option>
-        <option value="10000">10 s</option>
-        <option value="5000">5 s</option>
-        <option value="3000">3 s</option>
-        <option value="1500" selected>1.5 s</option>
-        <option value="700">0.7 s</option>
-      </select>
-    </label>
-    <button id="btn-burst" class="btn danger" disabled>Simulate outage burst</button>
-    <button id="btn-reset" class="btn text">Reset</button>
+    <span class="pill blue">release {{ comps.release_id }}</span>
+    <span class="pill">retrieval: {{ comps.retrieval_mode }}</span>
+    <span class="pill" id="mode-triage">triage: loading</span>
+    <span class="pill" id="feed-status">feed: loading</span>
   </div>
 </header>
 
-<section id="incident-banner" class="incident-banner" hidden>
-  <div class="incident-pulse"></div>
-  <div class="incident-body">
-    <strong>Major incident detected</strong>
-    <span id="incident-text"></span>
-  </div>
-</section>
+<div class="board-wrap">
+  <section class="toolbar">
+    <div class="viewtabs" role="tablist">
+      <button class="vt active" data-view="board" role="tab">Board</button>
+      <button class="vt" data-view="inbox" role="tab">Inbox</button>
+    </div>
+    <div class="controls">
+      <button id="btn-play" class="btn filled" disabled>Start stream</button>
+      <label class="speed">Every
+        <select id="speed">
+          <option value="15000">15 s</option>
+          <option value="10000">10 s</option>
+          <option value="5000">5 s</option>
+          <option value="3000">3 s</option>
+          <option value="1500" selected>1.5 s</option>
+          <option value="700">0.7 s</option>
+        </select>
+      </label>
+      <button id="btn-burst" class="btn danger" disabled>Simulate outage burst</button>
+      <button id="btn-reset" class="btn text">Reset</button>
+    </div>
+  </section>
 
-<section class="kpis">
-  <div class="kpi"><span class="kpi-val" id="k-total">0</span><span class="kpi-label">tickets triaged</span></div>
-  <div class="kpi red"><span class="kpi-val" id="k-escalate">0</span><span class="kpi-label">on-call escalations</span></div>
-  <div class="kpi yellow"><span class="kpi-val" id="k-review">0</span><span class="kpi-label">human review</span></div>
-  <div class="kpi green"><span class="kpi-val" id="k-draft">0</span><span class="kpi-label">drafts ready</span></div>
-  <div class="kpi"><span class="kpi-val" id="k-acc">n/a</span><span class="kpi-label">queue label match</span></div>
-  <div class="kpi"><span class="kpi-val" id="k-ms">n/a</span><span class="kpi-label">median ms per ticket (full path)</span></div>
-</section>
+  <section id="incident-banner" class="incident-banner" hidden>
+    <div class="incident-pulse"></div>
+    <div class="incident-body">
+      <strong>Major incident detected</strong>
+      <span id="incident-text"></span>
+      <span class="small">Click to open the incident in the inbox.</span>
+    </div>
+  </section>
 
-<main class="inbox" id="inbox" hidden>
-  <nav class="folders" id="folders"></nav>
-  <section class="mail-list" id="mail-list"></section>
-  <article class="reader" id="reader"><p class="muted">Select a ticket.</p></article>
-</main>
+  <section class="kpis">
+    <div class="kpi"><span class="kpi-val" id="k-total">0</span><span class="kpi-label">tickets triaged</span></div>
+    <div class="kpi red"><span class="kpi-val" id="k-escalate">0</span><span class="kpi-label">on-call escalations</span></div>
+    <div class="kpi yellow"><span class="kpi-val" id="k-review">0</span><span class="kpi-label">human review</span></div>
+    <div class="kpi green"><span class="kpi-val" id="k-draft">0</span><span class="kpi-label">drafts ready</span></div>
+    <div class="kpi"><span class="kpi-val" id="k-acc">n/a</span><span class="kpi-label">queue label match</span></div>
+    <div class="kpi"><span class="kpi-val" id="k-ms">n/a</span><span class="kpi-label">median ms per ticket (full path)</span></div>
+  </section>
 
-<main class="board-main" id="board-view">
-  <div class="lanes">
-    <section class="lane" data-lane="escalate"><h2><span class="dot red"></span>On-call <span class="count">0</span></h2><div class="cards"></div></section>
-    <section class="lane" data-lane="review"><h2><span class="dot yellow"></span>Human review <span class="count">0</span></h2><div class="cards"></div></section>
-    <section class="lane" data-lane="draft_ready"><h2><span class="dot green"></span>Draft ready <span class="count">0</span></h2><div class="cards"></div></section>
-    <section class="lane" data-lane="language_review"><h2><span class="dot blue"></span>Language / unreadable <span class="count">0</span></h2><div class="cards"></div></section>
-    <section class="lane" data-lane="needs_clarification"><h2><span class="dot grey"></span>Needs detail <span class="count">0</span></h2><div class="cards"></div></section>
-  </div>
-  <aside class="side">
-    <div class="panel-card">
-      <h3>Submit a ticket</h3>
-      <form id="compose" class="compose">
-        <input id="c-subject" placeholder="Subject (optional)" maxlength="200">
-        <textarea id="c-body" placeholder="Body" maxlength="4000"></textarea>
-        <div class="compose-row">
-          <button class="btn primary" type="submit">Send to board</button>
-          <button class="btn" type="button" id="btn-edge" disabled>Edge cases</button>
-        </div>
-      </form>
+  <main class="inbox" id="inbox" hidden>
+    <nav class="folders" id="folders"></nav>
+    <section class="mail-list" id="mail-list"></section>
+    <article class="reader" id="reader"><p class="muted">Select a ticket.</p></article>
+  </main>
+
+  <main class="board-main" id="board-view">
+    <div class="lanes">
+      <section class="lane" data-lane="escalate" style="--chip: var(--g-red)"><h2>On-call <span class="count">0</span></h2><div class="cards"></div></section>
+      <section class="lane" data-lane="review" style="--chip: var(--g-yellow)"><h2>Human review <span class="count">0</span></h2><div class="cards"></div></section>
+      <section class="lane" data-lane="draft_ready" style="--chip: var(--g-green)"><h2>Draft ready <span class="count">0</span></h2><div class="cards"></div></section>
+      <section class="lane" data-lane="language_review" style="--chip: var(--g-blue)"><h2>Language / unreadable <span class="count">0</span></h2><div class="cards"></div></section>
+      <section class="lane" data-lane="needs_clarification" style="--chip: var(--outline)"><h2>Needs detail <span class="count">0</span></h2><div class="cards"></div></section>
     </div>
-    <div class="panel-card">
-      <h3>Queue load</h3>
-      <div id="queue-bars" class="bars"><p class="muted small">Waiting for tickets.</p></div>
-    </div>
-    <div class="panel-card">
-      <h3>Priority mix</h3>
-      <div id="prio-bars" class="bars"><p class="muted small">Waiting for tickets.</p></div>
-    </div>
-    <div class="panel-card">
-      <h3>Inbox</h3>
-      <div id="detail" class="detail"><p class="muted small">Click any card, lane title or count to open it in the inbox.</p></div>
-    </div>
-    <p class="muted small note">Feed replays KB validation tickets (labels known, never used to fit the board model).
-      The outage burst replays real tickets picked for similar wording and is marked SIMULATED.
-      Burst state lives in this one process for 10 minutes.</p>
-  </aside>
-</main>
+    <aside class="board-side">
+      <div class="panel" style="--chip: var(--g-blue)">
+        <h2>Submit a ticket</h2>
+        <form id="compose" class="compose">
+          <label for="c-subject">Subject <span class="muted">(optional)</span></label>
+          <input id="c-subject" maxlength="200" autocomplete="off">
+          <label for="c-body">Body</label>
+          <textarea id="c-body" maxlength="4000" placeholder="Any language, or noise, to see how the gate routes it"></textarea>
+          <div class="form-row">
+            <button type="submit">Send to board</button>
+            <button type="button" id="btn-edge" class="tonal" disabled>Edge cases</button>
+          </div>
+        </form>
+      </div>
+      <div class="panel" style="--chip: var(--g-yellow)">
+        <h2>Queue load</h2>
+        <div id="queue-bars" class="bars"><p class="muted small">Waiting for tickets.</p></div>
+      </div>
+      <div class="panel" style="--chip: var(--g-red)">
+        <h2>Priority mix</h2>
+        <div id="prio-bars" class="bars"><p class="muted small">Waiting for tickets.</p></div>
+      </div>
+      <p class="muted small note">Click any card, lane title or count to open it in the inbox.
+        The feed replays KB validation tickets (labels known, never used to fit the board model).
+        Outage bursts and edge cases are authored tickets, marked SIMULATED or EDGE CASE.
+        Burst state lives in this one process for 10 minutes.</p>
+    </aside>
+  </main>
+</div>
 <script src="/static/board.js" defer></script>
 </body>
 </html>
