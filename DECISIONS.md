@@ -129,6 +129,7 @@ D1 keeps its own numbered log in [docs/D1_decisions.md](docs/D1_decisions.md). T
 9. The draft abstains, times out or fails validation → *Human review*, with precedents still shown.
 
 **Why:** Implements the brief's gate (high + Incident, low confidence, unsupported requests) and makes every escalation explainable.
+*Statuses, destinations and reason codes: D4-11. Rules 1 and 9 also run in the pipeline (D5-06 on D5's branch).*
 
 ### D4-02 How thresholds are chosen
 **Decision:** Start at 0.45 per head and 0.35 for each outage probability. Search the outage pair over 0.30–0.70 in 0.05 steps and pick the highest-precision pair with at least 90% validation recall. Choose confidence and evidence thresholds on 60 hand-labelled KB-validation queries: the most draft coverage with zero unsafe drafts.
@@ -145,6 +146,7 @@ D1 keeps its own numbered log in [docs/D1_decisions.md](docs/D1_decisions.md). T
 ### D4-05 PII and placeholders
 **Decision:** Regex-mask emails, phone numbers, IP addresses and labelled account IDs in incoming tickets and answer excerpts before logging, display or any external model call. Keep ticket IDs and error codes. Mask tokens in historical answers (`<tel_num>`, `<name>`, `<acc_num>`, `[Name]` and similar) are never copied into a draft as-is.
 **Why:** Bonus PII guardrail, and the answers are full of placeholders that would look broken in a reply.
+*Details: D4-13.*
 
 ### D4-06 Drafts are for the operator only
 **Decision:** The system never sends a customer message. An eligible ticket gets a draft for a human to review.
@@ -153,6 +155,45 @@ D1 keeps its own numbered log in [docs/D1_decisions.md](docs/D1_decisions.md). T
 ### D4-07 D4 work lives on branch `D4`
 **Decision:** All D4 work (PII masking, the gate, templates, drafting and validation) is committed on branch `D4` only.
 **Why:** Keeps D4's changes in one place for review, the same way D1 works on its own branch (D1-13).
+
+### D4-08 Files D4 owns
+**Decision:** D4 adds only `sentineldesk/safety/`, `tests/test_safety_*.py` with `tests/safety_fixtures.py`, `scripts/d4/`, `reports/d4/` and `docs/D4_demo_tickets.md`, plus entries in this file. It does not add `sentineldesk/__init__.py` (D2 and D5 each create one) or `tests/conftest.py` (D1 has one), and it doesn't edit `requirements.txt`, `README.md` or `.gitignore`. Tests run with `python -m pytest` from the repo root.
+**Why:** No path overlaps another branch, so D4's PR merges cleanly in any order.
+
+### D4-09 D4 follows the shared contract
+**Decision:** `sentineldesk/safety/contracts.py` mirrors `sentineldesk/schemas.py` and `MaskedTicket` from D5's branch: the same field names and the same status, destination and reason-code values, as plain dataclasses. D4 reads its inputs by attribute, so D2's and D3's objects work unchanged. Once D5's contract is merged, `contracts.py` re-exports it instead. D4's stages match `Components`: `mask=mask_ticket`, `gate=gate`, `draft=draft`, `validate=validate`.
+**Why:** The contract exists but isn't merged. Mirroring it keeps D4 independent and makes the switch a one-file change. Dataclasses add no dependency.
+
+### D4-10 Local environment and data
+**Decision:** `.venv` (Python 3.14) installs D1's exact pins. The data is built in a separate worktree of `d1/data-eval` with D1's scripts, and only `kb_train`, `kb_partitions` and `test_inputs` are copied into `data/processed/`. Counts and hashes match D1-12 and D1-20.
+**Why:** D4 stays independent of D1's unmerged branch, and holdout labels are never on disk in the D4 checkout.
+
+### D4-11 Statuses, destinations and reason codes confirmed
+**Decision:** D4 confirms the contract's values (D5-04 on D5's branch):
+
+| rule | status | destination | reason code |
+|---|---|---|---|
+| 1 | needs_clarification | requester | INSUFFICIENT_INPUT |
+| 2 | escalate | on_call | HIGH_IMPACT_OUTAGE (wording) or PREDICTED_INCIDENT_HIGH (classifier) |
+| 3 | review | human_review | INSTRUCTION_OVERRIDE |
+| 4 | review | language_review | UNSUPPORTED_LANGUAGE |
+| 5 | review | specialist_review | AUTHORIZATION_REQUIRED |
+| 6 | escalate | on_call | OUTAGE_RISK |
+| 7 | review | human_review | LOW_CONFIDENCE, one reason per uncertain head |
+| 8 | review | human_review | WEAK_EVIDENCE: no close precedent, no usable answer, or an integration request |
+| 9 | review | human_review | DRAFT_FAILED |
+| none | draft_ready | operator | none |
+
+On-call wins over review, and the reason of every rule that fired is kept. When several review rules fire, the destination follows the first of them in rule order. For the scorer: draft_ready = auto_draft, escalate = escalate_oncall, review = human_review (`SCORER_STATUS` in `contracts.py`). Console badges: Auto-Draft Ready, Escalate to On-Call Engineer, Human Review, Needs Clarification.
+**Why:** One closed set of values for the console, the logs and the scorer, with the scorer's different names mapped in one place. The gate repeats rule 1 with the pipeline's test (any letter), so `gate()` is safe to call on its own.
+
+### D4-12 Gate patterns in English and German
+**Decision:** `patterns.py` holds the wording rules. Rule 2 fires only when an outage term, a broad-scope term and a critical-service term all appear. Rule 3 uses high-precision override phrases. Rule 5 needs a commitment term and a demand cue in the same sentence, or a strong phrase such as "full refund", "erstatten Sie mir" or "delete all". Integration and compatibility requests always go to review under rule 8. On the KB validation partition (2,286 tickets) they fire on 0.1%, 0%, 0.3% and 12.5% of tickets.
+**Why:** The wording rules are precise by design; outage recall comes from the classifier part of rule 2 and from rule 6. Drafts never confirm integrations, and the brief names invented integrations as a failure, so integration requests go to a person at the cost of about one draft in eight.
+
+### D4-13 PII masking
+**Decision:** `mask_pii` masks emails, phone numbers (8–15 digits), IPv4 and IPv6 addresses, IBANs, card numbers (Luhn-checked) and labelled account IDs, using the KB's placeholder kinds: `<email>`, `<tel_num>`, `<acc_num>`, plus `<ip_address>`. Ticket IDs, error codes, versions and dates are kept. `mask_ticket` is the pipeline's mask stage, and the same function masks answer excerpts before display and any text sent to a hosted model.
+**Why:** Masked tickets then use the same tokens as the training data (D1-32). Names are not masked; that limit is stated rather than hidden.
 
 ---
 
