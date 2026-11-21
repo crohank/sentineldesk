@@ -52,6 +52,10 @@ One entry per decision. Newest at the bottom. Each says what was decided and why
 **Decision:** Accept the split as canonical.
 **Why:** A separate re-derivation from the raw CSV (not importing `make_split.py`) matched every row and passed 22 checks: counts, boundary IDs, exact column sets, disjoint IDs, zero cross-split duplicate bodies, unchanged labels, `TKT-09746` spot check. Source CSV SHA-256 `f187c090e59581c2bbf3aa1377c8db4dd647464ecf2ae51bf8966e42e0ed6bc0`.
 
+### D1-13 D1 work on its own branch
+**Decision:** All D1 work goes on branch `d1/data-eval`. Nothing more is pushed straight to `main`; it lands through a PR.
+**Why:** Five people share the repo, and `main` should only get reviewed changes. The first two commits (repo setup, this log) were already on `main` before this rule.
+
 ## Open
 
 - Pin the HF dataset revision and make `make_split.py` fail on a hash or count mismatch.
