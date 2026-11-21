@@ -82,7 +82,7 @@ def draft_with_mode(masked_ticket, language, precedents, *, config: SafetyConfig
         eligible = [p for p in precedents or [] if float(getattr(p, "score", 0.0)) >= config.evidence_threshold()]
         if eligible:
             result, _ = gemma.generate(
-                masked_ticket, language, eligible[:5], budget_s=config.model_budget_s,
+                masked_ticket, language, eligible[:5], budget_s=config.gemma_budget_s,
                 validate_fn=lambda d: validate(d, language, precedents, ticket=masked_ticket, config=config),
             )
             if result is not None:

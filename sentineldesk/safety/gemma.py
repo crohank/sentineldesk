@@ -25,7 +25,7 @@ from .gate import normalize_language
 
 API = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 DRAFT_MODEL = os.environ.get("SENTINELDESK_GEMMA_MODEL", "gemma-4-26b-a4b-it")
-CHECK_MODEL = os.environ.get("SENTINELDESK_CHECK_MODEL", "gemini-3.8-flash")
+CHECK_MODEL = os.environ.get("SENTINELDESK_CHECK_MODEL", "gemini-2.5-flash")
 PROMPT_VERSION = "d4-gemma-v1"
 _ENV = Path(__file__).resolve().parents[2] / ".env"
 _JSON = re.compile(r"\{.*\}", re.DOTALL)
@@ -47,10 +47,22 @@ def api_key() -> str | None:
 
 
 def call(model: str, prompt: str, timeout: float, *, json_mode: bool = False) -> str:
+    """One request; a 503/429 (busy) is retried once if time allows."""
+    deadline = time.monotonic() + timeout
+    try:
+        return _call_once(model, prompt, timeout, json_mode=json_mode)
+    except GemmaError as exc:
+        if str(exc) in ("HTTP 503", "HTTP 429") and deadline - time.monotonic() > 5:
+            time.sleep(1.0)
+            return _call_once(model, prompt, deadline - time.monotonic(), json_mode=json_mode)
+        raise
+
+
+def _call_once(model: str, prompt: str, timeout: float, *, json_mode: bool = False) -> str:
     key = api_key()
     if not key:
         raise GemmaError("no API key")
-    config = {"temperature": 0.0, "maxOutputTokens": 600}
+    config = {"temperature": 0.0, "maxOutputTokens": 2048}  # Gemma 4 spends tokens on reasoning first
     if json_mode:
         config["responseMimeType"] = "application/json"
     body = json.dumps({"contents": [{"role": "user", "parts": [{"text": prompt}]}], "generationConfig": config})

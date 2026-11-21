@@ -17,7 +17,7 @@ from dev_standins import load_retrieval, load_triage
 from langdetect import DetectorFactory, LangDetectException, detect
 
 from sentineldesk.safety import contracts as c
-from sentineldesk.safety import draft, gate, mask_ticket, validate
+from sentineldesk.safety import draft_with_mode, gate, mask_ticket, validate
 from sentineldesk.safety.patterns import has_usable_text
 
 DetectorFactory.seed = 0
@@ -48,7 +48,7 @@ def detect_language(text: str) -> str:
         return "und"
 
 
-def run(subject: str, body: str, triage_model, retriever, kb_ids: set[str]) -> dict:
+def run(subject: str, body: str, triage_model, retriever, kb_ids: set[str], generator: str = c.OFFLINE_TEMPLATES) -> dict:
     t0 = time.perf_counter()
     masked = mask_ticket(c.TicketInput(body=body, subject=subject or None))
     if not has_usable_text(masked.body):
@@ -58,9 +58,9 @@ def run(subject: str, body: str, triage_model, retriever, kb_ids: set[str]) -> d
     tri = triage_model.predict([masked.subject], [masked.body])[0]
     precs = retriever.search(masked.subject, masked.body, k=5)
     decision = gate(masked, language, tri, precs)
-    d, errors = None, []
+    d, errors, mode = None, [], None
     if decision.status == c.DRAFT_READY:
-        d = draft(masked, language, precs)
+        d, mode = draft_with_mode(masked, language, precs, generator=generator)
         v = validate(d, language, precs, ticket=masked)
         if d.abstain or not v.valid:
             errors = v.errors
@@ -69,7 +69,7 @@ def run(subject: str, body: str, triage_model, retriever, kb_ids: set[str]) -> d
             d = None
     assert all(p.ticket_id in kb_ids for p in precs), "precedent outside the KB"
     return {"language": language, "triage": tri, "decision": decision, "precedents": precs, "draft": d,
-            "errors": errors, "ms": (time.perf_counter() - t0) * 1000}
+            "errors": errors, "ms": (time.perf_counter() - t0) * 1000, "generator": mode}
 
 
 def show(name: str, r: dict) -> None:
@@ -85,7 +85,7 @@ def show(name: str, r: dict) -> None:
     for p in r["precedents"]:
         print(f"  precedent {p.ticket_id} score={p.score:.3f} answer={p.answer_language}")
     if r["draft"] is not None:
-        print("  draft:\n    " + r["draft"].reply_text.replace("\n", "\n    "))
+        print(f"  draft ({r.get('generator')}):\n    " + r["draft"].reply_text.replace("\n", "\n    "))
         for cl in r["draft"].claims:
             print(f"    evidence {cl.ticket_id}: {cl.evidence_span}")
 
@@ -94,12 +94,13 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("body", nargs="?")
     ap.add_argument("--subject", default="")
+    ap.add_argument("--generator", default=c.OFFLINE_TEMPLATES, choices=[c.OFFLINE_TEMPLATES, c.GEMMA])
     args = ap.parse_args()
     triage_model, retriever = load_triage(), load_retrieval()
     kb_ids = set(load_kb()["ticket_id"])
     tickets = [("ad_hoc", args.subject, args.body)] if args.body is not None else DEMO
     for name, subject, body in tickets:
-        show(name, run(subject, body, triage_model, retriever, kb_ids))
+        show(name, run(subject, body, triage_model, retriever, kb_ids, args.generator))
 
 
 if __name__ == "__main__":

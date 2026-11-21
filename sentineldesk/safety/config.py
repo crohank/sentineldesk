@@ -26,6 +26,8 @@ class SafetyConfig:
     max_actions: int = 3
     max_reply_words: int = 120
     model_budget_s: float = 6.0
+    # Gemma via the shared Gemini API answered in 13-31 s at 12:25-12:35, so its live budget is longer.
+    gemma_budget_s: float = 40.0
 
     def evidence_threshold(self) -> float:
         return self.evidence_min.get(self.retrieval_backend, self.evidence_min["sparse"])

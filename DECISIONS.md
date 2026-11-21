@@ -250,6 +250,10 @@ With the stand-ins, 4.9% of validation tickets get a validated draft (87% of the
 **Decision:** The 5,715-ticket holdout run and the 100-ticket generation audit use the offline templates, and reports say so. If the API latency recovers after the freeze, a separately labelled Gemma audit on the same 100 IDs can be added without changing the frozen run.
 **Why:** Results must name the generator they cover (plan, cut line at 1:20), and the frozen release uses templates.
 
+### D4-21 Gemma live settings for the console
+**Decision:** With `SENTINELDESK_GENERATOR=gemma`, Gemma gets a 40-second budget (`gemma_budget_s`) instead of 6, room for its reasoning tokens, and one retry when the API reports it is busy (503/429). Claims are checked with `gemini-2.5-flash`, which answered in about 1 second. `scripts/d4/demo.py --generator gemma` runs the same path. Templates stay the default, and every fallback is reported as `offline_templates`.
+**Why:** Gemma through the shared Gemini API took 13–31 seconds when it answered, and between 12:35 and 12:45 it mostly returned "high demand" or timed out after 60 seconds. On two validation tickets the run fell back to templates both times. The console can try Gemma when the API is responsive, and never shows an unchecked draft.
+
 ---
 
 ## D5 · Integration and release
