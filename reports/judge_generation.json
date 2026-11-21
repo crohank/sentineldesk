@@ -10,80 +10,82 @@
   "backends": {
     "gemma": {
       "drafts": 40,
-      "cited_sentences": 88,
+      "cited_sentences": 87,
       "cited_sentence_verdicts": {
-        "supported": 85,
+        "supported": 86,
         "partially_supported": 1,
-        "unsupported": 2
+        "unsupported": 0
       },
-      "cited_supported_rate": 0.966,
-      "uncited_non_greeting_sentences": 5,
+      "cited_supported_rate": 0.989,
+      "uncited_non_greeting_sentences": 3,
       "uncited_sentence_verdicts": {
-        "supported": 5,
+        "supported": 3,
         "partially_supported": 0,
         "unsupported": 0
       },
       "greetings_counted_as_filler": 31,
-      "drafts_with_any_unsupported": 2,
-      "drafts_fully_supported": 37,
+      "drafts_with_any_unsupported": 0,
+      "drafts_fully_supported": 39,
       "responsiveness": {
         "responsive": 33,
         "not_responsive": 2,
         "partially_responsive": 5
       },
       "agreement_with_agent_answer": {
-        "agrees": 13,
+        "agrees": 12,
         "disagrees": 6,
-        "partially_agrees": 21
+        "partially_agrees": 22
       },
       "by_generator_mode": {
         "gemma": {
-          "responsive": 30,
-          "partially_responsive": 3,
+          "responsive": 29,
+          "partially_responsive": 2,
           "not_responsive": 1
         },
         "offline_templates": {
-          "responsive": 3,
+          "responsive": 4,
           "not_responsive": 1,
-          "partially_responsive": 2
+          "partially_responsive": 3
         }
       }
     },
     "gemini": {
-      "drafts": 40,
-      "cited_sentences": 75,
+      "drafts": 39,
+      "cited_sentences": 76,
       "cited_sentence_verdicts": {
-        "supported": 75,
+        "supported": 76,
         "partially_supported": 0,
         "unsupported": 0
       },
       "cited_supported_rate": 1.0,
-      "uncited_non_greeting_sentences": 11,
+      "uncited_non_greeting_sentences": 10,
       "uncited_sentence_verdicts": {
-        "supported": 11,
+        "supported": 10,
         "partially_supported": 0,
         "unsupported": 0
       },
       "greetings_counted_as_filler": 31,
       "drafts_with_any_unsupported": 0,
-      "drafts_fully_supported": 40,
+      "drafts_fully_supported": 39,
       "responsiveness": {
-        "responsive": 36,
-        "partially_responsive": 4
+        "responsive": 35,
+        "not_responsive": 1,
+        "partially_responsive": 3
       },
       "agreement_with_agent_answer": {
         "agrees": 13,
-        "disagrees": 3,
-        "partially_agrees": 24
+        "partially_agrees": 23,
+        "disagrees": 3
       },
       "by_generator_mode": {
         "gemini": {
-          "responsive": 35,
-          "partially_responsive": 3
+          "responsive": 34,
+          "partially_responsive": 2
         },
         "offline_templates": {
-          "partially_responsive": 1,
-          "responsive": 1
+          "not_responsive": 1,
+          "responsive": 1,
+          "partially_responsive": 1
         }
       }
     }

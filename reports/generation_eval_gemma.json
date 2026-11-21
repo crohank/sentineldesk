@@ -8,29 +8,31 @@
   "abstained_by_relevance_guard": 0,
   "abstained_by_model": 0,
   "final_mode_counts": {
-    "gemma": 34,
-    "offline_templates": 6
+    "gemma": 32,
+    "offline_templates": 8
   },
-  "first_try_pass_rate_of_model_calls": 0.825,
-  "repaired": 1,
-  "fell_back_to_extractive": 6,
+  "first_try_pass_rate_of_model_calls": 0.75,
+  "repaired": 2,
+  "fell_back_to_extractive": 8,
   "all_drafts_pass_checks": true,
   "reply_language_match_rate": 1.0,
-  "mean_claims_per_draft": 2.2,
-  "mean_words_per_draft": 46.1,
+  "mean_claims_per_draft": 2.17,
+  "mean_words_per_draft": 45.8,
   "latency_ms": {
-    "p50": 3985.4,
+    "p50": 3812.1,
     "p95": 6007.6
   },
   "check_failures_during_attempts": {
-    "TimeoutError": 5,
+    "TimeoutError": 6,
+    "sentence 1 is not a reply sentence": 5,
+    "reply contains a placeholder such as <tel_num> or [Name]": 4,
+    "sentence 2 is not a reply sentence": 4,
     "sentence 2": 2,
+    "sentence 3 is not a reply sentence": 2,
     "3 sentences have no evidence source": 2,
     "reply is in 'en', expected 'de'": 2,
     "number 12345 does not appear in the cited evidence or the ti": 1,
-    "sentence 3": 1,
-    "no sentence is backed by evidence": 1,
-    "4 sentences have no evidence source": 1
+    "sentence 3": 1
   },
   "by_language": {
     "en": {
