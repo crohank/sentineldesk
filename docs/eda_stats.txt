@@ -1,0 +1,180 @@
+
+======== Sizes ========
+kb (22857, 17) test (5715, 7)
+version column values: {400: 14791, 52: 7371, 51: 695}
+
+======== Label distributions (kb, %) ========
+-- type
+type
+Incident    40.0
+Request     28.5
+Problem     21.2
+Change      10.3
+-- queue
+queue
+Technical Support                  29.1
+Product Support                    18.5
+Customer Service                   15.0
+IT Support                         12.2
+Billing and Payments                9.7
+Returns and Exchanges               4.9
+Service Outages and Maintenance     4.0
+Sales and Pre-Sales                 3.2
+Human Resources                     2.0
+General Inquiry                     1.4
+-- priority
+priority
+medium    40.3
+high      38.8
+low       20.9
+-- language
+language
+en    57.1
+de    42.9
+
+======== Train vs test label share drift (max abs pct-point gap) ========
+type 0.74
+queue 0.78
+priority 1.3
+language 0.4
+
+======== Escalation rule base rate: priority==high & type==Incident ========
+3883 rows, 17.0% of kb
+type x priority (row %):
+priority  high   low  medium
+type                        
+Change    39.5  20.1    40.5
+Incident  42.5  19.3    38.2
+Problem   38.9  20.6    40.5
+Request   33.5  23.6    42.9
+queue x priority (row %):
+priority                         high   low  medium
+queue                                              
+Billing and Payments             29.8  22.5    47.7
+Customer Service                 18.9  35.2    45.9
+General Inquiry                  12.2  56.9    30.9
+Human Resources                   9.1  50.5    40.3
+IT Support                       49.5   8.9    41.7
+Product Support                  29.1  20.7    50.2
+Returns and Exchanges            20.7  36.5    42.8
+Sales and Pre-Sales              16.7  34.9    48.4
+Service Outages and Maintenance  70.1  11.9    18.0
+Technical Support                58.4  11.3    30.4
+queue x type (row %):
+type                             Change  Incident  Problem  Request
+queue                                                              
+Billing and Payments                5.8      23.4     21.8     48.9
+Customer Service                    7.6      25.8     21.1     45.4
+General Inquiry                    28.7      28.1     20.2     22.9
+Human Resources                     5.9      54.2      9.5     30.4
+IT Support                         17.0      36.0     25.4     21.6
+Product Support                    11.4      43.9     22.1     22.7
+Returns and Exchanges              13.4      39.0     20.0     27.6
+Sales and Pre-Sales                17.4      21.9     13.8     46.9
+Service Outages and Maintenance    23.9      54.8      6.6     14.6
+Technical Support                   5.9      51.7     22.5     19.9
+
+======== Labels by language (row %) ========
+-- type
+type      Change  Incident  Problem  Request
+language                                    
+de          10.1      39.6     21.5     28.7
+en          10.4      40.2     21.0     28.4
+-- queue
+queue     Billing and Payments  Customer Service  General Inquiry  Human Resources  IT Support  Product Support  Returns and Exchanges  Sales and Pre-Sales  Service Outages and Maintenance  Technical Support
+language                                                                                                                                                                                                       
+de                         9.7              15.2              1.3              2.0        12.2             18.0                    5.0                  3.2                              4.0               29.5
+en                         9.7              14.8              1.5              2.1        12.1             18.9                    4.9                  3.1                              4.1               28.8
+-- priority
+priority  high   low  medium
+language                    
+de        39.4  20.9    39.7
+en        38.4  20.9    40.8
+
+======== Missing subjects ========
+empty subject: 3095 (13.5%)
+by language: {'en': 2087, 'de': 1008}
+empty answers in kb: 5
+
+======== Text lengths (words) ========
+subject {'count': 22857.0, 'mean': 5.0, 'std': 3.0, 'min': 0.0, '50%': 5.0, '90%': 8.0, '99%': 12.0, 'max': 77.0}
+body {'count': 22857.0, 'mean': 54.0, 'std': 28.0, 'min': 1.0, '50%': 54.0, '90%': 88.0, '99%': 104.0, 'max': 171.0}
+answer {'count': 22857.0, 'mean': 57.0, 'std': 26.0, 'min': 0.0, '50%': 58.0, '90%': 89.0, '99%': 102.0, 'max': 135.0}
+
+======== Tags ========
+distinct tags: 1110  tags/row mean: 4.69
+Tech Support     13146
+IT               12996
+Performance      10684
+Feedback          6370
+Bug               5932
+Security          5637
+Feature           5286
+Documentation     4890
+Disruption        4641
+Outage            3492
+Network           2957
+Recovery          1987
+Product           1976
+Sales             1942
+Hardware          1282
+Billing           1217
+Support           1125
+Payment           1016
+Marketing         1005
+Maintenance        908
+Crash              823
+Software           815
+Virus              665
+Integration        655
+Account            604
+Strategy           523
+Refund             438
+Alert              393
+Compliance         324
+Lead               303
+
+======== Language column vs langdetect (500-row sample) ========
+agreement: 87.8%
+disagreements: {'de': 60, 'en': 1} detected as: {'en': 60, 'fr': 1}
+
+======== PII-like patterns in body (kb) ========
+email: 0.0%  e.g. []
+ipv4: 0.0%  e.g. []
+phone: 0.0%  e.g. ['+1234567890']
+placeholder <...>: 3.7%  e.g. ['<br>', '<tel_num>', '<tel_num>', '<br>', '<br>']
+placeholder [...]: 0.9%  e.g. ['[Your Name]', '[Your Name]', '[Your Name]', '[Your Name]', '[Ihr Name]']
+answer placeholders [...]: {'[Name]': 2068, '[name]': 572, '[tel_num]': 433, '[Telefonnummer]': 204, '[Phone Number]': 158, '[acc_num]': 152, '[Tel Num]': 108, '[Your Name]': 98, '[Tel Number]': 72, '[Tel Nummer]': 63}
+answer placeholders <...>: {'<tel_num>': 8393, '<name>': 4927, '<acc_num>': 2003, '<br>': 390, '<Name>': 218, '<email>': 20, '<website_url>': 6, '<Tel_Num>': 6, '<amount>': 6, '<Tel-Nummer>': 4}
+
+======== Answer content risks (numbers / money / guarantees) ========
+money: 0.0% of answers
+percent: 0.0% of answers
+refund: 0.3% of answers
+guarantee: 0.1% of answers
+SLA/hours: 0.3% of answers
+
+======== Sample tickets ========
+[TKT-09746] en | Problem | Billing and Payments | high
+  SUBJ: Problem with Several Subscriptions
+  BODY: Noted unexpected charges on the billing statement. This might be due to overlapping subscriptions. Already reviewed billing statements and contacted the payment processor for further clarification. Would greatly appreciate if you could look into this and provide a resolution as soon as possible.
+  ANSW: Acknowledged the issue with multiple subscriptions and unexpected charges on the billing statement. Will now investigate the matter to determine the cause of the overlap and work towards a resolution. To assist with the investigation, could you please provide your account number and a copy of the bi
+[TKT-19669] de | Incident | Customer Service | medium
+  SUBJ: 
+  BODY: The SaaS platform experienced intermittent outages caused by compatibility issues with Node.js 14.17 during Ansible deployments. Restoring recent Node.js updates and restarting services resolved the issue.
+  ANSW: Received an email regarding downtime of the SaaS platform due to Node.js compatibility problems. Could you please provide additional details or error messages to assist in further troubleshooting?
+[TKT-20104] de | Incident | Billing and Payments | low
+  SUBJ: Rechnungsunterschied zu SaaS-Zahlungsgateway-Integration-Problemen
+  BODY: Es gab einen Rechnungsunterschied, während Versuche unternommen wurden, Zahlungen an der SaaS-Plattform zu verarbeiten. Es wurde darauf hingewiesen, dass die Integration der Zahlungsgateways veraltet ist. Versuche, die Kontoeinstellungen zu aktualisieren und die Integration zu überprüfen, sind erfol
+  ANSW: Ich werde die Rechnungsunterschiede in Bezug auf die SaaS-Zahlungsgateway-Integration untersuchen. Bitte geben Sie die notwendigen Kontodaten an und kontaktieren Sie mich zu einem angemessenen Zeitpunkt, um mit der Lösung der veralteten Integration fortzufahren.
+[TKT-16782] de | Request | Customer Service | medium
+  SUBJ: Support Request for Details on SaaS Integration with Google Cloud Platform and Scikit-learn
+  BODY: Could you provide details on the integration of SaaS with Google Cloud Platform and Scikit-learn? I would appreciate if you could assist with relevant documentation and tutorials.
+  ANSW: We can assist with the integration of SaaS with Google Cloud Platform and Scikit-learn. Please visit our website for relevant documentation and tutorials. If you need further support, we are available for a phone call to discuss the integration process. Please provide a suitable time.
+
+======== Baseline: TF-IDF (word 1-2 + char 3-5) + LogisticRegression ========
+type: macro-F1=0.884  acc=0.876  majority-acc=0.406
+queue: macro-F1=0.587  acc=0.575  majority-acc=0.299
+priority: macro-F1=0.631  acc=0.642  majority-acc=0.402
+high-priority Incident recall: 0.654 (n=1047)
+priority==high recall: 0.674
