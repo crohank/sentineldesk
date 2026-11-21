@@ -152,7 +152,17 @@ One entry per decision. Newest at the bottom. Each says what was decided and why
 **Decision:** Keep the KB at the 22,857 main-file tickets. `scripts/audit_20k.py` and `reports/audit_20k.md` stay as the record; `baseline_tfidf.py --extra` reproduces the experiment.
 **Why:** Of the 20k file's 19,998 non-empty rows, 6,685 repeat a KB body and 1,717 repeat a holdout body (merging the files and re-splitting would have leaked those). 11,595 are new and 11,489 of those are not holdout twins; labels agree with the main file on 99.7% or more of the repeats, so the data is consistent. But training TF-IDF on KB + 11,489 made every head slightly worse on the unchanged holdout: macro-F1 type 0.884 to 0.879, queue 0.587 to 0.569, priority 0.631 to 0.624 (same direction in the no-twins scope; `reports/tfidf_logreg_plus20k/summary.md`). Incident+high recall on predicted high alone rose only 0.735 to 0.741. More rows from an older generator version do not pay for the added risk.
 
+### D1-38 Adopt the 20k file as an opt-in KB extension (supersedes D1-37)
+**Decision:** The 11,489 approved 20k-file rows become `data/processed/kb_extra.parquet` (IDs `EXT-00000`.., kb_train columns minus `version`, plus `source`). `audit_20k.py` refuses to write unless the file's SHA-256 and every count match. `leakage.kb_ids` / `assert_kb_only` and `score.py` accept EXT IDs as KB precedents; holdout IDs are still rejected. Label sets and the majority reference stay kb_train only. EXT rows go to training (`fit`) and the retrieval index only; `calib` and `val` stay main-file only, so thresholds are tuned on the holdout's distribution. The holdout is unchanged.
+**Why:** Team call (user). The data is clean: labels agree with the main file on 99.7% or more of shared tickets, every leaked or twin row is removed, and it adds 11,489 answered precedents for retrieval. The TF-IDF drop in D1-37 (queue 0.587 to 0.569) is one linear model; larger models may use the extra rows better. D2 should confirm on `val` with their real model before shipping, not on the holdout.
+
+### D1-39 Do not use the German file
+**Decision:** The 13k German file stays out. `scripts/audit_german.py`, `scripts/experiment_german_priority.py` and `reports/audit_german.md` record the test.
+**Why:** It is clean and genuinely German (2,000/2,000 detected `de`, no overlap or twins with the holdout; nearest holdout cosine 0.289), but retraining the priority head with it did nothing useful. German priority macro-F1 rose 0.002 to 0.004, English fell 0.003 to 0.005, German priority ECE got worse in every variant (0.082 to 0.090 to 0.096), across all three mappings tried (critical/very_low folded, dropped, folded at weight 0.5). Its topics (groceries, books, gardens) are far from IT support, and the 5-to-3 priority mapping is an untested assumption.
+
 ## Open
+
+- D2: compare their model trained with and without `kb_extra` on the `val` partition; drop the extension if it does not help (D1-38).
 
 - D3 to call `assert_kb_only` on the index IDs, then update LEAKAGE.md.
 - Measure `strip_greeting` on the dense embedding model once D3 has one.

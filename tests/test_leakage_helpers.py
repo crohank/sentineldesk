@@ -31,7 +31,7 @@ def test_holdout_id_raises(toy_dir):
 
 
 def test_unknown_id_raises(toy_dir):
-    with pytest.raises(LeakageError, match="not in kb_train"):
+    with pytest.raises(LeakageError, match="not in the KB"):
         assert_kb_only(["TKT-00000", "TKT-99999"], toy_dir)
 
 
@@ -58,9 +58,20 @@ def real_split():
 
 
 def test_real_split_sizes_and_disjoint(real_split):
-    assert len(kb_ids()) == 22857
+    has_extra = (leakage.PROCESSED / "kb_extra.parquet").exists()
+    assert len(kb_ids()) == 22857 + (11489 if has_extra else 0)
     assert len(holdout_ids()) == 5715
     assert not kb_ids() & holdout_ids()
+
+
+def test_extra_ids_accepted_and_disjoint(real_split):
+    extra = leakage.PROCESSED / "kb_extra.parquet"
+    if not extra.exists():
+        pytest.skip("kb_extra.parquet not built")
+    ext = set(pd.read_parquet(extra, columns=["ticket_id"]).ticket_id)
+    assert all(i.startswith("EXT-") for i in ext)
+    assert not ext & holdout_ids()
+    assert_kb_only(sorted(ext)[:50] + ["TKT-00000"])
 
 
 def test_real_kb_passes_and_holdout_fails(real_split):

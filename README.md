@@ -11,6 +11,7 @@ pip install -r requirements.txt
 python scripts/download_data.py   # data/raw/, pinned HF revision, SHA-256 checked
 python scripts/make_split.py      # data/processed/ (locked 80/20, seed 42); fails on any mismatch
 python scripts/make_partitions.py # data/processed/kb_partitions.parquet (fit/calib/val inside the KB)
+python scripts/audit_20k.py       # data/processed/kb_extra.parquet (11,489 extra KB tickets, EXT- IDs)
 python -m pytest -q               # split contract, leakage helpers, dup audit
 python scripts/eda.py             # docs/eda_stats.txt, docs/figures/ (KB only)
 ```

@@ -17,6 +17,10 @@ python -m pytest -q
 - Do not trust the `language` column (about 12% wrong). Detect language from the text.
 - Build every model input with `scripts.text_normalize.ticket_text(subject, body, ...)` so training, retrieval and the live API see the same text.
 
+## KB extension (20k file)
+
+`python scripts/audit_20k.py` builds `data/processed/kb_extra.parquet`: 11,489 extra answered tickets (IDs `EXT-00000`..) from the older 20k CSV, with every row that matches or rewords a holdout ticket removed. Same columns as `kb_train` (no `version`) plus `source`. Use it for training (`fit` only, never `calib`/`val`) and in the retrieval index. `assert_kb_only` and the scorer accept EXT IDs. On TF-IDF it slightly lowered scores (queue 0.587 to 0.569), so D2 checks it on `val` with the real model before relying on it. The 13k German file is not used (no gain, see D1-39).
+
 ## D2 (triage)
 
 - Fit on `partition == "fit"`, calibrate on `"calib"`, pick thresholds on `"val"`: `data/processed/kb_partitions.parquet` (fit 18,285 / calib 2,286 / val 2,286, stratified on type|priority).

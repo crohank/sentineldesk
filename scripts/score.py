@@ -108,7 +108,7 @@ def validate(pred: pd.DataFrame, holdout_ids: set[str], kb: pd.DataFrame) -> lis
                 errors.append(f"{c}: holdout IDs used as KB precedents: {len(leaked)}, e.g. {examples(leaked)}")
             stray = seen - kb_ids - holdout_ids
             if stray:
-                errors.append(f"{c}: IDs not in kb_train: {len(stray)}, e.g. {examples(stray)}")
+                errors.append(f"{c}: IDs not in the KB (kb_train + kb_extra): {len(stray)}, e.g. {examples(stray)}")
     return errors
 
 
@@ -508,13 +508,18 @@ def score_run(predictions: Path, run_name: str, exclude_ids: Path | None = None)
     path = Path(predictions).resolve()
     digest = sha256(path)
     kb = pd.read_parquet(PROC / "kb_train.parquet", columns=["ticket_id"] + TARGETS)
+    # Retrieval may cite the approved 20k-file extension (EXT- IDs, D1-38). Label sets and the
+    # majority reference still come from kb_train alone.
+    extra_path = PROC / "kb_extra.parquet"
+    precedents = pd.concat([kb, pd.read_parquet(extra_path, columns=["ticket_id"] + TARGETS)],
+                           ignore_index=True) if extra_path.exists() else kb
     gold = pd.read_parquet(PROC / "test_labels.parquet", columns=["ticket_id", "language"] + TARGETS)
     gold = gold.rename(columns={"language": "label_language"})
     holdout_ids = set(gold["ticket_id"])
 
     try:
         pred = load_predictions(path)
-        errors = validate(pred, holdout_ids, kb)
+        errors = validate(pred, holdout_ids, precedents)
         exclude = None
         if exclude_ids:
             lines = Path(exclude_ids).read_text(encoding="utf-8").splitlines()
@@ -533,8 +538,8 @@ def score_run(predictions: Path, run_name: str, exclude_ids: Path | None = None)
     labels = {t: sorted(kb[t].unique()) for t in TARGETS}
     majority = {t: kb[t].value_counts().index[0] for t in TARGETS}
 
-    full = scope_metrics(df, kb, labels, majority)
-    excluded = scope_metrics(df[~df["ticket_id"].isin(exclude)], kb, labels, majority) if exclude else None
+    full = scope_metrics(df, precedents, labels, majority)
+    excluded = scope_metrics(df[~df["ticket_id"].isin(exclude)], precedents, labels, majority) if exclude else None
 
     meta = {
         "run_name": run_name,

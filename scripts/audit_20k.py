@@ -4,8 +4,12 @@ Reads data/raw/dataset-tickets-multi-lang-4-20k.csv, kb_train and test_inputs (n
 Cleans the 20k file with the make_split.py rules, then sorts each row into:
   matches a KB body, matches a holdout body, repeated inside the 20k file, or new.
 New rows get IDs EXT-00000.. and a holdout_twin flag (word 1-2 gram TF-IDF cosine >= 0.8 to
-any holdout ticket, the twin_audit.py rule). Writes data/processed/extra_20k.parquet and
-reports/audit_20k.md.
+any holdout ticket, the twin_audit.py rule). Writes data/processed/extra_20k.parquet (all new
+rows, with flags), data/processed/kb_extra.parquet (the approved KB extension: new rows that
+are not holdout twins, kb_train columns plus `source`) and reports/audit_20k.md.
+
+Like make_split.py, it refuses to write if the source hash or the counts differ, because the
+EXT- IDs depend on the exact file.
 """
 import hashlib
 from pathlib import Path
@@ -20,6 +24,8 @@ PROC = ROOT / "data" / "processed"
 REPORT = ROOT / "reports" / "audit_20k.md"
 LABELS = ["type", "queue", "priority", "language"]
 TWIN = 0.8
+EXPECTED_SHA256 = "9be3bf810584fe01e8e83383e83dfd33f4c3910938ecad03ef151da79d8f0635"
+EXPECTED = {"raw": 20000, "in_kb": 6685, "in_holdout": 1717, "new": 11595, "approved": 11489}
 
 
 def key(s: pd.Series) -> pd.Series:
@@ -42,6 +48,8 @@ def max_cosine(fit_text: pd.Series, a: pd.Series, b: pd.Series) -> np.ndarray:
 
 def main() -> None:
     sha = hashlib.sha256(RAW.read_bytes()).hexdigest()
+    if sha != EXPECTED_SHA256:
+        raise RuntimeError(f"{RAW.name} SHA-256 {sha}, expected {EXPECTED_SHA256}; nothing written")
     raw = pd.read_csv(RAW)
     x = clean(raw)
     x = x[x["body"].str.strip() != ""]
@@ -68,9 +76,17 @@ def main() -> None:
     new["kb_sim"] = max_cosine(fit_text, ticket(new), ticket(kb))
 
     unknown = {c: sorted(set(new[c]) - set(kb[c])) for c in ["type", "queue", "priority"]}
+    observed = {"raw": len(raw), "in_kb": int(in_kb.sum()), "in_holdout": int(in_te.sum()),
+                "new": len(new), "approved": int((~new.holdout_twin).sum())}
+    bad = {k: (EXPECTED[k], observed[k]) for k in EXPECTED if observed[k] != EXPECTED[k]}
+    if bad or any(unknown.values()):
+        raise RuntimeError(f"20k audit mismatch (expected, observed): {bad}; unknown labels {unknown}; nothing written")
+
     cols = ["ticket_id", "subject", "body", "answer", *LABELS,
             *[c for c in new.columns if c.startswith("tag_")], "holdout_sim", "holdout_twin", "kb_sim"]
     new[cols].to_parquet(PROC / "extra_20k.parquet", index=False)
+    approved = new.loc[~new.holdout_twin, [c for c in kb.columns if c in new.columns]].assign(source="20k")
+    approved.to_parquet(PROC / "kb_extra.parquet", index=False)
 
     share = lambda d, c: (d[c].value_counts(normalize=True) * 100).round(1)
     dist = pd.concat({"kb %": share(kb, "queue"), "new 20k %": share(new, "queue")}, axis=1).fillna(0)
