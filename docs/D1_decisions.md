@@ -120,8 +120,38 @@ One entry per decision. Newest at the bottom. Each says what was decided and why
 **Decision:** `scripts/judge_drafts.py` grades the 100 fixed sample drafts. Deterministic checks per draft: citations are KB IDs that were retrieved, claim IDs are among the cited, evidence spans occur in the cited answer, numbers not in the cited answers, mask placeholders, reply language vs ticket language. A judge grades every claim supported / partially_supported / unsupported against the full cited answers. Draft sentences not listed as claims are graded too. Backends: `gemini` (API key), `vertex` (project + token), `manual` (CSV sheet), `mock` (offline rules, for tests only). Prompt version `judge-v1`; judge ID, prompt hash and predictions hash go in every report. Responses are cached in `data/judge_cache/`. A holdout ID cited as evidence fails the run.
 **Why:** Plan requires a model judge with recorded ID and prompt version, or the same rubric by hand. Plain HTTP (urllib) instead of the Google SDK keeps it free of new compiled dependencies under Smart App Control. `--model` has no default: pass a different model from the one that wrote the drafts, so the judge does not grade its own output. Denominators are emitted drafts, per the plan.
 
+### D1-30 One shared text normalizer, applied in code, not in the split
+**Decision:** `scripts/text_normalize.py` provides `normalize_text`, `ticket_text` and `find_placeholders`. Always on: HTML tags (known tag names only, so `<tel_num>` survives), whitespace, NFC. Optional: `strip_greeting` (EN/DE salutations, pleasantries, sign-offs) and `placeholders` = keep / canonical / remove. The parquet files stay unnormalized.
+**Why:** Live tickets arrive raw, so training, retrieval and serving must run the same function, or the model trains on clean text and serves messy text. Pattern lists were built from the most common first and last sentences in the data. "I am writing to inquire" is kept because it signals request vs incident.
+
+### D1-31 Greeting stripping is optional, not default
+**Decision:** `strip_greeting` defaults to False. It never returns an empty body (falls back to unstripped text; 2 KB bodies hit this).
+**Why:** Measured on sparse TF-IDF it changes nothing: macro-F1 moves under 0.004 per head, top-1 neighbour queue agreement 0.707 both ways, because IDF already discounts boilerplate. It touches 37% of KB bodies (6.8 words each), so it may still help dense embeddings, LLM prompts and UI snippets; that is unmeasured.
+
+### D1-32 Placeholders mapped to six kinds
+**Decision:** 79 spellings (20,681 occurrences) map to `<name>`, `<tel_num>`, `<acc_num>`, `<email>`, `<url>`, `<amount>`. Unknown tokens like `[Company]` are left alone. `find_placeholders` returns sorted kinds for D4's draft validator.
+**Why:** Mixed EN/DE spellings (`[Telefonnummer]`, `<Tel-Nummer>`) would otherwise each need their own check.
+
+### D1-33 Calibration measured by the scorer
+**Decision:** When `conf_<head>` columns exist, `score.py` reports 10-bin top-label ECE (right-closed bins), a per-bin table and a reliability plot per head, overall and per detected language. Baseline ECE: type 0.026, queue 0.081, priority 0.018.
+**Why:** Plan requirement, and it lets D2 just emit calibrated confidences. Queue is underconfident (mean confidence 0.50 vs accuracy 0.58), and priority's low overall ECE hides en 0.040 vs de 0.082.
+
+### D1-34 One command scores all three scopes
+**Decision:** `run_eval.py` scores full, without the 12 near-copies, and without the 520 twins, and writes `reports/<run>/summary.md` with the predictions hash and commit. It stops if the predictions file changes between scopes.
+**Why:** D1-14 and D1-26 require every number both ways; one command keeps the three from drifting apart.
+
+### D1-35 Report commit stamp ignores reports/
+**Decision:** `-dirty` is added to the stamped commit only when tracked files outside `reports/` have uncommitted changes.
+**Why:** Regenerating tracked reports marked every run dirty, so the stamp could never be clean.
+
+### D1-36 Leakage statement and team handoff
+**Decision:** `reports/LEAKAGE.md` is the judge-facing leakage statement; `docs/D1_handoff.md` tells each role what to use. LEAKAGE.md says plainly that the index check is not wired in yet.
+**Why:** Judge question 1 in the plan. Claims about other people's code stay as requirements until that code exists.
+
 ## Open
 
+- D3 to call `assert_kb_only` on the index IDs, then update LEAKAGE.md.
+- Measure `strip_greeting` on the dense embedding model once D3 has one.
 - Judge model ID for the real run: pick one available on the team's GCP project, different from D4's drafting model.
 - D5 to confirm the predictions format (D1-23), including the draft columns.
 - Tell D4/D5: no KB password ticket is a Request (all 483 are Incident or Problem), so the planned password-reset demo has no routine precedent. Pick another routine demo ticket.
