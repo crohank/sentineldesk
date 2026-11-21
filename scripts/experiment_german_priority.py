@@ -7,8 +7,10 @@ scripts/baseline_tfidf.py, with the vectorizers fit on the variant's training te
   A: critical -> high, very_low -> low, all German rows
   B: German rows labelled critical or very_low dropped
   C: mapping of A, German rows at sample_weight 0.5
+  D: mapping of A, only rows whose queue_raw starts with "IT & Technology/"
+  E: as D, critical and very_low dropped
   kb: KB only, nothing written; prints agreement with the baseline priority column as a reproduction check
-Writes data/predictions/tfidf_prio_german_{A,B,C}.parquet. Score with scripts/run_eval.py.
+Writes data/predictions/tfidf_prio_german_{A,B,C,D,E}.parquet. Score with scripts/run_eval.py.
 """
 import argparse
 import time
@@ -25,7 +27,9 @@ PROC = ROOT / "data" / "processed"
 PRED = ROOT / "data" / "predictions"
 BASE = PRED / "tfidf_logreg.parquet"
 FIVE_TO_THREE = {"critical": "high", "high": "high", "medium": "medium", "low": "low", "very_low": "low"}
-VARIANTS = {"A": ("map", 1.0), "B": ("drop", 1.0), "C": ("map", 0.5), "kb": (None, 0.0)}
+IT_PREFIX = "IT & Technology/"
+VARIANTS = {"A": ("map", 1.0, False), "B": ("drop", 1.0, False), "C": ("map", 0.5, False),
+            "D": ("map", 1.0, True), "E": ("drop", 1.0, True), "kb": (None, 0.0, False)}
 
 
 def text(df: pd.DataFrame) -> pd.Series:
@@ -33,9 +37,11 @@ def text(df: pd.DataFrame) -> pd.Series:
 
 
 def training_set(variant: str, kb: pd.DataFrame, ger: pd.DataFrame) -> tuple[pd.DataFrame, np.ndarray]:
-    how, weight = VARIANTS[variant]
+    how, weight, it_only = VARIANTS[variant]
     if how is None:
         return kb, np.ones(len(kb))
+    if it_only:
+        ger = ger[ger["queue_raw"].str.startswith(IT_PREFIX)]
     if how == "drop":
         ger = ger[ger["priority_raw"].isin(["high", "medium", "low"])]
     ger = ger.assign(priority=ger["priority_raw"].map(FIVE_TO_THREE))

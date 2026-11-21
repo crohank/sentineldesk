@@ -2,6 +2,21 @@
 
 Branch `d1/data-eval`. Decisions with reasons: [D1_decisions.md](D1_decisions.md). Leakage statement: [../reports/LEAKAGE.md](../reports/LEAKAGE.md).
 
+## Data you can use right now
+
+Pull branch `d1/data-eval`. These are committed, so no download or rebuild is needed:
+
+| file | rows | use |
+|---|---|---|
+| `data/processed/kb_train.parquet` | 22,857 | cleaned KB: training and retrieval (main file) |
+| `data/processed/kb_partitions.parquet` | 22,857 | `ticket_id` to `fit` / `calib` / `val` |
+| `data/processed/kb_extra.parquet` | 11,489 | optional extra KB from the 20k file (`EXT-` IDs), `fit` and retrieval only |
+| `data/processed/test_inputs.parquet` | 5,715 | holdout text only, for producing predictions |
+
+`test_labels.parquet` is deliberately not in git. D1 scores predictions with it. If you rebuild locally with the commands below, the files come out byte-identical (SHA-256 prefixes: kb_train `e7f5a011`, kb_partitions `7e70ffd4`, kb_extra `b79c1ac6`, test_inputs `535ba1e0`).
+
+Text is cleaned for the split (nulls, `\n` escapes, 15 duplicates) but not normalized. Build model input with `ticket_text()` (below).
+
 ## Everyone
 
 ```bash

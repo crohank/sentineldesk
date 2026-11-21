@@ -56,3 +56,23 @@ Full holdout unless the column says otherwise. "de" and "en" are the language de
 German priority macro-F1 moves by +0.002 to +0.004, English drops by 0.003 to 0.005, overall by 0.001 to 0.002, and German calibration gets worse in every variant (ECE 0.082 to 0.090-0.096). Incident+high recall moves by at most 8 tickets out of 1047. No significance test was run (that needs the labels outside `run_eval.py`), but none of these moves is larger than the run-to-run differences between the three variants themselves.
 
 **Recommendation: do not adopt.** No variant helps German priority by a measurable amount, and all three worsen German calibration and slightly lower English; the 5-to-3 priority mapping is also an untested assumption.
+
+## IT-only subset
+
+Most of the file is off-topic for this data, so D and E keep only the 1,222 rows whose raw `queue` starts with `IT & Technology/` (`queue_raw` in `extra_german.parquet`). Raw priorities in that subset: medium 385, low 267, high 231, very_low 171, critical 168.
+
+- D: the 1,222 IT rows, mapped as in A (high 399, medium 385, low 438). Training set 24,079 rows.
+- E: the 883 IT rows left after dropping critical and very_low, as in B. Training set 23,740 rows.
+
+Same model, features and scoring as above. Baseline, A, B and C are repeated from the table above.
+
+| run | priority macro-F1 | priority macro-F1, no twins | priority macro-F1, de | priority macro-F1, en | priority ECE | priority ECE, de | Incident+high recall, type+prio | Incident+high recall, prio only |
+|---|---|---|---|---|---|---|---|---|
+| baseline (`tfidf_logreg`) | 0.631 | 0.602 | 0.518 | 0.682 | 0.018 | 0.082 | 0.654 (685/1047) | 0.735 (770/1047) |
+| A, mapped | 0.629 | 0.600 | 0.522 | 0.677 | 0.021 | 0.096 | 0.648 (678/1047) | 0.728 (762/1047) |
+| B, extremes dropped | 0.630 | 0.601 | 0.522 | 0.678 | 0.020 | 0.092 | 0.657 (688/1047) | 0.742 (777/1047) |
+| C, mapped, weight 0.5 | 0.630 | 0.601 | 0.520 | 0.679 | 0.019 | 0.090 | 0.651 (682/1047) | 0.733 (767/1047) |
+| D, IT only, mapped | 0.631 | 0.602 | 0.517 | 0.682 | 0.020 | 0.090 | 0.652 (683/1047) | 0.736 (771/1047) |
+| E, IT only, extremes dropped | 0.633 | 0.604 | 0.519 | 0.683 | 0.021 | 0.086 | 0.652 (683/1047) | 0.736 (771/1047) |
+
+**Conclusion: the IT-only subset does not help either.** German priority macro-F1 is 0.517 (D) and 0.519 (E) against 0.518 for the baseline, German ECE is still worse (0.090 and 0.086 against 0.082), and Incident+high recall moves by 1 or 2 tickets out of 1047; E's +0.002 overall is within the spread of A to C.

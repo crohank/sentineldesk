@@ -4,7 +4,7 @@ Reads data/raw/dataset-tickets-german_normalized_50_5_2.csv, kb_train and test_i
 Cleans with the make_split.py rules, drops empty bodies, repeats inside the file and bodies that match a
 KB or holdout ticket, then drops holdout paraphrase twins (word 1-2 gram TF-IDF cosine >= 0.8, the
 twin_audit.py rule). Runs langdetect on a sample. Writes data/processed/extra_german.parquet with IDs
-GER-00000.. and prints the counts for reports/audit_german.md.
+GER-00000.. (raw queue kept as queue_raw) and prints the counts for reports/audit_german.md.
 """
 import hashlib
 import json
@@ -79,8 +79,9 @@ def main() -> None:
     counts["kept"] = len(x)
 
     x["ticket_id"] = [f"GER-{i:05d}" for i in range(len(x))]
-    x = x.rename(columns={"priority": "priority_raw"})
-    x[["ticket_id", "subject", "body", "priority_raw", "holdout_twin", "holdout_sim"]].to_parquet(OUT, index=False)
+    x = x.rename(columns={"priority": "priority_raw", "queue": "queue_raw"})
+    cols = ["ticket_id", "subject", "body", "priority_raw", "queue_raw", "holdout_twin", "holdout_sim"]
+    x[cols].to_parquet(OUT, index=False)
     counts["priority_raw"] = x["priority_raw"].value_counts().to_dict()
 
     DetectorFactory.seed = 0

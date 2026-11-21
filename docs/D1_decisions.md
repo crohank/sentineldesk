@@ -172,6 +172,14 @@ One entry per decision. Newest at the bottom. Each says what was decided and why
 **Decision:** Use Vertex AI through `gcloud` login (no API key) on new project `sentineldesk-gdc-1121`, billed to the GDP Event Credit account, location `global`. Thinking level per model: `gemini-3.5-flash-lite` minimal, `gemini-3.8-flash` low, `gemini-4-carbon` low. Confidence comes from the model's self-reported per-label probabilities. Smoke results in `reports/llm/smoke.md`.
 **Why:** The user's existing projects were not on the credit billing account. Smoke test (one KB ticket): all three models answer with the enum schema; `minimal` is rejected by 3.8-flash and carbon (HTTP 400); `low` removes thinking tokens entirely (594 to 0 on 3.8-flash) and cuts latency 6.3 s to 2.5 s; logprobs are rejected on all three ("not supported for this model"). Latency at those settings: flash-lite 1.3 s, 3.8-flash 2.5 s, carbon 6.7 s. On the smoke ticket (true labels Incident / Sales and Pre-Sales / low) all three answered Technical Support / high: one ticket proves nothing, but it matches the expectation that these labels follow dataset conventions. New-project IAM took about a minute to propagate (403 before that).
 
+### D1-43 Do not relabel the German file with Gemini
+**Decision:** The relabel plan stops at its first two checks. `scripts/llm_relabel_pilot.py` and `reports/llm_relabel_pilot.md` record gate 1; `reports/audit_german.md` records gate 0.
+**Why:** Gate 0: training priority on only the 1,222 on-topic ("IT & Technology") German rows gave German priority macro-F1 0.517 to 0.519 vs 0.518 baseline, with worse German ECE. Gate 1: `gemini-3.8-flash` (Vertex, location global, 10 few-shot examples) labelled 300 German `val` tickets with known labels and scored well below a TF-IDF classifier fit on `fit`: macro-F1 type 0.705 vs 0.831, queue 0.220 vs 0.414, priority 0.408 vs 0.557. It also called 20 real support tickets out of scope. The dataset's labels follow generator conventions an LLM does not reproduce, so LLM labels on the German file would be noise. Cost of the pilot: 366k input and 10k output tokens.
+
+### D1-44 Commit the shareable processed files
+**Decision:** `kb_train`, `kb_partitions`, `kb_extra` and `test_inputs` parquet files are committed (about 17 MB). `test_labels`, raw CSVs and the German/20k working files stay out of git. Supersedes D1-06 for these four files.
+**Why:** D2 and D3 can start immediately without the download and rebuild. Files are byte-identical to a local rebuild, so nothing drifts. Keeping labels out of git means only D1's scorer holds them, which also strengthens the leakage story.
+
 ## Open
 - D2: compare their model trained with and without `kb_extra` on the `val` partition; drop the extension if it does not help (D1-38).
 

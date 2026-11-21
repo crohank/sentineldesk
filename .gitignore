@@ -2,7 +2,11 @@
 __pycache__/
 *.pyc
 data/raw/
-data/processed/
+data/processed/*
+!data/processed/kb_train.parquet
+!data/processed/kb_partitions.parquet
+!data/processed/kb_extra.parquet
+!data/processed/test_inputs.parquet
 .env
 .DS_Store
 data/predictions/
