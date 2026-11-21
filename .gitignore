@@ -7,3 +7,4 @@ data/processed/
 .DS_Store
 data/predictions/
 data/judge_cache/
+data/llm_cache/

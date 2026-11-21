@@ -164,9 +164,13 @@ One entry per decision. Newest at the bottom. Each says what was decided and why
 **Decision:** Add an LLM baseline for type / queue / priority using the Gemini API with an AI Studio key on the credits project, plan in `docs/D1_gemini_classifier_plan.md`. Candidates `gemini-3.5-flash-lite`, `gemini-3.8-flash`, `gemini-4-carbon`; zero-shot vs kNN few-shot from the KB; chosen on 300 `val` tickets; enum-constrained JSON; synchronous parallel calls, not Batch mode. Few-shot pool excludes `kb_extra`.
 **Why:** Answers "why not just ask an LLM" with measured numbers on the same scorer. Batch is half price but targets 24 h turnaround, too slow for today. A full holdout run is estimated at $5 to $27 depending on model. Latency (1 to 2 s) keeps it out of the default serving path unless D2 and D5 decide otherwise. Excluding `kb_extra` keeps the comparison with the TF-IDF baseline like for like.
 
+### D1-41 Gemini classifier code (plan steps 1 to 3)
+**Decision:** `scripts/gemini_client.py` holds the HTTP, retry, cache, token and budget code; `judge_drafts.py` now uses it. `scripts/llm_classify.py` runs zero-shot or kNN few-shot (k=8, word 1-2 gram TF-IDF over greeting-stripped `ticket_text`) with a schema that forces one allowed label per head plus a probability per label; confidence is the renormalized probability of the chosen label. `--split val|calib` scores against KB labels in-script; `--split holdout` writes `data/predictions/<run>.parquet` for `run_eval.py`. `--budget-usd` stops new calls past an estimated spend; the cache in `data/llm_cache/` makes reruns resume for free. `scripts/llm_smoke.py` checks each candidate model, thinking levels and logprobs with one KB ticket. The mock backend (kNN vote, majority for zero-shot) exists only for tests.
+**Why:** One client avoids two copies of retry and key handling. The API key goes in a header, never the URL. Thinking-level names and logprobs are unconfirmed in the docs, so they are flags the smoke test verifies rather than defaults. Mock kNN on the holdout scored type 0.808, queue 0.424, priority 0.558 macro-F1, so the pipeline and scorer integration work; it is not an LLM result and is not reported.
+
 ## Open
 
-- D1-40: user to create the Gemini API key and check per-model RPM in AI Studio before step 1.
+- D1-40/41: user to create the Gemini API key (`setx GEMINI_API_KEY ...`) and check per-model RPM in AI Studio, then run `scripts/llm_smoke.py`.
 - D2: compare their model trained with and without `kb_extra` on the `val` partition; drop the extension if it does not help (D1-38).
 
 - D3 to call `assert_kb_only` on the index IDs, then update LEAKAGE.md.

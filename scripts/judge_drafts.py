@@ -19,19 +19,17 @@ Reads kb_train and test_inputs. Never reads test_labels.
 import argparse
 import hashlib
 import json
-import os
 import re
-import subprocess
 import sys
-import time
-import urllib.error
-import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 
 import pandas as pd
 from langdetect import DetectorFactory, LangDetectException, detect
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from scripts.gemini_client import GeminiClient, GeminiError  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 PROC = ROOT / "data" / "processed"
@@ -165,68 +163,15 @@ def mock_judge(claim: dict, evidence: str) -> dict:
     return {"verdict": "unsupported", "reason": "mock: no matching evidence span"}
 
 
-def post_json(url: str, body: dict, headers: dict, timeout: float = 60) -> dict:
-    req = urllib.request.Request(url, data=json.dumps(body).encode(), method="POST",
-                                 headers={"Content-Type": "application/json", **headers})
-    for attempt in range(6):
-        try:
-            with urllib.request.urlopen(req, timeout=timeout) as r:
-                return json.loads(r.read())
-        except urllib.error.HTTPError as e:
-            if e.code not in (429, 500, 502, 503, 504) or attempt == 5:
-                raise JudgeError(f"HTTP {e.code}: {e.read()[:300]!r}") from e
-        except (urllib.error.URLError, TimeoutError) as e:
-            if attempt == 5:
-                raise JudgeError(f"request failed: {e}") from e
-        time.sleep(min(2 ** attempt, 30))
-    raise JudgeError("unreachable")
-
-
-def vertex_token() -> str:
-    if os.environ.get("GOOGLE_ACCESS_TOKEN"):
-        return os.environ["GOOGLE_ACCESS_TOKEN"]
-    try:
-        return subprocess.run(["gcloud", "auth", "print-access-token"], capture_output=True,
-                              text=True, check=True, shell=sys.platform == "win32").stdout.strip()
-    except (OSError, subprocess.CalledProcessError) as e:
-        raise JudgeError("set GOOGLE_ACCESS_TOKEN or install and log in to gcloud") from e
-
-
 def make_remote(backend: str, model: str, location: str):
-    body_base = {"generationConfig": {"temperature": 0, "responseMimeType": "application/json",
-                                      "responseSchema": RESPONSE_SCHEMA}}
-    if backend == "gemini":
-        key = os.environ.get("GEMINI_API_KEY") or sys.exit("GEMINI_API_KEY is not set")
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
-        get_headers = lambda: {"x-goog-api-key": key}  # noqa: E731
-    else:
-        project = os.environ.get("GOOGLE_CLOUD_PROJECT") or sys.exit("GOOGLE_CLOUD_PROJECT is not set")
-        host = "aiplatform.googleapis.com" if location == "global" else f"{location}-aiplatform.googleapis.com"
-        url = (f"https://{host}/v1/projects/{project}/locations/{location}"
-               f"/publishers/google/models/{model}:generateContent")
-        token = vertex_token()
-        get_headers = lambda: {"Authorization": f"Bearer {token}"}  # noqa: E731
+    client = GeminiClient(backend, model, location=location, cache_dir=CACHE)
 
     def call(prompt: str) -> dict:
-        resp = post_json(url, {"contents": [{"role": "user", "parts": [{"text": prompt}]}], **body_base}, get_headers())
-        try:
-            out = json.loads(resp["candidates"][0]["content"]["parts"][0]["text"])
-        except (KeyError, IndexError, json.JSONDecodeError) as e:
-            raise JudgeError(f"unparseable judge response: {json.dumps(resp)[:300]}") from e
+        out = client.generate_json(prompt, RESPONSE_SCHEMA)["json"]
         if out.get("verdict") not in VERDICTS:
             raise JudgeError(f"bad verdict {out.get('verdict')!r}")
         return out
     return call
-
-
-def cached(call, prompt: str, model_key: str) -> dict:
-    path = CACHE / f"{sha256_bytes((model_key + PROMPT_VERSION + prompt).encode())}.json"
-    if path.exists():
-        return json.loads(path.read_text(encoding="utf-8"))
-    out = call(prompt)
-    CACHE.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(out), encoding="utf-8")
-    return out
 
 
 def rate(num: int, den: int) -> str:
@@ -345,7 +290,7 @@ def judge_run(predictions: Path, run_name: str, backend: str, model: str | None,
             call, model_key = make_remote(backend, model, location), f"{backend}:{model}"
         def run(job):
             _, prompt, claim, ev = job
-            return mock_judge(claim, ev) if call is None else cached(call, prompt, model_key)
+            return mock_judge(claim, ev) if call is None else call(prompt)
         with ThreadPoolExecutor(max_workers=workers) as pool:
             results = list(pool.map(run, jobs))
         claims_df["verdict"] = [r["verdict"] for r in results]
@@ -387,7 +332,7 @@ def main() -> int:
     a = ap.parse_args()
     try:
         r = judge_run(a.predictions, a.run_name, a.backend, a.model, a.location, a.workers, a.from_sheet)
-    except JudgeError as e:
+    except (JudgeError, GeminiError) as e:
         print(f"judge failed: {e}", file=sys.stderr)
         return 2
     if r:
