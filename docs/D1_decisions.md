@@ -188,7 +188,12 @@ One entry per decision. Newest at the bottom. Each says what was decided and why
 **Decision:** Carbon is left out of the selection for now.
 **Why:** Every call on project `sentineldesk-gdc-1121` returned HTTP 429 RESOURCE_EXHAUSTED across 4 attempts at 4 and then 2 workers, with zero answers, so nothing was spent. Flash-lite and flash on the same project worked at the same time, which points to a per-model quota for carbon. Options: request quota in the Cloud console, retry later, or skip.
 
+### D1-47 Hybrid classifier: blend test on val300
+**Decision:** The hybrid classifier averages TF-IDF and Gemini probabilities per head (both run in parallel) and outputs D4's `Prediction(label, confidence, probabilities)` per head. Escalation stays with D4. The blend weight and a confidence calibration are fit on `calib`, not on val. `scripts/blend_val.py` runs the pre-registered 50/50 test; report `reports/llm/blend_val300.md`.
+**Why:** Results with gemini-3.8-flash at w = 0.5, macro-F1 type / queue / priority: 0.939 / 0.759 / 0.764, vs Flash alone 0.950 / 0.754 / 0.766 and TF-IDF 0.890 / 0.570 / 0.598. So the blend does not raise F1 over Flash; Incident+high recall 46/51 vs 44/51 is 2 tickets, within noise. Two real gains: (1) when the models agree the blend is right 97% / 83% / 83% of the time, when they disagree 66% / 59% / 67%, so agreement is a strong reliability signal (they agree on 88% / 56% / 60% of tickets); (2) TF-IDF answers when Gemini cannot. Blended confidence is worse calibrated (ECE 0.110 / 0.189 / 0.134 vs TF-IDF 0.049 / 0.082 / 0.033), so calibration on `calib` is required before D4 thresholds use it. The other weights in the report are context only.
+
 ## Open
+- D1-47: run gemini-3.8-flash on the 2,286 `calib` tickets (~$5.50, ~30 min) to fit the blend weight and calibration.
 - D1-46: decide whether to retry gemini-4-carbon or skip it.
 - D2: compare their model trained with and without `kb_extra` on the `val` partition; drop the extension if it does not help (D1-38).
 
