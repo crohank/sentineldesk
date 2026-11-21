@@ -10,6 +10,7 @@ import json
 import subprocess
 import sys
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 
 import matplotlib
@@ -32,6 +33,7 @@ HUMAN_STATUSES = {"escalate_oncall", "human_review"}
 ONCALL_STATUS = "escalate_oncall"
 KNOWN_STATUSES = HUMAN_STATUSES | {"auto_draft", "needs_clarification"}
 LANG_GROUPS = ["en", "de", "other"]
+ECE_BINS = 10
 RULE_NAMES = {
     "type_and_priority": "flag on pred Incident and pred high",
     "priority_only": "flag on pred high alone",
@@ -194,6 +196,36 @@ def retrieval_block(df: pd.DataFrame, kb_labels: pd.DataFrame) -> dict:
     return out
 
 
+def calibration_block(conf, correct, n_bins: int = ECE_BINS) -> dict:
+    """Top-label ECE over equal-width bins (lo, hi]; a confidence of exactly 0 falls in the first bin."""
+    conf = np.asarray(conf, dtype=float)
+    correct = np.asarray(correct, dtype=bool)
+    edges = np.linspace(0.0, 1.0, n_bins + 1)
+    idx = np.digitize(conf, edges[1:-1], right=True)
+    bins, ece = [], 0.0
+    for i in range(n_bins):
+        m = idx == i
+        n = int(m.sum())
+        mean_conf = float(conf[m].mean()) if n else None
+        acc = rate(int(correct[m].sum()), n)
+        if n:
+            ece += n / len(conf) * abs(acc["value"] - mean_conf)
+        bins.append({"lo": float(edges[i]), "hi": float(edges[i + 1]), "n": n, "mean_conf": mean_conf,
+                     "accuracy": acc, "gap": None if not n else acc["value"] - mean_conf})
+    return {
+        "ece": float(ece) if len(conf) else None,
+        "n_bins": n_bins,
+        "n": len(conf),
+        "mean_conf": float(conf.mean()) if len(conf) else None,
+        "accuracy": rate(int(correct.sum()), len(conf)),
+        "bins": bins,
+    }
+
+
+def calibration_heads(df: pd.DataFrame) -> list[str]:
+    return [t for t in TARGETS if f"conf_{t}" in df.columns]
+
+
 def detect_language(body: str) -> str:
     try:
         code = detect(body) if body.strip() else "unknown"
@@ -216,6 +248,10 @@ def language_breakdown(df: pd.DataFrame, col: str) -> dict:
             "accuracy": {t: rate(int((sub[t] == sub[f"pred_{t}"]).sum()), len(sub)) for t in TARGETS},
             "outage": outage_rules(sub),
         }
+        heads = calibration_heads(sub)
+        if heads:
+            out[lang]["ece"] = {t: calibration_block(pd.to_numeric(sub[f"conf_{t}"]), sub[t] == sub[f"pred_{t}"])["ece"]
+                                for t in heads}
     return out
 
 
@@ -224,6 +260,10 @@ def scope_metrics(df: pd.DataFrame, kb: pd.DataFrame, labels: dict, majority: di
     for t in TARGETS:
         m["targets"][t] = classification_block(df[t], df[f"pred_{t}"], labels[t], majority[t])
     m["outage"] = outage_block(df)
+    heads = calibration_heads(df)
+    if heads:
+        m["calibration"] = {t: calibration_block(pd.to_numeric(df[f"conf_{t}"]), df[t] == df[f"pred_{t}"])
+                            for t in heads}
     m["by_detected_language"] = language_breakdown(df, "detected_language")
     m["by_language_label"] = language_breakdown(df, "label_language")
     if "retrieved_ids" in df.columns:
@@ -262,6 +302,33 @@ def plot_confusion(block: dict, title: str, path: Path) -> None:
     plt.close(fig)
 
 
+def plot_reliability(block: dict, title: str, path: Path) -> None:
+    bins = [b for b in block["bins"] if b["n"]]
+    centers = [(b["lo"] + b["hi"]) / 2 for b in block["bins"]]
+    width = 1 / block["n_bins"]
+    fig, (ax, axn) = plt.subplots(2, 1, figsize=(5, 5.6), sharex=True, gridspec_kw={"height_ratios": [3, 1]})
+    ax.plot([0, 1], [0, 1], color="#9a9a9a", lw=1, ls="--", label="perfect calibration")
+    ax.bar([(b["lo"] + b["hi"]) / 2 for b in bins], [b["accuracy"]["value"] for b in bins], width=width * 0.9,
+           color="#6baed6", edgecolor="#2171b5", lw=0.8, label="accuracy in bin")
+    ax.plot([b["mean_conf"] for b in bins], [b["accuracy"]["value"] for b in bins], "o-", color="#08306b",
+            ms=4, lw=1.2, label="(mean confidence, accuracy)")
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.set_ylabel("accuracy")
+    ax.set_title(f"{title}: ECE {block['ece']:.3f}, n {block['n']}", fontsize=9)
+    ax.legend(fontsize=7, loc="upper left", frameon=False)
+    axn.bar(centers, [b["n"] for b in block["bins"]], width=width * 0.9, color="#bdbdbd")
+    for c, b in zip(centers, block["bins"]):
+        if b["n"]:
+            axn.text(c, b["n"], b["n"], ha="center", va="bottom", fontsize=6)
+    axn.set_ylabel("tickets", fontsize=8)
+    axn.set_xlabel("confidence in predicted label (10 equal-width bins)")
+    axn.margins(y=0.25)
+    fig.tight_layout()
+    fig.savefig(path, dpi=110)
+    plt.close(fig)
+
+
 def headline_rows(m: dict) -> list[tuple[str, str]]:
     rows = []
     for t in TARGETS:
@@ -272,15 +339,45 @@ def headline_rows(m: dict) -> list[tuple[str, str]]:
         r = m["outage"]["rules"][name]
         rows.append((f"Incident+high recall, {desc}", fmt_rate(r["recall"])))
         rows.append((f"Incident+high precision, {desc}", fmt_rate(r["precision"])))
+    for t, c in m.get("calibration", {}).items():
+        rows.append((f"{t} ECE, {c['n_bins']} bins", f"{c['ece']:.3f}"))
     if "routing" in m["outage"]:
         r = m["outage"]["routing"]
         rows.append(("true Incident+high routed to human", fmt_rate(r["true_events_to_human"])))
         rows.append(("true Incident+high routed to on-call", fmt_rate(r["true_events_to_oncall"])))
         rows.append(("overall escalation rate", fmt_rate(r["overall_escalation_rate"])))
+        rows.append(("overall on-call rate", fmt_rate(r["overall_oncall_rate"])))
     if "retrieval" in m:
         for k, v in m["retrieval"].items():
             rows.append((f"retrieval {k.replace('_', ' ')}", fmt_rate(v)))
     return rows
+
+
+def calibration_md(full: dict) -> list[str]:
+    cal = full["calibration"]
+    L = ["", "## Calibration (top-label confidence)", "",
+         f"`conf_<head>` is the confidence in the predicted label. {ECE_BINS} equal-width bins, each (lo, hi]. "
+         "ECE = sum over bins of (bin n / N) * |bin accuracy - bin mean confidence|. "
+         "Gap = accuracy minus mean confidence, so negative means overconfident.", "",
+         "| head | n | mean confidence | accuracy | ECE | plot |", "|---|---|---|---|---|---|"]
+    for t, c in cal.items():
+        L.append(f"| {t} | {c['n']} | {c['mean_conf']:.3f} | {fmt_rate(c['accuracy'])} | {c['ece']:.3f} "
+                 f"| [reliability_{t}.png](reliability_{t}.png) |")
+    for t, c in cal.items():
+        L += ["", f"### Bins: {t}", "", "| bin | n | mean confidence | accuracy | gap |", "|---|---|---|---|---|"]
+        for b in c["bins"]:
+            if not b["n"]:
+                L.append(f"| ({b['lo']:.1f}, {b['hi']:.1f}] | 0 | | | |")
+                continue
+            L.append(f"| ({b['lo']:.1f}, {b['hi']:.1f}] | {b['n']} | {b['mean_conf']:.3f} | {fmt_rate(b['accuracy'])} "
+                     f"| {b['gap']:+.3f} |")
+    heads = list(cal)
+    L += ["", "### ECE by language detected from the body", "",
+          "| language | n | " + " | ".join(f"{t} ECE" for t in heads) + " |", "|---|---|" + "---|" * len(heads)]
+    for lang, g in full["by_detected_language"].items():
+        cells = [f"{g['ece'][t]:.3f}" if g["n"] else "" for t in heads]
+        L.append(f"| {lang} | {g['n']} | " + " | ".join(cells) + " |")
+    return L
 
 
 def render_md(meta: dict, full: dict, excluded: dict | None) -> str:
@@ -337,6 +434,9 @@ def render_md(meta: dict, full: dict, excluded: dict | None) -> str:
     else:
         L.append("- routing: no decision_status column")
 
+    if "calibration" in full:
+        L += calibration_md(full)
+
     for key, title, note in [
         ("by_detected_language", "By language detected from the body",
          "langdetect on the holdout body, seed 0. Codes other than en and de, and empty bodies, are grouped as other."),
@@ -369,22 +469,38 @@ def render_md(meta: dict, full: dict, excluded: dict | None) -> str:
 
 
 def git_commit() -> str:
+    """Short HEAD hash, with -dirty if tracked files have uncommitted changes (untracked files are ignored)."""
+    def git(*a: str) -> str:
+        return subprocess.run(["git", *a], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()
     try:
-        return subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True,
-                              text=True, check=True).stdout.strip()
+        head = git("rev-parse", "--short", "HEAD")
+        return head + ("-dirty" if git("status", "--porcelain", "--untracked-files=no") else "")
     except (OSError, subprocess.CalledProcessError):
         return "unknown"
 
 
-def main() -> int:
-    sys.stdout.reconfigure(encoding="utf-8")
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("predictions", type=Path)
-    ap.add_argument("--run-name", required=True)
-    ap.add_argument("--exclude-ids", type=Path, help="text file, one holdout ticket_id per line")
-    args = ap.parse_args()
+def shown(path: Path) -> str:
+    path = path.resolve()
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(path)
 
-    path = args.predictions.resolve()
+
+@lru_cache(maxsize=1)
+def detected_languages() -> pd.DataFrame:
+    DetectorFactory.seed = 0
+    bodies = pd.read_parquet(PROC / "test_inputs.parquet", columns=["ticket_id", "body"])
+    bodies["detected_language"] = bodies["body"].map(detect_language)
+    return bodies[["ticket_id", "detected_language"]]
+
+
+def score_run(predictions: Path, run_name: str, exclude_ids: Path | None = None) -> dict:
+    """Score one predictions file into reports/RUN_NAME/ and return the metrics.json payload.
+
+    Raises ValidationError (message starts with REJECTED) if the file breaks the format.
+    """
+    path = Path(predictions).resolve()
     digest = sha256(path)
     kb = pd.read_parquet(PROC / "kb_train.parquet", columns=["ticket_id"] + TARGETS)
     gold = pd.read_parquet(PROC / "test_labels.parquet", columns=["ticket_id", "language"] + TARGETS)
@@ -395,8 +511,8 @@ def main() -> int:
         pred = load_predictions(path)
         errors = validate(pred, holdout_ids, kb)
         exclude = None
-        if args.exclude_ids:
-            lines = args.exclude_ids.read_text(encoding="utf-8").splitlines()
+        if exclude_ids:
+            lines = Path(exclude_ids).read_text(encoding="utf-8").splitlines()
             exclude = {s.strip() for s in lines if s.strip() and not s.strip().startswith("#")}
             bad = exclude - holdout_ids
             if bad:
@@ -404,14 +520,10 @@ def main() -> int:
         if errors:
             raise ValidationError("\n".join(errors))
     except ValidationError as e:
-        print(f"REJECTED {path.name} (sha256 {digest}):\n{e}", file=sys.stderr)
-        return 2
+        raise ValidationError(f"REJECTED {path.name} (sha256 {digest}):\n{e}") from None
 
     pred["ticket_id"] = pred["ticket_id"].astype(str)
-    DetectorFactory.seed = 0
-    bodies = pd.read_parquet(PROC / "test_inputs.parquet", columns=["ticket_id", "body"])
-    bodies["detected_language"] = bodies["body"].map(detect_language)
-    gold = gold.merge(bodies[["ticket_id", "detected_language"]], on="ticket_id", validate="one_to_one")
+    gold = gold.merge(detected_languages(), on="ticket_id", validate="one_to_one")
     df = gold.merge(pred, on="ticket_id", how="inner", validate="one_to_one")
     labels = {t: sorted(kb[t].unique()) for t in TARGETS}
     majority = {t: kb[t].value_counts().index[0] for t in TARGETS}
@@ -419,13 +531,9 @@ def main() -> int:
     full = scope_metrics(df, kb, labels, majority)
     excluded = scope_metrics(df[~df["ticket_id"].isin(exclude)], kb, labels, majority) if exclude else None
 
-    try:
-        shown_path = path.relative_to(ROOT).as_posix()
-    except ValueError:
-        shown_path = str(path)
     meta = {
-        "run_name": args.run_name,
-        "predictions_path": shown_path,
+        "run_name": run_name,
+        "predictions_path": shown(path),
         "predictions_sha256": digest,
         "rows": len(pred),
         "scored_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -433,25 +541,41 @@ def main() -> int:
         "optional_columns": sorted(set(pred.columns) - set(REQUIRED)),
     }
     if exclude:
-        meta["exclude_ids_path"] = args.exclude_ids.as_posix()
+        meta["exclude_ids_path"] = shown(Path(exclude_ids))
         meta["excluded_ids"] = len(exclude)
 
-    out = REPORTS / args.run_name
+    out = REPORTS / run_name
     out.mkdir(parents=True, exist_ok=True)
     for t in TARGETS:
         b = full["targets"][t]
         pd.DataFrame(b["confusion"]["matrix"], index=pd.Index(b["confusion"]["labels"], name="true"),
                      columns=b["confusion"]["labels"]).to_csv(out / f"confusion_{t}.csv")
-        plot_confusion(b, f"{args.run_name}: {t}", out / f"confusion_{t}.png")
+        plot_confusion(b, f"{run_name}: {t}", out / f"confusion_{t}.png")
+    for t, c in full.get("calibration", {}).items():
+        plot_reliability(c, f"{run_name}: {t}", out / f"reliability_{t}.png")
     payload = {"meta": meta, "full": full}
     if excluded is not None:
         payload["excluded"] = excluded
     (out / "metrics.json").write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     (out / "metrics.md").write_text(render_md(meta, full, excluded), encoding="utf-8")
+    return payload
 
-    for k, v in headline_rows(full):
+
+def main() -> int:
+    sys.stdout.reconfigure(encoding="utf-8")
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("predictions", type=Path)
+    ap.add_argument("--run-name", required=True)
+    ap.add_argument("--exclude-ids", type=Path, help="text file, one holdout ticket_id per line")
+    args = ap.parse_args()
+    try:
+        payload = score_run(args.predictions, args.run_name, args.exclude_ids)
+    except ValidationError as e:
+        print(e, file=sys.stderr)
+        return 2
+    for k, v in headline_rows(payload["full"]):
         print(f"{k}: {v}")
-    print(f"wrote {out.relative_to(ROOT).as_posix()}/")
+    print(f"wrote {(REPORTS / args.run_name).relative_to(ROOT).as_posix()}/")
     return 0
 
 
