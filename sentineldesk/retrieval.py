@@ -82,6 +82,7 @@ class Retriever:
         self.evidence = evidence  # indexed by ticket_id
         self.manifest = manifest
         self.dense = None  # optional DenseIndex over the same IDs
+        self.vdb = None    # optional QdrantStore holding the same vectors + payloads (D3-22)
         self.mode = "sparse"
         self.last_mode = "sparse"
 
@@ -111,7 +112,8 @@ class Retriever:
         (out / "manifest.json").write_text(json.dumps(self.manifest, indent=2))
 
     @classmethod
-    def load(cls, path: str | Path, dense: str | Path | None = None) -> "Retriever":
+    def load(cls, path: str | Path, dense: str | Path | None = None,
+             vectordb: str | Path | None = None, vectordb_url: str | None = None) -> "Retriever":
         path = Path(path)
         ids = np.load(path / "ids.npy", allow_pickle=True)
         assert (ids < HOLDOUT_FIRST_ID).all(), "holdout ID in retrieval index"
@@ -125,6 +127,12 @@ class Retriever:
             r.dense = d
             r.mode = f"dense:{d.backend}"
             r.manifest = {**r.manifest, "dense": d.manifest}
+            if vectordb_url or (vectordb is not None and Path(vectordb).exists()):
+                from sentineldesk.vectordb import QdrantStore
+                store = QdrantStore.open(vectordb, url=vectordb_url)
+                assert store.count() == len(ids), "vector DB and index cover a different number of tickets"
+                r.vdb = store
+                r.mode = f"qdrant:{d.backend}"
         return r
 
     # ---------- query ----------
@@ -132,22 +140,35 @@ class Retriever:
         q = self.encoder.transform(query_texts)
         return (q @ self.matrix.T).toarray()
 
-    def search(self, query_text: str, k: int = 5,
-               dense_timeout: float = 2.0) -> tuple[list[tuple[str, float]], str]:
-        """Top-k (ticket_id, score) and the mode that served them: dense if loaded and reachable, else sparse."""
-        s, mode = None, "sparse"
+    def _hits(self, query_text: str, k: int = 5, dense_timeout: float = 2.0) -> tuple[list[tuple[str, float, dict | None]], str]:
+        """Top-k (ticket_id, score, payload or None) and the mode that served them.
+        Order: Qdrant (exact) -> in-memory NumPy dense -> sparse TF-IDF; never raises for a backend failure."""
         if self.dense is not None:
             try:
-                s = self.dense.scores([query_text], timeout=dense_timeout)[0]
-                mode = self.mode
-            except Exception:  # Ollama down or slow: fall back, never fail the request
-                s = None
-        if s is None:
-            s = self.scores([query_text])[0]
-            mode = "sparse"
+                from sentineldesk.dense import encode
+                qvec = encode([query_text], "query", self.dense.backend, timeout=dense_timeout)[0]
+            except Exception:  # Ollama down or slow
+                qvec = None
+            if qvec is not None:
+                if self.vdb is not None:
+                    try:
+                        return self.vdb.search(qvec, k), f"qdrant:{self.dense.backend}"
+                    except Exception:  # vector DB unavailable: same vector, in-memory search
+                        pass
+                s = self.dense.vectors @ qvec
+                top = np.argpartition(-s, k)[:k]
+                top = top[np.argsort(-s[top])]
+                return [(str(self.ids[i]), float(s[i]), None) for i in top], f"dense:{self.dense.backend}"
+        s = self.scores([query_text])[0]
         top = np.argpartition(-s, k)[:k]
         top = top[np.argsort(-s[top])]
-        return [(str(self.ids[i]), float(s[i])) for i in top], mode
+        return [(str(self.ids[i]), float(s[i]), None) for i in top], "sparse"
+
+    def search(self, query_text: str, k: int = 5,
+               dense_timeout: float = 2.0) -> tuple[list[tuple[str, float]], str]:
+        """Top-k (ticket_id, score) and the mode that served them."""
+        hits, mode = self._hits(query_text, k, dense_timeout)
+        return [(t, s) for t, s, _ in hits], mode
 
     def retrieve_with_mode(self, ticket: Any, k: int = 5) -> tuple[list[Precedent], str]:
         """ticket has `subject` (nullable) and `body`; dict or object. Expects masked text."""
@@ -155,14 +176,15 @@ class Retriever:
         text = clean_for_search(_field(ticket, "subject"), body)
         if not text or not (body or "").strip():  # blank body = needs clarification (gate rule 1)
             return [], "none"
-        hits, mode = self.search(text, k)
+        hits, mode = self._hits(text, k)
         out = []
-        for tid, score in hits:
-            ev = self.evidence.loc[tid]
+        for tid, score, payload in hits:
             # answer_snippet carries the exact historical answer (D3-14): answers are short
             # (p99 ~100 words), and drafts quote evidence spans that must match it verbatim.
-            out.append(Precedent(tid, round(score, 4), ev["subject"], str(ev["answer"]),
-                                 ev["answer_language"]))
+            # With Qdrant the document comes from the vector DB payload, else from the evidence store.
+            doc = payload if payload is not None else self.evidence.loc[tid]
+            out.append(Precedent(tid, round(score, 4), str(doc["subject"]), str(doc["answer"]),
+                                 str(doc["answer_language"])))
         return out, mode
 
     def retrieve(self, ticket: Any, k: int = 5) -> list[Precedent]:

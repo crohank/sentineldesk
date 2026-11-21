@@ -6,3 +6,4 @@ matplotlib
 scipy
 # 1.9.x _loss DLL is blocked by Windows Smart App Control on some machines; 1.8.0 loads.
 scikit-learn==1.8.0
+qdrant-client==1.20.0   # D3 vector DB (embedded mode; also talks to a Qdrant server)

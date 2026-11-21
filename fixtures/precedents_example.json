@@ -1,6 +1,6 @@
 {
   "_note": "Real output of the full-KB release retriever (D3-12: EmbeddingGemma via Ollama, sparse fallback). Fields follow PLAN.md Precedent. retrieval_mode per case says which mode served it. Scores are cosine similarity and are only comparable within one retrieval mode. answer_snippet still contains dataset mask tokens such as <tel_num>; D4 decides how to render them. Full answers: Retriever.full_answer(ticket_id).",
-  "release_mode": "dense:embeddinggemma",
+  "release_mode": "qdrant:embeddinggemma",
   "index_manifest": {
     "mode": "sparse",
     "scope": "full",
@@ -70,7 +70,7 @@
           "answer_language": "en"
         }
       ],
-      "retrieval_mode": "dense:embeddinggemma"
+      "retrieval_mode": "qdrant:embeddinggemma"
     },
     "outage_vpn_hospital_de": {
       "input": {
@@ -118,7 +118,7 @@
           "answer_language": "de"
         }
       ],
-      "retrieval_mode": "dense:embeddinggemma"
+      "retrieval_mode": "qdrant:embeddinggemma"
     },
     "refund_demand_en": {
       "input": {
@@ -166,7 +166,7 @@
           "answer_language": "en"
         }
       ],
-      "retrieval_mode": "dense:embeddinggemma"
+      "retrieval_mode": "qdrant:embeddinggemma"
     },
     "password_reset_de": {
       "input": {
@@ -214,7 +214,7 @@
           "answer_language": "en"
         }
       ],
-      "retrieval_mode": "dense:embeddinggemma"
+      "retrieval_mode": "qdrant:embeddinggemma"
     },
     "printer_de_crosslingual": {
       "input": {
@@ -262,7 +262,7 @@
           "answer_language": "en"
         }
       ],
-      "retrieval_mode": "dense:embeddinggemma"
+      "retrieval_mode": "qdrant:embeddinggemma"
     },
     "out_of_scope_en": {
       "input": {
@@ -310,7 +310,7 @@
           "answer_language": "de"
         }
       ],
-      "retrieval_mode": "dense:embeddinggemma"
+      "retrieval_mode": "qdrant:embeddinggemma"
     },
     "blank_body": {
       "input": {

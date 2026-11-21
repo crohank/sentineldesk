@@ -9,7 +9,8 @@
     d3.last_retrieval_mode, d3.last_generator_mode       # what actually served the last call
 
 Retrieval: Vertex AI RAG Engine when artifacts/rag_engine/full.json exists and GOOGLE_CLOUD_PROJECT
-is set, else EmbeddingGemma (local Ollama), else sparse TF-IDF. Drafting: Gemini 3.5 Flash on Vertex,
+is set; else EmbeddingGemma query vectors (local Ollama) searched in the Qdrant vector DB
+(artifacts/qdrant/full, or SD_QDRANT_URL), then in memory; else sparse TF-IDF. Drafting: Gemini 3.5 Flash on Vertex,
 then Gemma 4 (local Ollama), then extractive quotes. Every fallback is automatic and per request.
 The `last_*_mode` attributes are per instance; use `analyze_ticket` when calls may run concurrently.
 """
@@ -27,7 +28,7 @@ from sentineldesk.retrieval import Precedent, Retriever
 ROOT = Path(__file__).resolve().parents[1]
 
 # Relevance guard per retrieval mode (D3-19): below this top score, drafting abstains.
-MIN_TOP_SCORE = {"dense:embeddinggemma": 0.35, "sparse": 0.12, "rag_engine": float(os.environ.get("SD_RAG_MIN_SCORE", "0.55"))}
+MIN_TOP_SCORE = {"qdrant:embeddinggemma": 0.35, "dense:embeddinggemma": 0.35, "sparse": 0.12, "rag_engine": float(os.environ.get("SD_RAG_MIN_SCORE", "0.55"))}
 
 
 def _text(t: Any) -> tuple[str | None, str]:
@@ -46,7 +47,9 @@ class D3:
     @classmethod
     def load(cls, root: Path = ROOT, use_rag_engine: bool | None = None) -> "D3":
         local = Retriever.load(root / "artifacts" / "retrieval" / "full",
-                               dense=root / "artifacts" / "dense" / "embeddinggemma" / "full")
+                               dense=root / "artifacts" / "dense" / "embeddinggemma" / "full",
+                               vectordb=root / "artifacts" / "qdrant" / "full",
+                               vectordb_url=os.environ.get("SD_QDRANT_URL"))
         local.warm_up()
         rag = None
         manifest = root / "artifacts" / "rag_engine" / "full.json"

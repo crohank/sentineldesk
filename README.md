@@ -25,7 +25,7 @@ See [docs/EDA.md](docs/EDA.md). Short version: use the main CSV only (the HF loa
 
 ## Retrieval (D3)
 
-Release retriever: EmbeddingGemma through local Ollama, with sparse TF-IDF as automatic fallback ([D3-12](docs/D3_decisions.md)).
+Release retriever: EmbeddingGemma query vectors (local Ollama) searched in a **Qdrant** vector DB (embedded, on disk, exact search), with in-memory search and sparse TF-IDF as automatic fallbacks ([D3-12](docs/D3_decisions.md), [D3-22](docs/D3_decisions.md)).
 
 ```bash
 ollama serve &                                 # keep running while serving
@@ -33,15 +33,17 @@ ollama pull embeddinggemma                     # 621 MB, once per machine
 python scripts/make_kb_partitions.py           # provisional fit/calib/valid partition of the KB
 python scripts/build_index.py --scope full     # sparse index + evidence store -> artifacts/retrieval/full
 python scripts/build_dense.py --scope full     # EmbeddingGemma index -> artifacts/dense/embeddinggemma/full (~5 min)
+python scripts/build_qdrant.py --scope full    # load those vectors + answers into the Qdrant vector DB -> artifacts/qdrant/full
 python -m pytest tests/test_retrieval.py
 ```
 
 ```python
 from sentineldesk.retrieval import Retriever
-r = Retriever.load("artifacts/retrieval/full", dense="artifacts/dense/embeddinggemma/full")
+r = Retriever.load("artifacts/retrieval/full", dense="artifacts/dense/embeddinggemma/full",
+                   vectordb="artifacts/qdrant/full")     # or vectordb_url="http://localhost:6333"
 r.warm_up()                                        # once at startup, loads EmbeddingGemma into memory
 precedents, mode = r.retrieve_with_mode({"subject": None, "body": "..."}, k=5)
-# mode: "dense:embeddinggemma", "sparse" if Ollama was unreachable, "none" for a blank body
+# mode: "qdrant:embeddinggemma"; "dense:embeddinggemma" if Qdrant fails; "sparse" if Ollama is down; "none" for a blank body
 r.full_answer("TKT-00123")                         # full historical answer, for validation and the expanded view
 ```
 

@@ -25,7 +25,8 @@ CASES = {
 
 def main() -> None:
     r = Retriever.load(ROOT / "artifacts" / "retrieval" / "full",
-                       dense=ROOT / "artifacts" / "dense" / "embeddinggemma" / "full")
+                       dense=ROOT / "artifacts" / "dense" / "embeddinggemma" / "full",
+                       vectordb=ROOT / "artifacts" / "qdrant" / "full")
     out = {
         "_note": "Real output of the full-KB release retriever (D3-12: EmbeddingGemma via Ollama, sparse fallback). "
                  "Fields follow PLAN.md Precedent. retrieval_mode per case says which mode served it. "

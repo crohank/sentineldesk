@@ -1,0 +1,12 @@
+{
+  "n_queries": 500,
+  "collection_points": 18280,
+  "same_top5_set": "500/500",
+  "same_top5_order": "500/500",
+  "max_score_difference": 2e-07,
+  "payload_answers_match_evidence": true,
+  "qdrant_search_ms": {
+    "p50": 10.3,
+    "p95": 10.65
+  }
+}

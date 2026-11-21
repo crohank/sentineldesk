@@ -27,7 +27,8 @@ CASES = {
 
 
 def main() -> None:
-    r = Retriever.load(ROOT / "artifacts" / "retrieval" / "full", dense=ROOT / "artifacts" / "dense" / "embeddinggemma" / "full")
+    r = Retriever.load(ROOT / "artifacts" / "retrieval" / "full", dense=ROOT / "artifacts" / "dense" / "embeddinggemma" / "full",
+                       vectordb=ROOT / "artifacts" / "qdrant" / "full")
     gen = Generator.default()
     out = {"_note": "Real drafts from the release stack. Draft fields match D5's Draft schema; reply_text marks "
                     "citations inline as [TKT-#####]; every claim's evidence_span is a verbatim substring of that "
