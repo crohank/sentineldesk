@@ -56,7 +56,7 @@ class Components:
     triage: Callable[[MaskedTicket], Triage] | None
     retrieve: Callable[[MaskedTicket, int], list[Precedent]]
     gate: Callable[[MaskedTicket, str, Triage | None, list[Precedent]], Decision]
-    draft: Callable[[MaskedTicket, str, list[Precedent]], Draft | tuple[Draft, GeneratorMode]]
+    draft: Callable[[MaskedTicket, str, list[Precedent]], Draft]
     validate: Callable[[Draft, str, list[Precedent]], Validation] | None
     release_id: str
     retrieval_mode: RetrievalMode
@@ -165,11 +165,7 @@ def analyze(
             generator_mode = c.generator_mode
             candidate: Draft | None = None
             try:
-                generated = clock.run("generation", c.draft, masked, language, precedents)
-                if isinstance(generated, tuple):
-                    candidate, generator_mode = generated
-                else:
-                    candidate = generated
+                candidate = clock.run("generation", c.draft, masked, language, precedents)
                 if c.validate_with_ticket is not None:
                     validation = clock.run("validation", c.validate_with_ticket, masked, candidate, language, precedents)
                 else:

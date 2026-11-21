@@ -8,6 +8,6 @@ To resume or verify ingestion, run `python -m scripts.build_agent_retrieval data
 
 Run the console and API with `SENTINELDESK_MODE=managed python -m sentineldesk.api`. Set `SENTINELDESK_DATA_DIR` if the canonical Parquet files are outside `data/processed`. The app runs one retrieval request and uses the returned IDs to select the examples for Gemini 3.8 Flash. Rochan’s safety gate routes outages and sensitive requests. For eligible tickets the app generates a cited draft, validates it against the same precedents, and shows it to the operator.
 
-Templates are the default generator. To try hosted Gemma followed by the Gemini claim check, set `SENTINELDESK_GENERATOR=gemma` and `SENTINELDESK_GCP_PROJECT=sentineldesk-ajin-ze3gmb` with a gcloud login. The API reports the generator that produced the candidate, including template fallback.
+The managed app drafts replies from reviewed templates and validates each draft before showing it to the operator.
 
 Gemini probabilities are uncalibrated. The gate uses the predicted labels and provisional confidence and similarity floors. The probability-pair outage rule applies only when the predictions have no explicit uncalibrated flag. Validate the floors and calibrate the classifier before relying on these settings.

@@ -107,7 +107,7 @@ def managed_components() -> Components:
     from .agent_retrieval import AgentRetrieval
     from .gemini_triage import GeminiTriage
     from .safety.config import DEFAULT_CONFIG
-    from .safety.drafting import draft_with_mode
+    from .safety.drafting import draft_template
     from .safety.gate import gate
     from .safety.pii import mask_ticket
     from .safety.validation import validate
@@ -116,9 +116,6 @@ def managed_components() -> Components:
     data_dir = Path(os.environ.get("SENTINELDESK_DATA_DIR", "data/processed"))
     model = os.environ.get("SENTINELDESK_TRIAGE_MODEL", "gemini-3.8-flash")
     classifier = GeminiTriage(store, data_dir, model)
-    generator = os.environ.get("SENTINELDESK_GENERATOR", "offline_templates")
-    if generator not in ("offline_templates", "gemma"):
-        raise ValueError("SENTINELDESK_GENERATOR must be offline_templates or gemma")
     config = replace(DEFAULT_CONFIG, retrieval_backend="dense")
     detect_language_langdetect(MaskedTicket("", "Warm up the language profiles at startup."))
 
@@ -127,8 +124,8 @@ def managed_components() -> Components:
         return Decision.model_validate(asdict(result))
 
     def generate(ticket, language, precedents):
-        result, actual_mode = draft_with_mode(ticket, language, precedents, config=config, generator=generator)
-        return Draft.model_validate(asdict(result)), actual_mode
+        result = draft_template(ticket, language, precedents, config=config)
+        return Draft.model_validate(asdict(result))
 
     def verify(ticket, draft, language, precedents):
         result = validate(draft, language, precedents, ticket=ticket, config=config)
@@ -144,7 +141,7 @@ def managed_components() -> Components:
         validate=None,
         release_id=os.environ.get("SENTINELDESK_RELEASE_ID", "managed-triage"),
         retrieval_mode="agent_retrieval",
-        generator_mode=generator,
+        generator_mode="offline_templates",
         artifacts={"training_examples": True, "drafting": True},
         triage_with_precedents=classifier.predict,
         validate_with_ticket=verify,
