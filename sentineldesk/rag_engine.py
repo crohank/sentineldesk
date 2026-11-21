@@ -1,6 +1,8 @@
 """Vertex AI RAG Engine retrieval (D3-16), with the local retriever as fallback.
 
     rag = RagEngineRetriever.from_manifest("artifacts/rag_engine/full.json", local=local_retriever)
+    # the KB is split over several corpora (one per import part); each query hits all of them
+    # in parallel and the hits are merged by score
     precedents, mode = rag.retrieve_with_mode({"subject": None, "body": "..."}, k=5)
     # mode: "rag_engine", or the local retriever's mode if RAG Engine failed or timed out
 
@@ -20,6 +22,7 @@ import subprocess
 import time
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
@@ -58,39 +61,48 @@ def rest(method: str, url: str, project: str, token: GcloudToken, body: dict | N
 
 
 class RagEngineRetriever:
-    def __init__(self, project: str, location: str, corpus: str, local: Retriever,
+    def __init__(self, project: str, location: str, corpora: list[str], local: Retriever,
                  timeout: float = 3.0) -> None:
-        self.project, self.location, self.corpus = project, location, corpus
+        self.project, self.location, self.corpora = project, location, list(corpora)
         self.local = local  # evidence store + fallback search
         self.timeout = timeout
         self.token = GcloudToken()
         self.mode = "rag_engine"
+        self._pool = ThreadPoolExecutor(max_workers=max(1, len(self.corpora)))
 
     @classmethod
     def from_manifest(cls, path: str | Path, local: Retriever, timeout: float = 3.0) -> "RagEngineRetriever":
         m = json.loads(Path(path).read_text())
-        return cls(m["project"], m["location"], m["corpus"], local, timeout)
+        corpora = [m["corpora"][k] for k in sorted(m["corpora"], key=int)] if m.get("corpora") else [m["corpus"]]
+        return cls(m["project"], m["location"], corpora, local, timeout)
 
-    def search(self, query_text: str, k: int = 5, exclude: set[str] | None = None) -> list[tuple[str, float]]:
-        """Top-k (ticket_id, 1 - cosine_distance) from RAG Engine. Raises on any API failure."""
+    def _query(self, corpus: str, text: str, top_k: int) -> list[tuple[str, float]]:
         url = f"https://{self.location}-aiplatform.googleapis.com/{API}/projects/{self.project}/locations/{self.location}:retrieveContexts"
-        extra = len(exclude) if exclude else 0
         out = rest("POST", url, self.project, self.token, {
-            "vertex_rag_store": {"rag_resources": [{"rag_corpus": self.corpus}]},
-            "query": {"text": query_text, "rag_retrieval_config": {"top_k": k + extra}},
+            "vertex_rag_store": {"rag_resources": [{"rag_corpus": corpus}]},
+            "query": {"text": text, "rag_retrieval_config": {"top_k": top_k}},
         }, timeout=self.timeout)
-        hits, seen = [], set()
+        hits = []
         for c in out.get("contexts", {}).get("contexts", []):
             m = _ID_IN_URI.search(c.get("sourceUri", "") or c.get("sourceDisplayName", ""))
-            if not m:
-                continue
-            tid = m.group(1)
+            if m:
+                hits.append((m.group(1), round(1.0 - float(c.get("score", c.get("distance", 1.0))), 4)))
+        return hits
+
+    def search(self, query_text: str, k: int = 5, exclude: set[str] | None = None) -> list[tuple[str, float]]:
+        """Top-k (ticket_id, 1 - cosine_distance) across all corpora. Raises on any API failure."""
+        top_k = k + (len(exclude) if exclude else 0)
+        futures = [self._pool.submit(self._query, c, query_text, top_k) for c in self.corpora]
+        merged = [h for f in futures for h in f.result()]
+        merged.sort(key=lambda h: -h[1])
+        out, seen = [], set()
+        for tid, score in merged:
             if tid in seen or (exclude and tid in exclude):
                 continue
             assert tid < HOLDOUT_FIRST_ID, f"holdout ID {tid} returned by RAG Engine"
             seen.add(tid)
-            hits.append((tid, round(1.0 - float(c.get("score", c.get("distance", 1.0))), 4)))
-        return hits[:k]
+            out.append((tid, score))
+        return out[:k]
 
     def retrieve_with_mode(self, ticket: Any, k: int = 5) -> tuple[list[Precedent], str]:
         body = ticket.get("body") if isinstance(ticket, dict) else getattr(ticket, "body", None)
