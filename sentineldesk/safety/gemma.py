@@ -1,7 +1,11 @@
-"""Gemma drafting through the Gemini API (API key, no hosting), with a Gemini Flash claim check.
+"""Gemma drafting with a Gemini Flash claim check. No model hosting in either backend.
 
-- Key: `GEMINI_API_KEY` from the environment or the repo's `.env` (gitignored). It is sent in
-  the `x-goog-api-key` header, never in the URL, and never logged.
+Backends, chosen automatically:
+- Vertex AI (when `SENTINELDESK_GCP_PROJECT` is set): Gemma 4 as a serverless model on the
+  global endpoint, billed to that project. The access token comes from
+  `gcloud auth print-access-token` and is cached for 50 minutes.
+- Gemini API (otherwise): `GEMINI_API_KEY`, sent in the `x-goog-api-key` header, never in the URL.
+Settings are read from the environment or the repo's `.env` (gitignored) and never logged.
 - Only masked ticket text and masked precedent answers are sent.
 - Gemma writes the body sentences, each with a cited ticket ID and a verbatim quote from that
   ticket's answer. D4 adds the fixed greeting and closing, so the model never writes them.
@@ -24,8 +28,10 @@ from .actions import CLOSING, GREETING, THANKS
 from .gate import normalize_language
 
 API = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+VERTEX_URL = "https://aiplatform.googleapis.com/v1/projects/{project}/locations/global/endpoints/openapi/chat/completions"
 DRAFT_MODEL = os.environ.get("SENTINELDESK_GEMMA_MODEL", "gemma-4-26b-a4b-it")
 CHECK_MODEL = os.environ.get("SENTINELDESK_CHECK_MODEL", "gemini-2.5-flash")
+VERTEX_MODELS = {"gemma-4-26b-a4b-it": "google/gemma-4-26b-a4b-it-maas", "gemini-2.5-flash": "google/gemini-3.8-flash"}  # 2.5 Flash is not served on the Vertex global endpoint
 PROMPT_VERSION = "d4-gemma-v1"
 _ENV = Path(__file__).resolve().parents[2] / ".env"
 _JSON = re.compile(r"\{.*\}", re.DOTALL)
@@ -35,15 +41,45 @@ class GemmaError(Exception):
     """Unavailable, timed out, or returned something unusable."""
 
 
-def api_key() -> str | None:
-    key = os.environ.get("GEMINI_API_KEY")
-    if key:
-        return key
+def setting(name: str) -> str | None:
+    value = os.environ.get(name)
+    if value:
+        return value
     if _ENV.exists():
         for line in _ENV.read_text(encoding="utf-8").splitlines():
-            if line.startswith("GEMINI_API_KEY="):
+            if line.startswith(f"{name}="):
                 return line.split("=", 1)[1].strip() or None
     return None
+
+
+def api_key() -> str | None:
+    return setting("GEMINI_API_KEY")
+
+
+def backend() -> str:
+    return "vertex" if setting("SENTINELDESK_GCP_PROJECT") else "gemini_api"
+
+
+def model_name(model: str) -> str:
+    """The model ID actually called on the active backend."""
+    return VERTEX_MODELS.get(model, model) if backend() == "vertex" else model
+
+
+_token: tuple[str, float] | None = None
+
+
+def _vertex_token() -> str:
+    global _token
+    if _token is None or time.monotonic() > _token[1]:
+        import subprocess
+
+        try:
+            out = subprocess.run(["gcloud", "auth", "print-access-token"], capture_output=True, text=True,
+                                 timeout=20, check=True).stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            raise GemmaError("no gcloud access token") from None
+        _token = (out, time.monotonic() + 50 * 60)
+    return _token[0]
 
 
 def call(model: str, prompt: str, timeout: float, *, json_mode: bool = False) -> str:
@@ -59,15 +95,22 @@ def call(model: str, prompt: str, timeout: float, *, json_mode: bool = False) ->
 
 
 def _call_once(model: str, prompt: str, timeout: float, *, json_mode: bool = False) -> str:
-    key = api_key()
-    if not key:
-        raise GemmaError("no API key")
-    config = {"temperature": 0.0, "maxOutputTokens": 2048}  # Gemma 4 spends tokens on reasoning first
-    if json_mode:
-        config["responseMimeType"] = "application/json"
-    body = json.dumps({"contents": [{"role": "user", "parts": [{"text": prompt}]}], "generationConfig": config})
-    req = urllib.request.Request(API.format(model=model), data=body.encode("utf-8"), method="POST",
-                                 headers={"Content-Type": "application/json", "x-goog-api-key": key})
+    if backend() == "vertex":
+        url = VERTEX_URL.format(project=setting("SENTINELDESK_GCP_PROJECT"))
+        body = {"model": VERTEX_MODELS.get(model, model), "temperature": 0.0, "max_tokens": 2048,
+                "messages": [{"role": "user", "content": prompt}]}
+        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {_vertex_token()}"}
+    else:
+        key = api_key()
+        if not key:
+            raise GemmaError("no API key")
+        config = {"temperature": 0.0, "maxOutputTokens": 2048}  # Gemma 4 spends tokens on reasoning first
+        if json_mode:
+            config["responseMimeType"] = "application/json"
+        url = API.format(model=model)
+        body = {"contents": [{"role": "user", "parts": [{"text": prompt}]}], "generationConfig": config}
+        headers = {"Content-Type": "application/json", "x-goog-api-key": key}
+    req = urllib.request.Request(url, data=json.dumps(body).encode("utf-8"), method="POST", headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=max(timeout, 0.5)) as resp:
             data = json.loads(resp.read().decode("utf-8"))
@@ -76,9 +119,11 @@ def _call_once(model: str, prompt: str, timeout: float, *, json_mode: bool = Fal
     except (urllib.error.URLError, TimeoutError, OSError) as exc:
         raise GemmaError(type(exc).__name__) from None
     try:
+        if backend() == "vertex":
+            return data["choices"][0]["message"]["content"] or ""
         # Skip "thought" parts: models that think return their reasoning as separate parts.
         return "".join(p.get("text", "") for p in data["candidates"][0]["content"]["parts"] if not p.get("thought"))
-    except (KeyError, IndexError):
+    except (KeyError, IndexError, TypeError):
         raise GemmaError("empty response") from None
 
 

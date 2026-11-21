@@ -242,7 +242,7 @@ With the stand-ins, 4.9% of validation tickets get a validated draft (87% of the
 **Why:** No hand-labelled set exists yet, so label agreement replaces the plan's 60 labelled queries (D4-02). It's a proxy, not a safety check. The drafts only ask for information that a cited past answer also asked for, so the worst case is an unhelpful draft, not an invented commitment.
 **Status:** Provisional. Rerun `scripts/d4/val_report.py` with D2's probabilities and D3's retrieval, and check against hand labels if someone produces them.
 
-### D4-19 Gemma through the Gemini API, off by default
+### D4-19 Gemma through the Gemini API, off by default *(Superseded by D4-22)*
 **Decision:** `sentineldesk/safety/gemma.py` drafts with `gemma-4-26b-a4b-it` through the Gemini API, using an API key with no hosted endpoint. A different model (`gemini-3.8-flash`) grades every claim against its quote, and anything short of "supported" fails the draft. There is one repair attempt within the 6-second budget; after that, the template draft is used. Only masked text is sent. The key is read from `GEMINI_API_KEY` (environment or the gitignored `.env`) and sent in a request header. The adapter is opt-in with `SENTINELDESK_GENERATOR=gemma`. **The release default stays the offline templates.**
 **Why:** Measured at 12:25: Gemma 4 26B took 31 seconds for a one-line reply, Gemma 4 31B returned "high demand" after 45 seconds, and Gemini Flash didn't answer within 40 seconds. That misses the 6-second budget, and the agreed rule was to drop Gemma unless it passed its checks by 12:40. A self-hosted Vertex endpoint was not an option in the time left: no project had Vertex AI enabled, and new projects need billing and GPU quota.
 
@@ -250,9 +250,20 @@ With the stand-ins, 4.9% of validation tickets get a validated draft (87% of the
 **Decision:** The 5,715-ticket holdout run and the 100-ticket generation audit use the offline templates, and reports say so. If the API latency recovers after the freeze, a separately labelled Gemma audit on the same 100 IDs can be added without changing the frozen run.
 **Why:** Results must name the generator they cover (plan, cut line at 1:20), and the frozen release uses templates.
 
-### D4-21 Gemma live settings for the console
+### D4-21 Gemma live settings for the console *(Superseded by D4-22)*
 **Decision:** With `SENTINELDESK_GENERATOR=gemma`, Gemma gets a 40-second budget (`gemma_budget_s`) instead of 6, room for its reasoning tokens, and one retry when the API reports it is busy (503/429). Claims are checked with `gemini-2.5-flash`, which answered in about 1 second. `scripts/d4/demo.py --generator gemma` runs the same path. Templates stay the default, and every fallback is reported as `offline_templates`.
 **Why:** Gemma through the shared Gemini API took 13–31 seconds when it answered, and between 12:35 and 12:45 it mostly returned "high demand" or timed out after 60 seconds. On two validation tickets the run fell back to templates both times. The console can try Gemma when the API is responsive, and never shows an unchecked draft.
+
+### D4-22 Gemma on Vertex AI, paid by the event credits
+**Decision:**
+- **Where Gemma runs:** project `sentineldesk-gemma-11211247`, billed to the event credit account, with Vertex AI and the Gemini API enabled. D4 calls Gemma 4 (`google/gemma-4-26b-a4b-it-maas`) as a serverless model on the Vertex global endpoint, so there is no GPU or endpoint to host.
+- **Claim checking:** `google/gemini-3.8-flash` on the same endpoint checks the claims. Gemini 2.5 Flash isn't served there.
+- **Configuration:** the adapter picks Vertex when `SENTINELDESK_GCP_PROJECT` is set and uses the `gcloud` access token. The Gemini API key path stays as a fallback backend.
+- **Live console:** set `SENTINELDESK_GENERATOR=gemma`. Gemma gets 15 seconds; past that, or on any failed check, the template draft is used.
+- **Evaluation runs:** templates, as in D4-20.
+
+**Why:** On 12 KB-validation tickets that qualify for a draft (3 German), all 12 Gemma drafts passed validation and the claim check. Median time per draft was 5.1 seconds and the slowest was 31 seconds (`reports/d4/gemma_check.md`). The Gemini API free tier was overloaded at the same time, so Vertex is the reliable path and uses the credits as intended. Twelve tickets show the setup works; they don't prove a quality level.
+**Status:** Live default for the console from 12:55. Undeploy nothing after the event (serverless); remove the API key and unlink billing when the credits should stop being used.
 
 ---
 
