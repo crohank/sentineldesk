@@ -1,8 +1,9 @@
-pandas>=3.0
-pyarrow
-huggingface_hub
-langdetect
-matplotlib
-scipy
+pandas==3.1.1
+pyarrow==26.0.1
+huggingface_hub==2.4.0
+langdetect==1.0.9
+matplotlib==3.11.2
+scipy==1.18.1
 # 1.9.x _loss DLL is blocked by Windows Smart App Control on some machines; 1.8.0 loads.
 scikit-learn==1.8.0
+pytest==9.2.0

@@ -19,7 +19,7 @@ Use only `aa_dataset-tickets-multi-lang-5-2-50-version.csv` (28,587 rows). The s
 | `data/processed/test_inputs.parquet` | 5,715 | ticket_id, subject, body |
 | `data/processed/test_labels.parquet` | 5,715 | ticket_id, type, queue, priority, language (eval only) |
 
-Holdout answers are never written to disk. Train/test label shares differ by at most 1.3 points.
+Holdout answers are never written to disk. Train/test label shares differ by at most 1.3 points (checked once after the split; the EDA script no longer opens the holdout).
 
 ## Labels
 
@@ -45,15 +45,24 @@ Holdout answers are never written to disk. Train/test label shares differ by at 
 - Answers are full of mask tokens: `<tel_num>` (8.4k), `<name>` (4.9k), `<acc_num>` (2k), `[Name]` (2k). The generator must not copy these into drafts, or should render them as "your account number" etc.
 - Answers almost never mention money, percentages, refunds, guarantees or SLA hours (all under 0.5%). Any of those in a draft is unsupported by precedent, which makes a fabrication check simple.
 
-## Baseline (TF-IDF word+char, LogisticRegression, class_weight=balanced)
+## Baselines
 
-| target | macro-F1 | accuracy | majority-class acc |
-|---|---|---|---|
-| type | 0.884 | 0.876 | 0.406 |
-| queue | 0.587 | 0.575 | 0.299 |
-| priority | 0.631 | 0.642 | 0.402 |
+`scripts/eda.py` reads only `kb_train`. Baselines are separate scripts that read only `kb_train` and `test_inputs`, write a predictions file (format: [prediction_format.md](prediction_format.md)), and get scored by `scripts/score.py`, the only script that opens `test_labels`.
 
-High-priority Incident recall 0.654 (n=1,047). Queue and priority are the hard targets.
+```
+python scripts/baseline_majority.py && python scripts/score.py data/predictions/majority.parquet --run-name majority
+python scripts/baseline_tfidf.py && python scripts/score.py data/predictions/tfidf_logreg.parquet --run-name tfidf_logreg
+```
+
+TF-IDF is word 1-2 grams plus char_wb 3-5 grams, LogisticRegression(C=4, class_weight=balanced), one model per head. Full reports: [majority](../reports/majority/metrics.md), [tfidf_logreg](../reports/tfidf_logreg/metrics.md).
+
+| target | TF-IDF macro-F1 | TF-IDF accuracy | majority macro-F1 | majority accuracy |
+|---|---|---|---|---|
+| type | 0.884 | 0.876 | 0.144 | 0.406 |
+| queue | 0.587 | 0.575 | 0.046 | 0.299 |
+| priority | 0.631 | 0.642 | 0.191 | 0.402 |
+
+Incident+high recall (n=1,047 true events): 0.654 (685/1047) when both predictions must match, 0.735 (770/1047) when flagging on predicted high priority alone, at precision 0.632 vs 0.342. German is much weaker: by detected body language, queue macro-F1 is 0.643 en vs 0.455 de, priority 0.682 vs 0.518. Queue and priority are the hard targets.
 
 ## Environment note
 

@@ -68,8 +68,52 @@ One entry per decision. Newest at the bottom. Each says what was decided and why
 **Decision:** Report joint Incident+high recall two ways: both predictions right (baseline 0.654) and escalated on predicted high priority alone (baseline 0.735).
 **Why:** The gate can escalate on high priority without needing the type prediction, and the gap is 8 points. D2 picks the operating rule; D1 reports both with counts.
 
+### D1-17 Source pinned to an HF revision and a file hash
+**Decision:** `download_data.py` downloads revision `ddf1c81a5475992c4fa6752bf1e8b4e31f07bbeb` and exits non-zero if the main CSV's SHA-256 is not `f187c090...6bc0`. Only the main CSV is hashed; the other files are pinned by revision only.
+**Why:** An upstream edit would still parse and split cleanly, just into different ticket IDs. Only the main CSV feeds the split.
+
+### D1-18 make_split.py refuses to write a different split
+**Decision:** Before writing, it checks the source hash (before reading), then row counts, duplicates removed, boundary IDs and the `TKT-09746` spot check. Any mismatch raises `SplitMismatch` listing every expected vs observed value, and the output folder is not created. Output parquet hashes are not checked. Added `--out` to both data scripts.
+**Why:** Plan rule: never silently produce a new ID mapping. Parquet bytes depend on the pyarrow version, while input hash plus counts and IDs already lock the mapping. Tested with three deliberate mismatches.
+
+### D1-19 Exact version pins
+**Decision:** `requirements.txt` pins exact versions from the working venv: pandas 3.1.1, pyarrow 26.0.1, huggingface_hub 2.4.0, langdetect 1.0.9, matplotlib 3.11.2, scipy 1.18.1, scikit-learn 1.8.0, pytest 9.2.0.
+**Why:** The shuffle is only guaranteed identical on the same pandas version.
+
+### D1-20 KB partitions: 80/10/10 stratified on type|priority
+**Decision:** `make_partitions.py` sorts KB by `ticket_id`, then two `train_test_split` calls (0.2, then 0.5 of that), both seed 42, both stratified on `type|priority`. fit 18,285, calib 2,286, val 2,286. Output `data/processed/kb_partitions.parquet` (SHA-256 `7e70ffd4...`), summary in `reports/kb_partitions_summary.md`.
+**Why:** Plan requirement. Sorting first makes it independent of file row order. Type and priority shares differ by under 0.1 points across partitions; queue up to 2.2 and language 1.3, since those were not stratified.
+
+### D1-21 Generation audit sample fixed now
+**Decision:** 100 holdout IDs drawn with seed 42 from the sorted `test_inputs` IDs, saved in `reports/generation_sample_ids.txt`.
+**Why:** Plan requirement: chosen before any scoring so nobody can pick favourable tickets.
+
+### D1-22 Scorer rules
+**Decision:** `score.py` is the only code that reads `test_labels`. It hashes the predictions file first, and rejects missing, repeated or unknown IDs, labels never seen in kb_train, nulls, confidences outside [0, 1], and any holdout ID in `retrieved_ids` or `cited_ids`. "Routed to a human" means `escalate_oncall` or `human_review`; `needs_clarification` does not count. Per-language macro-F1 averages over classes present in that slice. Language is detected with langdetect seed 0. A training-majority reference is computed in every report.
+**Why:** Bad inputs should fail loudly instead of quietly lowering scores. A holdout ID in retrieval output is leakage by definition.
+
+### D1-23 Predictions file format (draft)
+**Decision:** One row per holdout ticket, required `ticket_id`, `pred_type`, `pred_queue`, `pred_priority`; optional confidences, decision fields, `retrieved_ids`, `cited_ids`, `latency_ms`. Spec in `docs/prediction_format.md`.
+**Why:** The scorer needs a fixed contract. Still a draft until D5 confirms the live pipeline can emit it.
+
+### D1-24 EDA reads only the KB; baselines are separate scripts
+**Decision:** `eda.py` no longer opens `test_inputs` or `test_labels`. The TF-IDF baseline moved to `baseline_tfidf.py`, plus a new `baseline_majority.py`; both write prediction files and are scored by `score.py`.
+**Why:** Plan rule that only the scorer opens labels. Scored: TF-IDF macro-F1 type 0.884, queue 0.587, priority 0.631; majority 0.144, 0.046, 0.191; Incident+high recall 0.654 (685/1047) vs 0.
+
+### D1-25 Near-duplicate audit method
+**Decision:** MinHash in numpy (not datasketch), word 5-grams on lowercased, whitespace-collapsed bodies, 128 hashes in 16 bands of 8, seed 42, every candidate verified by exact Jaccard >= 0.85. Bodies under 5 words become one shingle. An exact all-pairs scan cross-checks recall. Label agreement uses KB-KB pairs only.
+**Why:** No new dependency, so no Smart App Control risk. Exact scan found the same 12 holdout tickets, so MinHash missed none. The audit must not read test labels.
+
+### D1-26 Two twin lists, different meanings
+**Decision:** The plan's MinHash audit flags 12 holdout tickets (near-copies). The TF-IDF cosine >= 0.8 check from D1-14 flags 520 (paraphrases). Both are reported; neither replaces the other.
+**Why:** 5-gram Jaccard misses paraphrases where a word changes every few words, and those are what inflate scores (queue 0.587 to 0.555 without the 520). Excluding only the 12 would understate the inflation.
+
+### D1-27 Leakage helper for the index
+**Decision:** `scripts/leakage.py` exposes `assert_kb_only(ids)`, raising `LeakageError` (an `AssertionError` subclass) with counts and example IDs if any ID is a holdout ID or not in kb_train. D3 calls it on the index IDs.
+**Why:** Plan acceptance test "KB-only index membership". A subclass survives `python -O`, a bare `assert` does not.
+
 ## Open
 
-- Pin the HF dataset revision and make `make_split.py` fail on a hash or count mismatch.
-- Pin pandas to an exact version (3.1.1 on this machine) so the shuffle is reproducible on other machines.
-- Move the drift check and baseline scoring out of `eda.py`, which currently reads `test_labels`. Only the scorer should.
+- Write the 520 cosine-twin holdout IDs to a file in `reports/` so `score.py --exclude-ids` can report that scope too.
+- D5 to confirm the predictions format (D1-23).
+- Tell D4/D5: no KB password ticket is a Request (all 483 are Incident or Problem), so the planned password-reset demo has no routine precedent. Pick another routine demo ticket.

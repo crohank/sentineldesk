@@ -1,7 +1,6 @@
 """Exploratory stats on the KB split. Writes docs/eda_stats.txt and docs/figures/*.png.
 
-Reads test_labels only for the train/test distribution check and baseline scores;
-never reads holdout answers (they are not on disk).
+Reads only kb_train. Baselines live in scripts/baseline_*.py and are scored by scripts/score.py.
 """
 import re
 import sys
@@ -13,9 +12,6 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 from langdetect import DetectorFactory, detect
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import f1_score, recall_score
 
 ROOT = Path(__file__).resolve().parents[1]
 PROC = ROOT / "data" / "processed"
@@ -41,24 +37,15 @@ def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
     FIG.mkdir(parents=True, exist_ok=True)
     kb = pd.read_parquet(PROC / "kb_train.parquet")
-    test_x = pd.read_parquet(PROC / "test_inputs.parquet")
-    test_y = pd.read_parquet(PROC / "test_labels.parquet")
-    test = test_x.merge(test_y, on="ticket_id")
 
     section("Sizes")
-    emit("kb", kb.shape, "test", test.shape)
+    emit("kb", kb.shape)
     emit("version column values:", kb["version"].value_counts().to_dict())
 
     section("Label distributions (kb, %)")
     for c in TARGETS + ["language"]:
         emit(f"-- {c}")
         emit((kb[c].value_counts(normalize=True) * 100).round(1).to_string())
-
-    section("Train vs test label share drift (max abs pct-point gap)")
-    for c in TARGETS + ["language"]:
-        a = kb[c].value_counts(normalize=True)
-        b = test[c].value_counts(normalize=True)
-        emit(c, round(float((a - b).abs().max() * 100), 2))
 
     section("Escalation rule base rate: priority==high & type==Incident")
     hi = (kb["priority"] == "high") & (kb["type"] == "Incident")
@@ -137,26 +124,6 @@ def main() -> None:
         emit("  SUBJ:", r.subject[:120])
         emit("  BODY:", r.body[:300].replace("\n", " "))
         emit("  ANSW:", r.answer[:300].replace("\n", " "))
-
-    section("Baseline: TF-IDF (word 1-2 + char 3-5) + LogisticRegression")
-    text_kb = (kb["subject"] + " \n " + kb["body"])
-    text_te = (test["subject"] + " \n " + test["body"])
-    from scipy.sparse import hstack
-    wv = TfidfVectorizer(ngram_range=(1, 2), min_df=2, sublinear_tf=True, max_features=200_000)
-    cv = TfidfVectorizer(analyzer="char_wb", ngram_range=(3, 5), min_df=3, sublinear_tf=True, max_features=200_000)
-    Xtr = hstack([wv.fit_transform(text_kb), cv.fit_transform(text_kb)]).tocsr()
-    Xte = hstack([wv.transform(text_te), cv.transform(text_te)]).tocsr()
-    preds = {}
-    for c in TARGETS:
-        clf = LogisticRegression(max_iter=2000, C=4.0, class_weight="balanced")
-        clf.fit(Xtr, kb[c])
-        preds[c] = clf.predict(Xte)
-        emit(f"{c}: macro-F1={f1_score(test[c], preds[c], average='macro'):.3f}  "
-             f"acc={(preds[c] == test[c]).mean():.3f}  majority-acc={test[c].value_counts(normalize=True).iloc[0]:.3f}")
-    gold_hi = (test["priority"] == "high") & (test["type"] == "Incident")
-    pred_hi = (preds["priority"] == "high") & (preds["type"] == "Incident")
-    emit(f"high-priority Incident recall: {recall_score(gold_hi, pred_hi):.3f} (n={gold_hi.sum()})")
-    emit(f"priority==high recall: {recall_score(test['priority'] == 'high', preds['priority'] == 'high'):.3f}")
 
     fig, axes = plt.subplots(1, 3, figsize=(14, 4))
     for ax, c in zip(axes, TARGETS):
