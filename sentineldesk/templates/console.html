@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SentinelDesk Console</title>
-  <link rel="stylesheet" href="/static/console.css">
+  <link rel="stylesheet" href="/static/console.css?v=case-layout-2">
 </head>
 <body>
 <header class="top">
@@ -201,33 +201,32 @@
     {% if result.precedents %}
     {% set spans_by_id = {} %}
     {% if result.draft %}{% for c in result.draft.claims %}{% set _ = spans_by_id.setdefault(c.ticket_id, []).append(c.evidence_span) %}{% endfor %}{% endif %}
-    {% set max_score = (result.precedents | map(attribute="score") | max) or 1 %}
     {% for p in result.precedents %}
     {% set cited = result.draft and p.ticket_id in result.draft.cited_ticket_ids %}
     <article class="card{% if cited %} cited{% endif %}" id="ev-{{ p.ticket_id }}">
-      <div class="card-head">
-        <span class="rank">{{ loop.index }}</span>
-        <code>{{ p.ticket_id }}</code>
-        <span class="pill quiet">answer: {{ p.answer_language }}</span>
-        {% if cited %}<span class="pill green">cited</span>{% endif %}
-        <span class="score" title="similarity score">{{ "%.2f" | format(p.score) }}</span>
-      </div>
-      <div class="score-bar"><span style="width: {{ (p.score / max_score * 100) | round(1) }}%"></span></div>
-      <div class="card-subject">{{ p.subject }}</div>
+      <header class="case-header">
+        <div class="case-ref"><span class="case-rank" aria-label="Rank {{ loop.index }}">#{{ loop.index }}</span><code>{{ p.ticket_id }}</code>
+          {% if cited %}<span class="case-cited">Cited in draft</span>{% endif %}
+        </div>
+        <span class="case-score">Similarity <strong>{{ "%.2f" | format(p.score) }}</strong></span>
+      </header>
+      <h3 class="card-subject">{{ p.subject or "Untitled ticket" }}</h3>
       {% if p.type or p.queue or p.priority %}
       <dl class="case-labels">
         {% for label, value in [("Type", p.type), ("Queue", p.queue), ("Priority", p.priority)] %}
-        {% if value %}<div><dt>{{ label }}</dt><dd>{{ value }}</dd></div>{% endif %}
+        {% if value %}<div><dt>{{ label }}</dt><dd{% if label == "Priority" %} class="case-priority" data-priority="{{ value | lower }}"{% endif %}>{{ value }}</dd></div>{% endif %}
         {% endfor %}
       </dl>
       {% endif %}
+      <div class="case-evidence">
       {% if p.body %}
-      <details><summary>Historical ticket body</summary><p class="snippet">{{ p.body }}</p></details>
+      <details><summary>Customer message</summary><p class="snippet">{{ p.body }}</p></details>
       {% endif %}
-      <details{% if cited %} open{% endif %}>
-        <summary>historical answer</summary>
+      <details class="case-reply"{% if cited %} open{% endif %}>
+        <summary>Historical reply <span class="case-lang" aria-label="Reply language">{{ p.answer_language | upper }}</span></summary>
         <p class="snippet">{{ p.answer_snippet | highlight(spans_by_id.get(p.ticket_id, [])) }}</p>
       </details>
+      </div>
     </article>
     {% endfor %}
     {% else %}
@@ -244,6 +243,6 @@
   <span>Data: <a href="https://huggingface.co/datasets/Tobi-Bueck/customer-support-tickets">Tobi-Bueck/customer-support-tickets</a>, CC BY-NC 4.0.</span>
 </footer>
 
-<script src="/static/console.js" defer></script>
+<script src="/static/console.js?v=case-layout-2" defer></script>
 </body>
 </html>

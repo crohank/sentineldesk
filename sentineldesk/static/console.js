@@ -51,7 +51,7 @@
     a.addEventListener("click", function () {
       var card = document.querySelector(a.getAttribute("href"));
       if (!card) return;
-      var d = card.querySelector("details");
+      var d = card.querySelector(".case-reply");
       if (d) d.open = true;
       card.classList.remove("flash");
       void card.offsetWidth;
