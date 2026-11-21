@@ -49,3 +49,19 @@ python scripts/score.py data/predictions/RUN.parquet --run-name RUN [--exclude-i
 ```
 
 Writes `reports/RUN/`. `--exclude-ids` takes a text file with one holdout ID per line and reports scores with and without those tickets.
+
+## Draft columns (generation audit)
+
+Read by `scripts/judge_drafts.py`, only for the 100 IDs in `reports/generation_sample_ids.txt`. Other rows may leave them empty.
+
+| column | type | notes |
+|---|---|---|
+| `draft_text` | string | the reply shown to the operator; empty when there is no draft |
+| `draft_abstain` | bool | true when the generator declined or the gate blocked drafting |
+| `draft_claims` | list of objects | `{"text", "ticket_id", "evidence_span"}`: one per substantive claim; `evidence_span` must occur in that KB ticket's answer |
+
+`cited_ids` (above) lists every KB ticket the draft cites. Sentences in `draft_text` not covered by a claim are graded against all cited answers.
+
+```
+python scripts/judge_drafts.py data/predictions/RUN.parquet --run-name RUN --backend gemini --model MODEL_ID
+```

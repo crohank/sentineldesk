@@ -6,3 +6,4 @@ data/processed/
 .env
 .DS_Store
 data/predictions/
+data/judge_cache/

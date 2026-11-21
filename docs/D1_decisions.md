@@ -116,7 +116,12 @@ One entry per decision. Newest at the bottom. Each says what was decided and why
 **Decision:** `scripts/twin_audit.py` flags holdout tickets whose subject + body has word 1-2 gram TF-IDF (min_df=2, sublinear tf, fit on KB) cosine >= 0.8 to any KB ticket. Writes `reports/twin_holdout_ids.txt` (520 IDs) and `reports/twin_audit.md`. Reads only kb_train and test_inputs. Scored as `reports/tfidf_logreg_no_twins/`.
 **Why:** Reproduces the D1-14 count exactly (520, and 92 at >= 0.9). Unigram body-only TF-IDF flags 1,430 at the same threshold because single shared words (product names, boilerplate) score high, so the setting matters and is fixed here. Baseline without twins: macro-F1 type 0.876, queue 0.555, priority 0.602; Incident+high recall 0.636 (615/967).
 
+### D1-29 Generation judge
+**Decision:** `scripts/judge_drafts.py` grades the 100 fixed sample drafts. Deterministic checks per draft: citations are KB IDs that were retrieved, claim IDs are among the cited, evidence spans occur in the cited answer, numbers not in the cited answers, mask placeholders, reply language vs ticket language. A judge grades every claim supported / partially_supported / unsupported against the full cited answers. Draft sentences not listed as claims are graded too. Backends: `gemini` (API key), `vertex` (project + token), `manual` (CSV sheet), `mock` (offline rules, for tests only). Prompt version `judge-v1`; judge ID, prompt hash and predictions hash go in every report. Responses are cached in `data/judge_cache/`. A holdout ID cited as evidence fails the run.
+**Why:** Plan requires a model judge with recorded ID and prompt version, or the same rubric by hand. Plain HTTP (urllib) instead of the Google SDK keeps it free of new compiled dependencies under Smart App Control. `--model` has no default: pass a different model from the one that wrote the drafts, so the judge does not grade its own output. Denominators are emitted drafts, per the plan.
+
 ## Open
 
-- D5 to confirm the predictions format (D1-23).
+- Judge model ID for the real run: pick one available on the team's GCP project, different from D4's drafting model.
+- D5 to confirm the predictions format (D1-23), including the draft columns.
 - Tell D4/D5: no KB password ticket is a Request (all 483 are Incident or Problem), so the planned password-reset demo has no routine precedent. Pick another routine demo ticket.
