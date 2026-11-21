@@ -30,7 +30,7 @@ from scipy import sparse
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import normalize as l2_normalize
 
-from sentineldesk.textprep import answer_snippet, clean_for_search
+from sentineldesk.textprep import clean_for_search
 
 HOLDOUT_FIRST_ID = "TKT-22857"
 
@@ -159,7 +159,9 @@ class Retriever:
         out = []
         for tid, score in hits:
             ev = self.evidence.loc[tid]
-            out.append(Precedent(tid, round(score, 4), ev["subject"], answer_snippet(ev["answer"]),
+            # answer_snippet carries the exact historical answer (D3-14): answers are short
+            # (p99 ~100 words), and drafts quote evidence spans that must match it verbatim.
+            out.append(Precedent(tid, round(score, 4), ev["subject"], str(ev["answer"]),
                                  ev["answer_language"]))
         return out, mode
 

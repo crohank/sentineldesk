@@ -25,6 +25,7 @@ KB = ROOT / "data" / "processed" / "kb_train.parquet"
 PARTS = ROOT / "splits" / "kb_partitions_provisional.csv"
 OUT = ROOT / "artifacts" / "retrieval"
 EVIDENCE_CACHE = ROOT / "artifacts" / "evidence_all.parquet"
+ANSWER_FORMAT = "kb_exact_strip"  # bump when the stored answer text changes
 
 
 def sha256(path: Path) -> str:
@@ -32,16 +33,22 @@ def sha256(path: Path) -> str:
 
 
 def evidence_store(kb: pd.DataFrame) -> pd.DataFrame:
-    """Every KB row's subject, cleaned answer, detected answer language, and labels for proxy metrics."""
+    """Every KB row's subject, exact answer, detected answer language, and labels for proxy metrics.
+
+    The answer is kept exactly as in kb_train (only outer whitespace stripped), so a quoted
+    evidence span that passes our check also passes D5's citation check and D1's judge (D3-14).
+    """
     if EVIDENCE_CACHE.exists():
         ev = pd.read_parquet(EVIDENCE_CACHE)
-        if len(ev) == len(kb) and set(ev["ticket_id"]) == set(kb["ticket_id"]):
+        if (len(ev) == len(kb) and set(ev["ticket_id"]) == set(kb["ticket_id"])
+                and ev.get("answer_format", pd.Series([""])).iloc[0] == ANSWER_FORMAT):
             return ev.set_index("ticket_id")
     t0 = time.time()
     ev = pd.DataFrame({
         "ticket_id": kb["ticket_id"],
         "subject": kb["subject"].map(normalize),
-        "answer": kb["answer"].map(normalize),
+        "answer": kb["answer"].str.strip(),
+        "answer_format": ANSWER_FORMAT,
         "type": kb["type"], "queue": kb["queue"], "priority": kb["priority"],
     })
     ev["answer_language"] = ev["answer"].map(lambda a: detect_language(a)[0])

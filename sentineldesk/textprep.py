@@ -67,14 +67,3 @@ def clean_for_search(subject: str | None, body: str | None) -> str:
     text = f"{normalize(subject)}\n{body_clean}"
     text = _MASK.sub(" ", text)
     return _WS.sub(" ", text).strip().lower()
-
-
-def answer_snippet(answer: str, max_chars: int = 300) -> str:
-    """Readable answer excerpt for the console: no salutation, cut at a word boundary."""
-    text = _SALUTATION.sub("", normalize(answer), count=1)
-    text = _WS.sub(" ", text).strip()
-    text = text[:1].upper() + text[1:]
-    if len(text) <= max_chars:
-        return text
-    cut = text[:max_chars].rsplit(" ", 1)[0]
-    return cut.rstrip(",;:") + " …"

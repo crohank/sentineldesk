@@ -1,0 +1,162 @@
+{
+  "_note": "Real drafts from the release stack. Draft fields match D5's Draft schema; reply_text marks citations inline as [TKT-#####]; every claim's evidence_span is a verbatim substring of that precedent's answer_snippet. generator_mode / retrieval_mode say which backend served each case.",
+  "generator_backends": [
+    "gemini",
+    "gemma"
+  ],
+  "min_top_score": 0.35,
+  "cases": {
+    "routine_password_reset_en": {
+      "input": {
+        "subject": null,
+        "body": "I forgot my password and can still access my registered email. How can I reset my password for the customer portal?"
+      },
+      "language": "en",
+      "retrieval_mode": "dense:embeddinggemma",
+      "generator_mode": "gemini",
+      "generation_ms": 1713.1,
+      "draft": {
+        "reply_text": "Thank you for reaching out to us regarding your account access. Please provide a detailed description of the error message you receive and attempt to access your account again. [TKT-17664]",
+        "cited_ticket_ids": [
+          "TKT-17664"
+        ],
+        "claims": [
+          {
+            "text": "Please provide a detailed description of the error message you receive and attempt to access your account again.",
+            "ticket_id": "TKT-17664",
+            "evidence_span": "Please provide a detailed description of the error message you receive"
+          }
+        ],
+        "abstain": false
+      },
+      "precedent_ids": [
+        "TKT-18593",
+        "TKT-06387",
+        "TKT-09852",
+        "TKT-18376",
+        "TKT-17664"
+      ]
+    },
+    "password_reset_de_from_english_evidence": {
+      "input": {
+        "subject": null,
+        "body": "Ich habe mein Passwort für das Kundenportal vergessen und habe noch Zugriff auf meine registrierte E-Mail-Adresse. Wie kann ich das Passwort zurücksetzen?"
+      },
+      "language": "de",
+      "retrieval_mode": "dense:embeddinggemma",
+      "generator_mode": "gemini",
+      "generation_ms": 4516.7,
+      "draft": {
+        "reply_text": "Vielen Dank für Ihre Nachricht bezüglich des Zugangs zu Ihrem Portal. Bitte geben Sie uns die genaue Fehlermeldung an, die Sie beim Anmeldeversuch erhalten. [TKT-18593]",
+        "cited_ticket_ids": [
+          "TKT-18593"
+        ],
+        "claims": [
+          {
+            "text": "Bitte geben Sie uns die genaue Fehlermeldung an, die Sie beim Anmeldeversuch erhalten.",
+            "ticket_id": "TKT-18593",
+            "evidence_span": "specify any error messages you receive when attempting to log in"
+          }
+        ],
+        "abstain": false
+      },
+      "precedent_ids": [
+        "TKT-06387",
+        "TKT-18593",
+        "TKT-09852",
+        "TKT-22248",
+        "TKT-17664"
+      ]
+    },
+    "printer_de": {
+      "input": {
+        "subject": null,
+        "body": "Unser Drucker im Büro druckt seit gestern nur noch leere Seiten."
+      },
+      "language": "de",
+      "retrieval_mode": "dense:embeddinggemma",
+      "generator_mode": "gemini",
+      "generation_ms": 1919.8,
+      "draft": {
+        "reply_text": "Vielen Dank für Ihre Nachricht. Könnten Sie uns bitte das genaue Druckermodell nennen und uns mitteilen, ob Fehlermeldungen auf dem Display oder dem Computer angezeigt werden? [TKT-11927] Geben Sie uns bitte auch Bescheid, ob das Gerät über USB oder über das Netzwerk verbunden ist. [TKT-11927]",
+        "cited_ticket_ids": [
+          "TKT-11927"
+        ],
+        "claims": [
+          {
+            "text": "Könnten Sie uns bitte das genaue Druckermodell nennen und uns mitteilen, ob Fehlermeldungen auf dem Display oder dem Computer angezeigt werden?",
+            "ticket_id": "TKT-11927",
+            "evidence_span": "specify the printer model and indicate if any error messages appear"
+          },
+          {
+            "text": "Geben Sie uns bitte auch Bescheid, ob das Gerät über USB oder über das Netzwerk verbunden ist.",
+            "ticket_id": "TKT-11927",
+            "evidence_span": "is the printer connected via USB or over a network"
+          }
+        ],
+        "abstain": false
+      },
+      "precedent_ids": [
+        "TKT-10317",
+        "TKT-19527",
+        "TKT-11927",
+        "TKT-21823",
+        "TKT-02723"
+      ]
+    },
+    "invoice_en": {
+      "input": {
+        "subject": null,
+        "body": "Where can I download last month's invoice for our subscription?"
+      },
+      "language": "en",
+      "retrieval_mode": "dense:embeddinggemma",
+      "generator_mode": "gemini",
+      "generation_ms": 1224.5,
+      "draft": {
+        "reply_text": "Thank you for reaching out to us regarding your invoice. Please provide your account number for invoice support. [TKT-07379]",
+        "cited_ticket_ids": [
+          "TKT-07379"
+        ],
+        "claims": [
+          {
+            "text": "Please provide your account number for invoice support.",
+            "ticket_id": "TKT-07379",
+            "evidence_span": "Please provide your account number for invoice support"
+          }
+        ],
+        "abstain": false
+      },
+      "precedent_ids": [
+        "TKT-21984",
+        "TKT-07379",
+        "TKT-06896",
+        "TKT-05981",
+        "TKT-22619"
+      ]
+    },
+    "off_topic_abstains": {
+      "input": {
+        "subject": null,
+        "body": "What is the weather in Paris tomorrow?"
+      },
+      "language": "en",
+      "retrieval_mode": "dense:embeddinggemma",
+      "generator_mode": "none",
+      "generation_ms": 0.0,
+      "draft": {
+        "reply_text": "",
+        "cited_ticket_ids": [],
+        "claims": [],
+        "abstain": true
+      },
+      "precedent_ids": [
+        "TKT-12987",
+        "TKT-20956",
+        "TKT-09443",
+        "TKT-10991",
+        "TKT-00825"
+      ]
+    }
+  }
+}

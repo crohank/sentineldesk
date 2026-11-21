@@ -36,37 +36,37 @@
       "precedents": [
         {
           "ticket_id": "TKT-18593",
-          "score": 0.4816,
+          "score": 0.4817,
           "subject": "Unable to Access the Account Management Portal",
-          "answer_snippet": "Thank you for reaching out to us regarding the difficulties in accessing the Account Management Portal. We appreciate your efforts in troubleshooting by clearing your browser cache, trying different devices, and resetting your password. Currently, there are known outages or maintenance activities …",
+          "answer_snippet": "<name>,\n\nThank you for reaching out to us regarding the difficulties in accessing the Account Management Portal. We appreciate your efforts in troubleshooting by clearing your browser cache, trying different devices, and resetting your password. Currently, there are known outages or maintenance activities that could be impacting access.\n\nTo better assist you, could you please specify any error messages you receive when attempting to log in? Additionally, please confirm the browser version you are using. If possible, kindly provide a screenshot of the issue, ensuring that sensitive information is visible.",
           "answer_language": "en"
         },
         {
           "ticket_id": "TKT-06387",
-          "score": 0.4599,
+          "score": 0.4603,
           "subject": "Login Issues After Recent Server Update",
           "answer_snippet": "Please investigate the potential impact of the recent server update on login functionality. Kindly provide the error message for further assistance.",
           "answer_language": "en"
         },
         {
           "ticket_id": "TKT-09852",
-          "score": 0.4529,
+          "score": 0.453,
           "subject": "",
           "answer_snippet": "To assist with the HR portal problem, kindly provide the employee's login details and the exact error message received. We will investigate and contact <tel_num> if necessary to resolve the issue promptly. Please include <acc_num> for reference.",
           "answer_language": "en"
         },
         {
           "ticket_id": "TKT-18376",
-          "score": 0.4434,
+          "score": 0.4435,
           "subject": "Connection Problem",
-          "answer_snippet": "Thank you for reaching out about the connection problem with the Account Management portal. We understand how crucial it is to have continuous access and appreciate that you've already attempted some basic troubleshooting. To assist you further, could you please share specific details about the …",
+          "answer_snippet": "Thank you for reaching out about the connection problem with the Account Management portal. We understand how crucial it is to have continuous access and appreciate that you've already attempted some basic troubleshooting. To assist you further, could you please share specific details about the error you are seeing? For example, are you encountering a particular error message or is the page just loading indefinitely? Also, kindly inform us about the browser and device you are using, and whether the issue occurs across multiple devices or networks.",
           "answer_language": "en"
         },
         {
           "ticket_id": "TKT-17664",
-          "score": 0.4432,
+          "score": 0.4434,
           "subject": "Problems with Account Access",
-          "answer_snippet": "Thank you for your report regarding issues with accessing your account for bills and payments. Despite resetting your password and clearing your browser cache, you still encounter difficulties. Please provide a detailed description of the error message you receive and attempt to access your account …",
+          "answer_snippet": "Dear [name],\n\nThank you for your report regarding issues with accessing your account for bills and payments. Despite resetting your password and clearing your browser cache, you still encounter difficulties. Please provide a detailed description of the error message you receive and attempt to access your account again. These details will help us better understand the issue and find a solution. If necessary, please contact us directly to discuss your account information and work on resolving the problem. When would be a convenient time for you to make this call?",
           "answer_language": "en"
         }
       ],
@@ -84,7 +84,7 @@
       "precedents": [
         {
           "ticket_id": "TKT-13401",
-          "score": 0.5655,
+          "score": 0.5656,
           "subject": "Ausfall der IT-Systeme im Krankenhaus",
           "answer_snippet": "Bitte prüfen Sie die IT-Systeme im Krankenhaus unter <tel_num> und besprechen Sie die Details, um eine Lösung zu finden. Eine Anleitung zur Behebung wird bereitgestellt.",
           "answer_language": "de"
@@ -105,7 +105,7 @@
         },
         {
           "ticket_id": "TKT-13522",
-          "score": 0.5542,
+          "score": 0.5541,
           "subject": "Hospital System Outage",
           "answer_snippet": "Investigate the hospital's system issues and contact <tel_num> to discuss and provide guidance for resolution.",
           "answer_language": "en"
@@ -114,7 +114,7 @@
           "ticket_id": "TKT-08933",
           "score": 0.549,
           "subject": "Betreff: Bericht zur Sicherheitsverletzung",
-          "answer_snippet": "Wir bedanken uns für Ihren schnellen Bericht zur Sicherheitsverletzung. Wir haben die Maßnahmen bereits umgesetzt, um die weiteren Risiken zu verringern. Bitte teilen Sie uns möglicherweise zusätzliche Informationen über die betroffenen Systeme und die aktualisierte VPN-Konfiguration mit, damit wir …",
+          "answer_snippet": "Sehr geehrte(r) <name>, wir bedanken uns für Ihren schnellen Bericht zur Sicherheitsverletzung. Wir haben die Maßnahmen bereits umgesetzt, um die weiteren Risiken zu verringern. Bitte teilen Sie uns möglicherweise zusätzliche Informationen über die betroffenen Systeme und die aktualisierte VPN-Konfiguration mit, damit wir die möglichen Beseitigungsmaßnahmen besprechen können. Um 15:00 Uhr vereinbaren wir ein Gespräch am <tel_num> für die Sicherstellung der Systeme.",
           "answer_language": "de"
         }
       ],
@@ -132,37 +132,37 @@
       "precedents": [
         {
           "ticket_id": "TKT-21887",
-          "score": 0.4661,
+          "score": 0.4665,
           "subject": "Request for Assistance with Service Interruption",
           "answer_snippet": "Looking into the problem",
           "answer_language": "en"
         },
         {
           "ticket_id": "TKT-08828",
-          "score": 0.4513,
+          "score": 0.4515,
           "subject": "Support Request for Service Outage",
           "answer_snippet": "Investigating the issue",
           "answer_language": "en"
         },
         {
           "ticket_id": "TKT-01404",
-          "score": 0.4454,
+          "score": 0.4456,
           "subject": "Support Service Inquiry",
           "answer_snippet": "We apologize for the service disruption. Please provide us with more details so we can assist with the issue impacting your strategic plans.",
           "answer_language": "en"
         },
         {
           "ticket_id": "TKT-18174",
-          "score": 0.4439,
+          "score": 0.4442,
           "subject": "Technical Support Service Interruption Inquiry",
-          "answer_snippet": "We apologize for the service interruption affecting critical applications. We are currently investigating the issue, which may be connected to recent software updates. To better assist you, could you please provide details on any error messages you are receiving and the symptoms observed? If …",
+          "answer_snippet": "We apologize for the service interruption affecting critical applications. We are currently investigating the issue, which may be connected to recent software updates. To better assist you, could you please provide details on any error messages you are receiving and the symptoms observed? If available, we would like to schedule a call at <tel_num> to discuss the matter and work towards a resolution. Alternatively, if a different time suits you better, please let us know.",
           "answer_language": "en"
         },
         {
           "ticket_id": "TKT-16282",
-          "score": 0.4412,
+          "score": 0.4413,
           "subject": "Issue with Service Interruption Reported Today",
-          "answer_snippet": "Apologize for the service interruption; we have recently analyzed it. We are currently investigating the cause of the problem. To assist in resolving the issue, we kindly request additional information about the interruption, such as the time it occurred and any error messages you received. If …",
+          "answer_snippet": "Dear <name>, apologize for the service interruption; we have recently analyzed it. We are currently investigating the cause of the problem. To assist in resolving the issue, we kindly request additional information about the interruption, such as the time it occurred and any error messages you received. If necessary, please contact us at <tel_num> for further advice. Kindly provide this information at your earliest convenience. Thank you for your understanding. We look forward to resolving the issue and will keep you informed at account <acc_num>.",
           "answer_language": "en"
         }
       ],
@@ -180,7 +180,7 @@
       "precedents": [
         {
           "ticket_id": "TKT-06387",
-          "score": 0.4068,
+          "score": 0.4071,
           "subject": "Login Issues After Recent Server Update",
           "answer_snippet": "Please investigate the potential impact of the recent server update on login functionality. Kindly provide the error message for further assistance.",
           "answer_language": "en"
@@ -189,28 +189,28 @@
           "ticket_id": "TKT-18593",
           "score": 0.4044,
           "subject": "Unable to Access the Account Management Portal",
-          "answer_snippet": "Thank you for reaching out to us regarding the difficulties in accessing the Account Management Portal. We appreciate your efforts in troubleshooting by clearing your browser cache, trying different devices, and resetting your password. Currently, there are known outages or maintenance activities …",
+          "answer_snippet": "<name>,\n\nThank you for reaching out to us regarding the difficulties in accessing the Account Management Portal. We appreciate your efforts in troubleshooting by clearing your browser cache, trying different devices, and resetting your password. Currently, there are known outages or maintenance activities that could be impacting access.\n\nTo better assist you, could you please specify any error messages you receive when attempting to log in? Additionally, please confirm the browser version you are using. If possible, kindly provide a screenshot of the issue, ensuring that sensitive information is visible.",
           "answer_language": "en"
         },
         {
           "ticket_id": "TKT-09852",
-          "score": 0.3913,
+          "score": 0.3915,
           "subject": "",
           "answer_snippet": "To assist with the HR portal problem, kindly provide the employee's login details and the exact error message received. We will investigate and contact <tel_num> if necessary to resolve the issue promptly. Please include <acc_num> for reference.",
           "answer_language": "en"
         },
         {
           "ticket_id": "TKT-22248",
-          "score": 0.3865,
+          "score": 0.3864,
           "subject": "",
           "answer_snippet": "Das Problem zur Datenanalyse-Plattform unterstützen. Bitte geben Sie den Mitarbeiterdaten an und vereinbaren Sie einen geeigneten Zeitpunkt, um die Schritt-für-Schritt-Anleitungen zu besprechen.",
           "answer_language": "de"
         },
         {
           "ticket_id": "TKT-17664",
-          "score": 0.3825,
+          "score": 0.3827,
           "subject": "Problems with Account Access",
-          "answer_snippet": "Thank you for your report regarding issues with accessing your account for bills and payments. Despite resetting your password and clearing your browser cache, you still encounter difficulties. Please provide a detailed description of the error message you receive and attempt to access your account …",
+          "answer_snippet": "Dear [name],\n\nThank you for your report regarding issues with accessing your account for bills and payments. Despite resetting your password and clearing your browser cache, you still encounter difficulties. Please provide a detailed description of the error message you receive and attempt to access your account again. These details will help us better understand the issue and find a solution. If necessary, please contact us directly to discuss your account information and work on resolving the problem. When would be a convenient time for you to make this call?",
           "answer_language": "en"
         }
       ],
@@ -230,36 +230,36 @@
           "ticket_id": "TKT-10317",
           "score": 0.5219,
           "subject": "Druckprobleme",
-          "answer_snippet": "Es wurden Verbindungsschwierigkeiten beim Druck mit dem Canon PIXMA TR8550-Drucker unter Outlook 2021 gemeldet. Ich verstehe, dass das Marketing-Team bereits mehrere Troubleshooting-Schritte unternommen hat und Erfolg hatte. Wir werden uns bemühen, eine Lösung zu finden. Zwischenzeitlich bitten wir …",
+          "answer_snippet": "Es wurden Verbindungsschwierigkeiten beim Druck mit dem Canon PIXMA TR8550-Drucker unter Outlook 2021 gemeldet. Ich verstehe, dass das Marketing-Team bereits mehrere Troubleshooting-Schritte unternommen hat und Erfolg hatte. Wir werden uns bemühen, eine Lösung zu finden. Zwischenzeitlich bitten wir um mehr Details zur Fehlermeldung und den genauen Schritten, die bisher unternommen wurden, um das Problem besser zu verstehen und eine effektivere Lösung zu finden, um die Störungen unserer Arbeit zu minimieren.",
           "answer_language": "de"
         },
         {
           "ticket_id": "TKT-19527",
-          "score": 0.5103,
+          "score": 0.5102,
           "subject": "Drucker-Probleme",
-          "answer_snippet": "Druck-Probleme mit dem Canon PIXMA TR8550 bei der Verbindung zu Outlook 2021 erhalten. Verstehe, dass das Team bereits mehrere Schritte unternommen hat und Erfolg hatte. Ich versuche, das Problem zu lösen und eine Lösung zu finden. In der Zwischenzeit könnten Sie bitte mehr Details zu den …",
+          "answer_snippet": "Druck-Probleme mit dem Canon PIXMA TR8550 bei der Verbindung zu Outlook 2021 erhalten. Verstehe, dass das Team bereits mehrere Schritte unternommen hat und Erfolg hatte. Ich versuche, das Problem zu lösen und eine Lösung zu finden. In der Zwischenzeit könnten Sie bitte mehr Details zu den Fehlernachrichten und den genauen Schritten geben, die Sie bisher unternommen haben. Das hilft mir, den Grund für das Problem besser zu verstehen und eine effektivere Lösung zu finden, um die Störungen für die Arbeit zu minimieren.",
           "answer_language": "de"
         },
         {
           "ticket_id": "TKT-11927",
-          "score": 0.5082,
+          "score": 0.5079,
           "subject": "Problem with Printer Not Printing Files",
-          "answer_snippet": "Thank you for contacting us, <name>. To assist you better, could you please specify the printer model and indicate if any error messages appear on the printer display or on your computer? Additionally, is the printer connected via USB or over a network? With this information, we can provide …",
+          "answer_snippet": "Thank you for contacting us, <name>. To assist you better, could you please specify the printer model and indicate if any error messages appear on the printer display or on your computer? Additionally, is the printer connected via USB or over a network? With this information, we can provide detailed troubleshooting steps to resolve the issue as quickly as possible.",
           "answer_language": "en"
         },
         {
           "ticket_id": "TKT-21823",
           "score": 0.4908,
           "subject": "Problem with Printer",
-          "answer_snippet": "We have received your email regarding the connectivity issues with the Canon PIXMA TR8550 printer when using Outlook 2021. We understand that your team has already attempted several troubleshooting steps without success. We will try to find a solution as soon as possible. In the meantime, could you …",
+          "answer_snippet": "We have received your email regarding the connectivity issues with the Canon PIXMA TR8550 printer when using Outlook 2021. We understand that your team has already attempted several troubleshooting steps without success. We will try to find a solution as soon as possible. In the meantime, could you please provide us with more details about the error messages you are receiving and the exact steps you have taken so far? This will help us better understand the issue and provide an effective solution to resolve it and minimize any disruptions to your work.",
           "answer_language": "en"
         },
         {
-          "ticket_id": "TKT-10747",
-          "score": 0.469,
-          "subject": "Zahlreiche Geräte im Büro laufen ordnungsgemäß",
-          "answer_snippet": "Vielen Dank für Ihre Meldung bezüglich der Probleme nach dem letzten Update. Damit wir Ihnen zügig weiterhelfen können, bitten wir Sie, die betroffenen Hardware- und Softwareprodukte sowie etwaige Fehlermeldungen zu beschreiben. Wenn Sie telefonische Unterstützung benötigen, teilen Sie uns bitte …",
-          "answer_language": "de"
+          "ticket_id": "TKT-02723",
+          "score": 0.4689,
+          "subject": "Problem with Printer Canon PIXMA TR8550",
+          "answer_snippet": "We have received your email regarding the connectivity issues with the Canon PIXMA TR8550 printer when using Outlook 2021. We understand that the team has already attempted several troubleshooting steps, but unfortunately, these have not been successful. We are committed to finding a solution as soon as possible. In the meantime, could you please provide more details about the error messages you are receiving and the exact steps you have taken so far? This information will help us better understand the issue and provide an effective solution to resolve the problem and minimize any disruptions to your work.",
+          "answer_language": "en"
         }
       ],
       "retrieval_mode": "dense:embeddinggemma"
@@ -276,16 +276,16 @@
       "precedents": [
         {
           "ticket_id": "TKT-12987",
-          "score": 0.2086,
+          "score": 0.2087,
           "subject": "Investment Forecast Discrepancies Noted",
-          "answer_snippet": "Received an email concerning discrepancies in investment forecasts. Would like to gather more information to better understand the issue. Please provide details on the discrepancies and the specific forecast dates involved. This will help in investigating the matter and providing a solution. If …",
+          "answer_snippet": "Received an email concerning discrepancies in investment forecasts. Would like to gather more information to better understand the issue. Please provide details on the discrepancies and the specific forecast dates involved. This will help in investigating the matter and providing a solution. If necessary, I may need to contact you via phone at <tel_num> for further discussion. I would be available for a call at your convenience.",
           "answer_language": "en"
         },
         {
           "ticket_id": "TKT-20956",
-          "score": 0.206,
+          "score": 0.2059,
           "subject": "Query About Future Service Disruptions and Maintenance Timelines",
-          "answer_snippet": "Thank you for reaching out about the upcoming service disruptions and maintenance schedules. The scheduled outages and maintenance windows in the near future are expected to impact big data lakes, analytical models, and automated investment platforms. Maintenance plans will include advance …",
+          "answer_snippet": "Thank you for reaching out about the upcoming service disruptions and maintenance schedules. The scheduled outages and maintenance windows in the near future are expected to impact big data lakes, analytical models, and automated investment platforms. Maintenance plans will include advance notifications with detailed information about the timing, affected components, expected downtime, and recommended preparations. For urgent issues during maintenance periods, you may contact our support hotline at <tel_num> to reach the designated support team.",
           "answer_language": "en"
         },
         {
@@ -297,14 +297,14 @@
         },
         {
           "ticket_id": "TKT-10991",
-          "score": 0.1876,
+          "score": 0.1877,
           "subject": "Issue with Creation of Investment Forecasts Today",
-          "answer_snippet": "Thank you for bringing to our attention the issue with creating investment forecasts on the Analytics Platform. We will address this immediately. To better assist you, could you please provide us with more information, such as the error message and any relevant details? If necessary, we can arrange …",
+          "answer_snippet": "Dear [Name], thank you for bringing to our attention the issue with creating investment forecasts on the Analytics Platform. We will address this immediately. To better assist you, could you please provide us with more information, such as the error message and any relevant details? If necessary, we can arrange a call at [Phone Number] to discuss additional details. We value your understanding and look forward to resolving the issue for account number [Account Number] as soon as possible.",
           "answer_language": "en"
         },
         {
           "ticket_id": "TKT-00825",
-          "score": 0.1782,
+          "score": 0.1783,
           "subject": "Problem mit Prognosewerkzeug gemeldet",
           "answer_snippet": "Um das Prognosewerkzeug effektiver nutzen zu können, bitten wir um mehr Details über die neuesten Dateneingaben, damit wir diese betrachten und das Problem genauer auseinandersetzen können.",
           "answer_language": "de"
