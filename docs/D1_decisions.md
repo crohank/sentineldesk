@@ -180,7 +180,16 @@ One entry per decision. Newest at the bottom. Each says what was decided and why
 **Decision:** `kb_train`, `kb_partitions`, `kb_extra` and `test_inputs` parquet files are committed (about 17 MB). `test_labels`, raw CSVs and the German/20k working files stay out of git. Supersedes D1-06 for these four files.
 **Why:** D2 and D3 can start immediately without the download and rebuild. Files are byte-identical to a local rebuild, so nothing drifts. Keeping labels out of git means only D1's scorer holds them, which also strengthens the leakage story.
 
+### D1-45 LLM model selection on 300 val tickets, compared like for like
+**Decision:** `scripts/llm_compare.py` scores every row on the identical 300 `val` tickets (stratified seed 42) with the same `fit` few-shot pool, k=8 and prompt `classify-v1`, and fails if ID sets, few-shot IDs or recomputed scores disagree. Rows: majority, TF-IDF fit on `fit` only, kNN vote over the LLM's own 8 examples, each LLM run. Report: `reports/llm/val300_comparison.md`. `gemini-3.8-flash` is the candidate for the holdout run.
+**Why:** The holdout TF-IDF numbers are not comparable to val LLM numbers (different tickets, KB-wide training). Results, macro-F1 type / queue / priority: TF-IDF 0.890 / 0.570 / 0.598; kNN vote 0.847 / 0.455 / 0.578; flash-lite 0.918 / 0.681 / 0.709; flash 0.950 / 0.754 / 0.766, Incident+high recall 44/51 vs TF-IDF 32/51. Flash minus TF-IDF paired bootstrap 95% CIs exclude 0 on all heads, also on the 276 non-twins (24 val tickets have a twin in the few-shot set). The kNN vote sits below TF-IDF, so the gain is not label copying. German (91 tickets) also beats TF-IDF: 0.906 / 0.620 / 0.605 vs 0.858 / 0.527 / 0.519. Flash confidences are worse calibrated (ECE 0.097 / 0.110 / 0.061 vs 0.049 / 0.082 / 0.033), so plan step 5 is required before any threshold use. Cost $0.0024 per ticket, p50 3.2 s.
+
+### D1-46 gemini-4-carbon not run
+**Decision:** Carbon is left out of the selection for now.
+**Why:** Every call on project `sentineldesk-gdc-1121` returned HTTP 429 RESOURCE_EXHAUSTED across 4 attempts at 4 and then 2 workers, with zero answers, so nothing was spent. Flash-lite and flash on the same project worked at the same time, which points to a per-model quota for carbon. Options: request quota in the Cloud console, retry later, or skip.
+
 ## Open
+- D1-46: decide whether to retry gemini-4-carbon or skip it.
 - D2: compare their model trained with and without `kb_extra` on the `val` partition; drop the extension if it does not help (D1-38).
 
 - D3 to call `assert_kb_only` on the index IDs, then update LEAKAGE.md.

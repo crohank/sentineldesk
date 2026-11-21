@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "run_name": "val300_lite_few8",
+    "split": "val",
+    "n": 300,
+    "mode": "few",
+    "k": 8,
+    "backend": "vertex",
+    "model": "gemini-3.5-flash-lite",
+    "thinking_level": "minimal",
+    "prompt_version": "classify-v1",
+    "few_shot_pool": "fit partition",
+    "wall_seconds": 105.3,
+    "latency_ms_p50": 1292.1,
+    "latency_ms_p95": 1865.0,
+    "usage": {
+      "calls": 188,
+      "cached": 112,
+      "prompt_tokens": 341082,
+      "output_tokens": 47974,
+      "thought_tokens": 0
+    },
+    "est_cost_usd": 0.2223,
+    "generated_utc": "2026-11-21T17:28:43Z",
+    "predictions": "data/predictions/val/val300_lite_few8.parquet"
+  },
+  "macro_f1": {
+    "type": 0.9177,
+    "queue": 0.6813,
+    "priority": 0.7093,
+    "incident_high_recall": "39/51"
+  }
+}

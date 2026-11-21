@@ -71,6 +71,10 @@ type: {type} | queue: {queue} | priority: {priority}
 </example>"""
 
 
+def shown(path: Path) -> str:
+    return path.relative_to(ROOT).as_posix() if path.is_relative_to(ROOT) else str(path)
+
+
 class ClassifyError(RuntimeError):
     pass
 
@@ -220,9 +224,13 @@ def run(split: str, mode: str, backend: str, model: str | None, run_name: str, *
         PRED_DIR.mkdir(parents=True, exist_ok=True)
         out = PRED_DIR / f"{run_name}.parquet"
         pred.to_parquet(out, index=False)
-        meta["predictions"] = out.relative_to(ROOT).as_posix()
+        meta["predictions"] = shown(out)
         result = {"meta": meta}
     else:
+        out = PRED_DIR / split / f"{run_name}.parquet"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        pred.to_parquet(out, index=False)
+        meta["predictions"] = shown(out)
         gold = queries.set_index("ticket_id").loc[pred.ticket_id]
         scores = {h: round(float(f1_score(gold[h], pred[f"pred_{h}"], average="macro")), 4) for h in HEADS}
         joint_gold = (gold.type.values == "Incident") & (gold.priority.values == "high")

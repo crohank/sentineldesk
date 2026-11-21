@@ -1,0 +1,926 @@
+{
+  "meta": {
+    "generated_utc": "2026-11-21T17:36:27Z",
+    "n": 300,
+    "ticket_ids_sha256": "aa8c100d4061a2259385d7ee2f16cc730edd645afcfb7a82fa697b88d2161485",
+    "selection": "llm_classify.select_rows('val', 300): stratified on type|priority, seed 42",
+    "pool": "fit partition (18285 tickets)",
+    "k": 8,
+    "reference_row": "tfidf_logreg_fit",
+    "bootstrap": {
+      "n_boot": 1000,
+      "seed": 42,
+      "ci": 0.95
+    },
+    "twin_threshold": 0.8,
+    "ece_bins": 10
+  },
+  "population": {
+    "languages": {
+      "en": 209,
+      "de": 91
+    },
+    "twins": 24,
+    "twin_ids": [
+      "TKT-00926",
+      "TKT-01047",
+      "TKT-01930",
+      "TKT-02938",
+      "TKT-03124",
+      "TKT-03432",
+      "TKT-03519",
+      "TKT-04568",
+      "TKT-04777",
+      "TKT-04964",
+      "TKT-05103",
+      "TKT-09136",
+      "TKT-09711",
+      "TKT-12217",
+      "TKT-14748",
+      "TKT-14863",
+      "TKT-15534",
+      "TKT-15649",
+      "TKT-16914",
+      "TKT-17554",
+      "TKT-19441",
+      "TKT-20850",
+      "TKT-21610",
+      "TKT-22293"
+    ],
+    "twin_label_copy_accuracy": {
+      "type": {
+        "value": 1.0,
+        "num": 24,
+        "den": 24
+      },
+      "queue": {
+        "value": 1.0,
+        "num": 24,
+        "den": 24
+      },
+      "priority": {
+        "value": 1.0,
+        "num": 24,
+        "den": 24
+      }
+    },
+    "twin_in_fewshot": {
+      "value": 1.0,
+      "num": 24,
+      "den": 24
+    },
+    "gold_incident_high": 51
+  },
+  "rows": {
+    "majority_fit": {
+      "label": "Majority class (fit)",
+      "kind": "local",
+      "cost_usd": 0.0,
+      "latency_ms_p50": 0.0,
+      "latency_ms_p95": 0.0,
+      "labels": {
+        "type": "Incident",
+        "queue": "Technical Support",
+        "priority": "medium"
+      },
+      "metrics": {
+        "heads": {
+          "type": {
+            "macro_f1": 0.14285714285714285,
+            "accuracy": {
+              "value": 0.4,
+              "num": 120,
+              "den": 300
+            }
+          },
+          "queue": {
+            "macro_f1": 0.04496124031007752,
+            "accuracy": {
+              "value": 0.29,
+              "num": 87,
+              "den": 300
+            }
+          },
+          "priority": {
+            "macro_f1": 0.19160728424386383,
+            "accuracy": {
+              "value": 0.4033333333333333,
+              "num": 121,
+              "den": 300
+            }
+          }
+        },
+        "joint_incident_high": {
+          "type_and_priority": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 51
+            }
+          },
+          "priority_only": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 51
+            }
+          }
+        },
+        "ece": {},
+        "language": {
+          "en": {
+            "n": 209,
+            "macro_f1": {
+              "type": 0.1421232876712329,
+              "queue": 0.046886446886446886,
+              "priority": 0.18118466898954702
+            }
+          },
+          "de": {
+            "n": 91,
+            "macro_f1": {
+              "type": 0.14453125,
+              "queue": 0.04035087719298246,
+              "priority": 0.21393034825870647
+            }
+          }
+        },
+        "twins": {
+          "twin": {
+            "n": 24,
+            "macro_f1": {
+              "type": 0.125,
+              "queue": 0.0606060606060606,
+              "priority": 0.19607843137254902
+            }
+          },
+          "non_twin": {
+            "n": 276,
+            "macro_f1": {
+              "type": 0.14432989690721648,
+              "queue": 0.04406779661016949,
+              "priority": 0.19121447028423774
+            }
+          }
+        }
+      },
+      "bootstrap_vs_tfidf": {
+        "type": {
+          "diff": -0.7471421721575968,
+          "lo": -0.7840494433716756,
+          "hi": -0.7096181959773213,
+          "share_le_0": 1.0,
+          "n": 300,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": true
+        },
+        "queue": {
+          "diff": -0.5245625896971462,
+          "lo": -0.5795266731009968,
+          "hi": -0.44118653307835354,
+          "share_le_0": 1.0,
+          "n": 300,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": true
+        },
+        "priority": {
+          "diff": -0.40650947658476133,
+          "lo": -0.4664822013488578,
+          "hi": -0.34103307854748083,
+          "share_le_0": 1.0,
+          "n": 300,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": true
+        }
+      },
+      "bootstrap_vs_tfidf_non_twin": {
+        "type": {
+          "diff": -0.7387793595391146,
+          "lo": -0.775578260129877,
+          "hi": -0.6984387505351434,
+          "share_le_0": 1.0,
+          "n": 276,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": true
+        },
+        "queue": {
+          "diff": -0.5092785634396113,
+          "lo": -0.5721495311632279,
+          "hi": -0.40244779291000526,
+          "share_le_0": 1.0,
+          "n": 276,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": true
+        },
+        "priority": {
+          "diff": -0.3732081712104647,
+          "lo": -0.43763480372396535,
+          "hi": -0.3075688843287514,
+          "share_le_0": 1.0,
+          "n": 276,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": true
+        }
+      }
+    },
+    "tfidf_logreg_fit": {
+      "label": "TF-IDF + LogReg (fit)",
+      "kind": "local",
+      "cost_usd": 0.0,
+      "latency_ms_p50": 0.377,
+      "latency_ms_p95": 0.377,
+      "fit_seconds": 72.9,
+      "predict_ms_per_ticket_batch": 0.377,
+      "metrics": {
+        "heads": {
+          "type": {
+            "macro_f1": 0.8899993150147397,
+            "accuracy": {
+              "value": 0.88,
+              "num": 264,
+              "den": 300
+            }
+          },
+          "queue": {
+            "macro_f1": 0.5695238300072237,
+            "accuracy": {
+              "value": 0.53,
+              "num": 159,
+              "den": 300
+            }
+          },
+          "priority": {
+            "macro_f1": 0.5981167608286252,
+            "accuracy": {
+              "value": 0.6033333333333334,
+              "num": 181,
+              "den": 300
+            }
+          }
+        },
+        "joint_incident_high": {
+          "type_and_priority": {
+            "flagged": 58,
+            "precision": {
+              "value": 0.5517241379310345,
+              "num": 32,
+              "den": 58
+            },
+            "recall": {
+              "value": 0.6274509803921569,
+              "num": 32,
+              "den": 51
+            }
+          },
+          "priority_only": {
+            "flagged": 119,
+            "precision": {
+              "value": 0.29411764705882354,
+              "num": 35,
+              "den": 119
+            },
+            "recall": {
+              "value": 0.6862745098039216,
+              "num": 35,
+              "den": 51
+            }
+          }
+        },
+        "ece": {
+          "type": 0.049254122638735624,
+          "queue": 0.08215822669326843,
+          "priority": 0.0325805598695703
+        },
+        "language": {
+          "en": {
+            "n": 209,
+            "macro_f1": {
+              "type": 0.9053523035230352,
+              "queue": 0.5828842424526053,
+              "priority": 0.6341194008156372
+            }
+          },
+          "de": {
+            "n": 91,
+            "macro_f1": {
+              "type": 0.8575193798449612,
+              "queue": 0.5268483578398743,
+              "priority": 0.5191769612501319
+            }
+          }
+        },
+        "twins": {
+          "twin": {
+            "n": 24,
+            "macro_f1": {
+              "type": 1.0,
+              "queue": 0.7974867724867725,
+              "priority": 0.9111111111111111
+            }
+          },
+          "non_twin": {
+            "n": 276,
+            "macro_f1": {
+              "type": 0.883109256446331,
+              "queue": 0.5533463600497808,
+              "priority": 0.5644226414947024
+            }
+          }
+        }
+      }
+    },
+    "knn_vote_k8": {
+      "label": "kNN vote (k=8, LLM's few-shot set)",
+      "kind": "local",
+      "cost_usd": 0.0,
+      "latency_ms_p50": 6.745,
+      "latency_ms_p95": 6.745,
+      "metrics": {
+        "heads": {
+          "type": {
+            "macro_f1": 0.8472957093485112,
+            "accuracy": {
+              "value": 0.8566666666666667,
+              "num": 257,
+              "den": 300
+            }
+          },
+          "queue": {
+            "macro_f1": 0.4549325042026352,
+            "accuracy": {
+              "value": 0.49666666666666665,
+              "num": 149,
+              "den": 300
+            }
+          },
+          "priority": {
+            "macro_f1": 0.5781902369365423,
+            "accuracy": {
+              "value": 0.5966666666666667,
+              "num": 179,
+              "den": 300
+            }
+          }
+        },
+        "joint_incident_high": {
+          "type_and_priority": {
+            "flagged": 63,
+            "precision": {
+              "value": 0.6031746031746031,
+              "num": 38,
+              "den": 63
+            },
+            "recall": {
+              "value": 0.7450980392156863,
+              "num": 38,
+              "den": 51
+            }
+          },
+          "priority_only": {
+            "flagged": 122,
+            "precision": {
+              "value": 0.32786885245901637,
+              "num": 40,
+              "den": 122
+            },
+            "recall": {
+              "value": 0.7843137254901961,
+              "num": 40,
+              "den": 51
+            }
+          }
+        },
+        "ece": {
+          "type": 0.06999999999999999,
+          "queue": 0.08833333333333332,
+          "priority": 0.09291666666666665
+        },
+        "language": {
+          "en": {
+            "n": 209,
+            "macro_f1": {
+              "type": 0.8373071373071374,
+              "queue": 0.5147448167724447,
+              "priority": 0.6080183185329332
+            }
+          },
+          "de": {
+            "n": 91,
+            "macro_f1": {
+              "type": 0.8678319139103452,
+              "queue": 0.3108100711548987,
+              "priority": 0.5079712790556165
+            }
+          }
+        },
+        "twins": {
+          "twin": {
+            "n": 24,
+            "macro_f1": {
+              "type": 0.8429330065359477,
+              "queue": 0.6288515406162465,
+              "priority": 0.6142857142857142
+            }
+          },
+          "non_twin": {
+            "n": 276,
+            "macro_f1": {
+              "type": 0.8478434728321709,
+              "queue": 0.431018343885371,
+              "priority": 0.5730127041742287
+            }
+          }
+        }
+      },
+      "bootstrap_vs_tfidf": {
+        "type": {
+          "diff": -0.04270360566622855,
+          "lo": -0.09142374795229039,
+          "hi": 0.007250191940938002,
+          "share_le_0": 0.956,
+          "n": 300,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": false
+        },
+        "queue": {
+          "diff": -0.11459132580458853,
+          "lo": -0.19884785103352953,
+          "hi": -0.03890392617838882,
+          "share_le_0": 0.998,
+          "n": 300,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": true
+        },
+        "priority": {
+          "diff": -0.019926523892082937,
+          "lo": -0.09090814718483137,
+          "hi": 0.05510160167062032,
+          "share_le_0": 0.691,
+          "n": 300,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": false
+        }
+      },
+      "bootstrap_vs_tfidf_non_twin": {
+        "type": {
+          "diff": -0.03526578361416011,
+          "lo": -0.08972315345766727,
+          "hi": 0.017510248376309562,
+          "share_le_0": 0.919,
+          "n": 276,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": false
+        },
+        "queue": {
+          "diff": -0.12232801616440975,
+          "lo": -0.22150304871154985,
+          "hi": -0.03485323703471647,
+          "share_le_0": 1.0,
+          "n": 276,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": true
+        },
+        "priority": {
+          "diff": 0.008590062679526222,
+          "lo": -0.06834910910765314,
+          "hi": 0.08643658965931056,
+          "share_le_0": 0.421,
+          "n": 276,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": false
+        }
+      }
+    },
+    "val300_flash_few8": {
+      "label": "gemini-3.8-flash (low)",
+      "kind": "llm",
+      "model": "gemini-3.8-flash",
+      "thinking_level": "low",
+      "backend": "vertex",
+      "mode": "few",
+      "k": 8,
+      "prompt_version": "classify-v1",
+      "few_shot_pool": "fit partition",
+      "generated_utc": "2026-11-21T17:26:07Z",
+      "cost_usd": 0.7178,
+      "calls": 300,
+      "cached": 0,
+      "tokens_per_call": {
+        "prompt": 1795.3433333333332,
+        "output": 257.92333333333335,
+        "thought": 21.086666666666666,
+        "total": 2074.3533333333335
+      },
+      "cost_per_1k_tickets_usd": 2.3926666666666665,
+      "price_per_1m_in_out_usd": [
+        0.75,
+        3.75
+      ],
+      "latency_ms_p50": 3164.8982999995496,
+      "latency_ms_p95": 23494.078184999675,
+      "stored_macro_f1": {
+        "type": 0.9499,
+        "queue": 0.7541,
+        "priority": 0.7656
+      },
+      "metrics": {
+        "heads": {
+          "type": {
+            "macro_f1": 0.9498550220769783,
+            "accuracy": {
+              "value": 0.9466666666666667,
+              "num": 284,
+              "den": 300
+            }
+          },
+          "queue": {
+            "macro_f1": 0.7541362440865506,
+            "accuracy": {
+              "value": 0.7266666666666667,
+              "num": 218,
+              "den": 300
+            }
+          },
+          "priority": {
+            "macro_f1": 0.7656075931974083,
+            "accuracy": {
+              "value": 0.7733333333333333,
+              "num": 232,
+              "den": 300
+            }
+          }
+        },
+        "joint_incident_high": {
+          "type_and_priority": {
+            "flagged": 58,
+            "precision": {
+              "value": 0.7586206896551724,
+              "num": 44,
+              "den": 58
+            },
+            "recall": {
+              "value": 0.8627450980392157,
+              "num": 44,
+              "den": 51
+            }
+          },
+          "priority_only": {
+            "flagged": 127,
+            "precision": {
+              "value": 0.3543307086614173,
+              "num": 45,
+              "den": 127
+            },
+            "recall": {
+              "value": 0.8823529411764706,
+              "num": 45,
+              "den": 51
+            }
+          }
+        },
+        "ece": {
+          "type": 0.0974666666666667,
+          "queue": 0.11002698412698411,
+          "priority": 0.06120000000000005
+        },
+        "language": {
+          "en": {
+            "n": 209,
+            "macro_f1": {
+              "type": 0.9697310180456248,
+              "queue": 0.8105640433920598,
+              "priority": 0.8347734574055611
+            }
+          },
+          "de": {
+            "n": 91,
+            "macro_f1": {
+              "type": 0.9063620476663954,
+              "queue": 0.6204886966032477,
+              "priority": 0.6049814220039046
+            }
+          }
+        },
+        "twins": {
+          "twin": {
+            "n": 24,
+            "macro_f1": {
+              "type": 1.0,
+              "queue": 1.0,
+              "priority": 1.0
+            }
+          },
+          "non_twin": {
+            "n": 276,
+            "macro_f1": {
+              "type": 0.9462287341337263,
+              "queue": 0.7338510782947589,
+              "priority": 0.7412284721426662
+            }
+          }
+        }
+      },
+      "bootstrap_vs_tfidf": {
+        "type": {
+          "diff": 0.05985570706223853,
+          "lo": 0.024063752022918702,
+          "hi": 0.09607382016487358,
+          "share_le_0": 0.0,
+          "n": 300,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": true
+        },
+        "queue": {
+          "diff": 0.18461241407932683,
+          "lo": 0.1280552995789987,
+          "hi": 0.24302732293914786,
+          "share_le_0": 0.0,
+          "n": 300,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": true
+        },
+        "priority": {
+          "diff": 0.16749083236878315,
+          "lo": 0.10025770031509872,
+          "hi": 0.23458492869153807,
+          "share_le_0": 0.0,
+          "n": 300,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": true
+        }
+      },
+      "bootstrap_vs_tfidf_non_twin": {
+        "type": {
+          "diff": 0.06311947768739534,
+          "lo": 0.024796197291141783,
+          "hi": 0.1010769667495475,
+          "share_le_0": 0.001,
+          "n": 276,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": true
+        },
+        "queue": {
+          "diff": 0.18050471824497816,
+          "lo": 0.11762028969819512,
+          "hi": 0.24553577916019992,
+          "share_le_0": 0.0,
+          "n": 276,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": true
+        },
+        "priority": {
+          "diff": 0.17680583064796374,
+          "lo": 0.10178303743302017,
+          "hi": 0.24710601061595436,
+          "share_le_0": 0.0,
+          "n": 276,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": true
+        }
+      }
+    },
+    "val300_lite_few8": {
+      "label": "gemini-3.5-flash-lite (minimal)",
+      "kind": "llm",
+      "model": "gemini-3.5-flash-lite",
+      "thinking_level": "minimal",
+      "backend": "vertex",
+      "mode": "few",
+      "k": 8,
+      "prompt_version": "classify-v1",
+      "few_shot_pool": "fit partition",
+      "generated_utc": "2026-11-21T17:28:43Z",
+      "cost_usd": 0.2223,
+      "calls": 188,
+      "cached": 112,
+      "tokens_per_call": {
+        "prompt": 1814.2659574468084,
+        "output": 255.18085106382978,
+        "thought": 0.0,
+        "total": 2069.446808510638
+      },
+      "cost_per_1k_tickets_usd": 1.182446808510638,
+      "price_per_1m_in_out_usd": [
+        0.3,
+        2.5
+      ],
+      "latency_ms_p50": 1292.138949999753,
+      "latency_ms_p95": 1864.9698599997464,
+      "stored_macro_f1": {
+        "type": 0.9177,
+        "queue": 0.6813,
+        "priority": 0.7093
+      },
+      "metrics": {
+        "heads": {
+          "type": {
+            "macro_f1": 0.9177252043620443,
+            "accuracy": {
+              "value": 0.91,
+              "num": 273,
+              "den": 300
+            }
+          },
+          "queue": {
+            "macro_f1": 0.6813213861285711,
+            "accuracy": {
+              "value": 0.6666666666666666,
+              "num": 200,
+              "den": 300
+            }
+          },
+          "priority": {
+            "macro_f1": 0.7093345122310639,
+            "accuracy": {
+              "value": 0.7166666666666667,
+              "num": 215,
+              "den": 300
+            }
+          }
+        },
+        "joint_incident_high": {
+          "type_and_priority": {
+            "flagged": 61,
+            "precision": {
+              "value": 0.639344262295082,
+              "num": 39,
+              "den": 61
+            },
+            "recall": {
+              "value": 0.7647058823529411,
+              "num": 39,
+              "den": 51
+            }
+          },
+          "priority_only": {
+            "flagged": 117,
+            "precision": {
+              "value": 0.3504273504273504,
+              "num": 41,
+              "den": 117
+            },
+            "recall": {
+              "value": 0.803921568627451,
+              "num": 41,
+              "den": 51
+            }
+          }
+        },
+        "ece": {
+          "type": 0.14566666666666683,
+          "queue": 0.11167713342762843,
+          "priority": 0.08000000000000002
+        },
+        "language": {
+          "en": {
+            "n": 209,
+            "macro_f1": {
+              "type": 0.9344414619037786,
+              "queue": 0.7603640952997923,
+              "priority": 0.7744456583104588
+            }
+          },
+          "de": {
+            "n": 91,
+            "macro_f1": {
+              "type": 0.8774114774114774,
+              "queue": 0.5108118548118548,
+              "priority": 0.5554415652704695
+            }
+          }
+        },
+        "twins": {
+          "twin": {
+            "n": 24,
+            "macro_f1": {
+              "type": 1.0,
+              "queue": 0.9712418300653594,
+              "priority": 1.0
+            }
+          },
+          "non_twin": {
+            "n": 276,
+            "macro_f1": {
+              "type": 0.9128971780207302,
+              "queue": 0.6520885188752441,
+              "priority": 0.6788954171562868
+            }
+          }
+        }
+      },
+      "bootstrap_vs_tfidf": {
+        "type": {
+          "diff": 0.027725889347304578,
+          "lo": -0.00834174886200539,
+          "hi": 0.06551517757132573,
+          "share_le_0": 0.071,
+          "n": 300,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": false
+        },
+        "queue": {
+          "diff": 0.11179755612134734,
+          "lo": 0.03979072550358249,
+          "hi": 0.18194920598309453,
+          "share_le_0": 0.0,
+          "n": 300,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": true
+        },
+        "priority": {
+          "diff": 0.11121775140243872,
+          "lo": 0.04020694975364082,
+          "hi": 0.17892381717179906,
+          "share_le_0": 0.001,
+          "n": 300,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": true
+        }
+      },
+      "bootstrap_vs_tfidf_non_twin": {
+        "type": {
+          "diff": 0.029787921574399245,
+          "lo": -0.012092947821676163,
+          "hi": 0.07018107473339444,
+          "share_le_0": 0.074,
+          "n": 276,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": false
+        },
+        "queue": {
+          "diff": 0.09874215882546333,
+          "lo": 0.016711978178548807,
+          "hi": 0.17669917254232637,
+          "share_le_0": 0.009,
+          "n": 276,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": true
+        },
+        "priority": {
+          "diff": 0.11447277566158431,
+          "lo": 0.03613230161465145,
+          "hi": 0.18758614703833304,
+          "share_le_0": 0.001,
+          "n": 276,
+          "n_boot": 1000,
+          "seed": 42,
+          "excludes_0": true
+        }
+      }
+    }
+  },
+  "german_pilot_check": {
+    "n": 300,
+    "val_german": 690,
+    "knn_vote_k8": {
+      "type": 0.7743985399037664,
+      "queue": 0.27034357269082687,
+      "priority": 0.46801132017096575
+    },
+    "tfidf_logreg_fit": {
+      "type": 0.8265299132407607,
+      "queue": 0.4268940124203282,
+      "priority": 0.5532723436088406
+    },
+    "pilot_llm_reported": {
+      "type": 0.705,
+      "queue": 0.22,
+      "priority": 0.408
+    }
+  }
+}

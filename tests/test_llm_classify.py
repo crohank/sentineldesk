@@ -54,6 +54,7 @@ def test_client_requires_key(monkeypatch):
 @needs_data
 def test_mock_val_run_scores_above_majority(tmp_path, monkeypatch):
     monkeypatch.setattr(lc, "REPORTS", tmp_path)
+    monkeypatch.setattr(lc, "PRED_DIR", tmp_path / "pred")
     r = lc.run("val", "few", "mock", None, "t", n=200, k=8)
     assert r["meta"]["n"] == 200 and r["meta"]["few_shot_pool"] == "fit partition"
     assert r["macro_f1"]["type"] > 0.5
@@ -62,6 +63,7 @@ def test_mock_val_run_scores_above_majority(tmp_path, monkeypatch):
 @needs_data
 def test_llm_path_with_fake_client(tmp_path, monkeypatch):
     monkeypatch.setattr(lc, "REPORTS", tmp_path)
+    monkeypatch.setattr(lc, "PRED_DIR", tmp_path / "pred")
     monkeypatch.setattr(lc, "CACHE", tmp_path / "cache")
     kb = pd.read_parquet(lc.PROC / "kb_train.parquet")
     labels = lc.load_labels(kb)
@@ -88,6 +90,7 @@ def test_llm_path_with_fake_client(tmp_path, monkeypatch):
 @needs_data
 def test_invalid_label_from_model_fails(tmp_path, monkeypatch):
     monkeypatch.setattr(lc, "REPORTS", tmp_path)
+    monkeypatch.setattr(lc, "PRED_DIR", tmp_path / "pred")
 
     class Bad:
         def __init__(self, *a, **k):
