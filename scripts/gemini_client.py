@@ -134,7 +134,14 @@ class GeminiClient:
             if self.budget_usd is not None and self.cost_usd() >= self.budget_usd:
                 raise BudgetExceeded(f"spent about ${self.cost_usd():.2f}, budget ${self.budget_usd:.2f}")
         t0 = time.perf_counter()
-        resp = post_json(self.url, body, self._headers, timeout=self.timeout)
+        try:
+            resp = post_json(self.url, body, self._headers, timeout=self.timeout)
+        except GeminiError as e:
+            # gcloud access tokens last about an hour; a long Vertex run outlives one.
+            if self.backend != "vertex" or not str(e).startswith("HTTP 401"):
+                raise
+            self._headers = {"Authorization": f"Bearer {vertex_token()}"}
+            resp = post_json(self.url, body, self._headers, timeout=self.timeout)
         latency_ms = (time.perf_counter() - t0) * 1000
         meta = resp.get("usageMetadata", {})
         with self._lock:

@@ -6,6 +6,7 @@ is sent; no holdout data. Writes reports/llm/smoke.md.
 
   python scripts/llm_smoke.py                       # default candidates
   python scripts/llm_smoke.py --models gemini-3.8-flash
+  python scripts/llm_smoke.py --backend vertex       # after gcloud auth login
 """
 from __future__ import annotations
 
@@ -23,9 +24,10 @@ CANDIDATES = ["gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-4-carbon"]
 LEVELS = ["minimal", "low"]
 
 
-def try_call(model: str, prompt: str, sch: dict, level: str | None, extra: dict | None = None) -> str:
+def try_call(backend: str, model: str, prompt: str, sch: dict, level: str | None,
+             extra: dict | None = None) -> str:
     try:
-        c = GeminiClient("gemini", model, thinking_level=level)
+        c = GeminiClient(backend, model, thinking_level=level)
         out = c.generate_json(prompt, sch, extra_config=extra)
         u = out["usage"]
         return (f"ok, {out['latency_ms']:.0f} ms, in {u.get('promptTokenCount', '?')} / out "
@@ -39,13 +41,17 @@ def try_call(model: str, prompt: str, sch: dict, level: str | None, extra: dict 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--models", nargs="+", default=CANDIDATES)
+    ap.add_argument("--backend", choices=["gemini", "vertex"], default="gemini")
     a = ap.parse_args()
 
-    try:
-        available = {m["name"].removeprefix("models/") for m in list_models()}
-    except GeminiError as e:
-        print(f"smoke test failed: {e}", file=sys.stderr)
-        return 2
+    # models.list is a Gemini API endpoint; on Vertex the test call itself shows availability.
+    available = None
+    if a.backend == "gemini":
+        try:
+            available = {m["name"].removeprefix("models/") for m in list_models()}
+        except GeminiError as e:
+            print(f"smoke test failed: {e}", file=sys.stderr)
+            return 2
 
     kb = pd.read_parquet(PROC / "kb_train.parquet")
     labels = load_labels(kb)
@@ -53,19 +59,23 @@ def main() -> int:
     ex = kb.iloc[:3].assign(text=text_of(kb.iloc[:3]).to_numpy())
     prompt = build_prompt(text_of(kb.iloc[[3]]).iat[0], ex, labels)
 
-    lines = ["# Gemini smoke test", "", f"Models visible to this key: {len(available)}", ""]
+    lines = ["# Gemini smoke test", "", f"Backend: {a.backend}", ""]
     for m in a.models:
-        lines += [f"## {m}", "", f"- in models.list: {'yes' if m in available else 'NO'}"]
-        if m not in available:
-            lines.append("")
-            continue
-        lines.append(f"- default thinking: {try_call(m, prompt, sch, None)}")
+        lines += [f"## {m}", ""]
+        if available is not None:
+            lines.append(f"- in models.list: {'yes' if m in available else 'NO'}")
+            if m not in available:
+                lines.append("")
+                continue
+        b = a.backend
+        lines.append(f"- default thinking: {try_call(b, m, prompt, sch, None)}")
         for lvl in LEVELS:
-            lines.append(f"- thinking {lvl}: {try_call(m, prompt, sch, lvl)}")
-        lines.append(f"- responseLogprobs: {try_call(m, prompt, sch, None, {'responseLogprobs': True})}")
+            lines.append(f"- thinking {lvl}: {try_call(b, m, prompt, sch, lvl)}")
+        lines.append(f"- responseLogprobs: {try_call(b, m, prompt, sch, None, {'responseLogprobs': True})}")
         lines.append("")
-    gem = sorted(x for x in available if x.startswith("gemini-"))
-    lines += ["## All gemini models on this key", "", ", ".join(gem), ""]
+    if available is not None:
+        gem = sorted(x for x in available if x.startswith("gemini-"))
+        lines += ["## All gemini models on this key", "", ", ".join(gem), ""]
 
     REPORTS.mkdir(parents=True, exist_ok=True)
     (REPORTS / "smoke.md").write_text("\n".join(lines), encoding="utf-8", newline="\n")
