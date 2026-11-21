@@ -148,6 +148,10 @@ One entry per decision. Newest at the bottom. Each says what was decided and why
 **Decision:** `reports/LEAKAGE.md` is the judge-facing leakage statement; `docs/D1_handoff.md` tells each role what to use. LEAKAGE.md says plainly that the index check is not wired in yet.
 **Why:** Judge question 1 in the plan. Claims about other people's code stay as requirements until that code exists.
 
+### D1-37 Do not add the 20k file to the KB
+**Decision:** Keep the KB at the 22,857 main-file tickets. `scripts/audit_20k.py` and `reports/audit_20k.md` stay as the record; `baseline_tfidf.py --extra` reproduces the experiment.
+**Why:** Of the 20k file's 19,998 non-empty rows, 6,685 repeat a KB body and 1,717 repeat a holdout body (merging the files and re-splitting would have leaked those). 11,595 are new and 11,489 of those are not holdout twins; labels agree with the main file on 99.7% or more of the repeats, so the data is consistent. But training TF-IDF on KB + 11,489 made every head slightly worse on the unchanged holdout: macro-F1 type 0.884 to 0.879, queue 0.587 to 0.569, priority 0.631 to 0.624 (same direction in the no-twins scope; `reports/tfidf_logreg_plus20k/summary.md`). Incident+high recall on predicted high alone rose only 0.735 to 0.741. More rows from an older generator version do not pay for the added risk.
+
 ## Open
 
 - D3 to call `assert_kb_only` on the index IDs, then update LEAKAGE.md.
