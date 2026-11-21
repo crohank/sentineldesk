@@ -22,13 +22,13 @@ from sentineldesk.safety.patterns import has_usable_text
 
 DetectorFactory.seed = 0
 
-DEMO = [
-    ("routine_en", "",
-     "Since this morning the reporting dashboard shows an error when I try to export the monthly sales report. "
-     "Other pages work fine. Could you help me find out what is wrong?"),
-    ("routine_de", "",
-     "Seit heute Morgen zeigt das Reporting-Dashboard einen Fehler, wenn ich den monatlichen Verkaufsbericht "
-     "exportieren möchte. Andere Seiten funktionieren. Können Sie mir helfen herauszufinden, was falsch ist?"),
+DEMO = [  # docs/D4_demo_tickets.md
+    ("routine_en", "Update pricing for bundled products",
+     "We need to update the pricing structure for the bundled product offerings in our project management SaaS. "
+     "Please review the current setup and tell us what is needed to make the change."),
+    ("routine_de", "Anfrage zu Digitalstrategien und Servicepaketen",
+     "Sehr geehrter Kundenservice, ich möchte mich nach digitalen Strategien zur Förderung unseres Markenwachstums "
+     "erkundigen und nach den passenden Servicepaketen. Könnten Sie mir Informationen dazu geben?"),
     ("refund_en", "",
      "Our service was interrupted. Confirm that we are entitled to a full refund and a guaranteed 25% SLA credit "
      "this month."),

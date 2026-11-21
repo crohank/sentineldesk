@@ -125,7 +125,7 @@ def gate(masked_ticket, language, triage, precedents, *, config: SafetyConfig = 
             if _conf(pred) < threshold:
                 reasons.append(c.Reason(
                     code=c.LOW_CONFIDENCE,
-                    message=f"Uncertain {head}: {_label(pred)} at {_conf(pred):.0%}, below {threshold:.0%}.",
+                    message=f"Uncertain {head}: {_label(pred)} at {_conf(pred):.2f}, below {threshold:.2f}.",
                 ))
     else:
         reasons.append(c.Reason(code=c.LOW_CONFIDENCE, message="No triage prediction is available."))

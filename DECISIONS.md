@@ -265,6 +265,11 @@ With the stand-ins, 4.9% of validation tickets get a validated draft (87% of the
 **Why:** On 12 KB-validation tickets that qualify for a draft (3 German), all 12 Gemma drafts passed validation and the claim check. Median time per draft was 5.1 seconds and the slowest was 31 seconds (`reports/d4/gemma_check.md`). The Gemini API free tier was overloaded at the same time, so Vertex is the reliable path and uses the credits as intended. Twelve tickets show the setup works; they don't prove a quality level.
 **Status:** Live default for the console from 12:55. Undeploy nothing after the event (serverless); remove the API key and unlink billing when the credits should stop being used.
 
+### D4-23 Demo tickets
+**Decision:** `docs/D4_demo_tickets.md` lists seven tickets with the results recorded on D4's code and the dev-only stand-ins: an English routine request (bundled pricing update, Auto-Draft Ready citing TKT-22358 with templates and with Gemma), a German routine request, the refund and SLA-credit demand, the prompt injection, the German hospital VPN outage, an empty body and a French ticket. `scripts/d4/demo.py` runs the same tickets. The password-reset ticket is dropped.
+**Why:** No KB password ticket is a Request (D1 open item), and the routine ticket must have strong precedents to draft. With the stand-in triage, the German routine ticket goes to review (priority 0.68 < 0.75), and the refund and injection tickets also go on-call because the stand-in predicts Incident + high. The file says so, and results must be re-recorded on the release build rather than hardcoded.
+**Status:** Re-record during rehearsal once D2's and D3's components are wired in.
+
 ---
 
 ## D5 · Integration and release
@@ -297,7 +302,7 @@ With the stand-ins, 4.9% of validation tickets get a validated draft (87% of the
 - **Precedent text for drafting.** D4 takes evidence spans from `answer_snippet`, as the pipeline's citation check requires. D3: put the full redacted answer there (answers are short: median 58 words, 99th percentile about 102).
 - **Predictions format.** D5 to confirm `docs/prediction_format.md` (D1-23), including the draft columns.
 - **Outage rule pair.** D4-17 keeps Incident + high plus rule 6. D2 selects the rule 6 pair on its calibrated validation probabilities.
-- **Password-reset demo.** All 483 KB password tickets are labelled Incident or Problem, none Request, so the planned password-reset demo has no routine precedent. D4 and D5 pick another routine ticket.
+- **Demo tickets.** The password-reset demo is replaced by `docs/D4_demo_tickets.md` (D4-23). D5: record the actual results on the release build during rehearsal.
 - **Threshold-check labels.** The plan has D3 and D4 hand-label 60 KB-validation queries for whether the retrieved answer safely covers the request. D1's log doesn't include this. Confirm who labels.
 - **Judge model.** The generation judge must differ from the drafting model (D1-29). Pick both on the team's GCP project.
 - **Greeting stripping.** Off by default (D1-31). Measure it on D3's dense embeddings once they exist.
