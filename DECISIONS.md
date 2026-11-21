@@ -270,6 +270,20 @@ With the stand-ins, 4.9% of validation tickets get a validated draft (87% of the
 **Why:** No KB password ticket is a Request (D1 open item), and the routine ticket must have strong precedents to draft. With the stand-in triage, the German routine ticket goes to review (priority 0.68 < 0.75), and the refund and injection tickets also go on-call because the stand-in predicts Incident + high. The file says so, and results must be re-recorded on the release build rather than hardcoded.
 **Status:** Re-record during rehearsal once D2's and D3's components are wired in.
 
+### D4-24 Generation audit on the 100 fixed holdout IDs
+**Decision:** `scripts/d4/generation_audit.py` runs the 100 IDs from D1-21 through the pipeline: holdout inputs only, dev-only stand-ins for triage and retrieval, and rule 9 applied. D1's `judge_drafts.py` grades the result with `vertex:gemini-3.8-flash` (prompt `judge-v1`), a different model from the drafter. Reports: `reports/d4/generation_audit_templates.md` and `reports/d4/generation_audit_gemma.md`.
+
+| | templates | Gemma |
+|---|---|---|
+| drafts emitted | 7 of 100 | 7 of 100 (6 by Gemma, 1 template fallback) |
+| citations valid, spans found, language match | all | all |
+| unsupported numbers, placeholders | none | none |
+| claims supported | 24 of 32 (75%) | 35 of 35 (100%) |
+| drafts with every claim supported | 3 of 7 | 7 of 7 |
+
+**Why:** This is the plan's generation acceptance test, run before the release decision. The judge finds that the fixed template texts can say more than their evidence. "What you were doing when it occurred" and "device and operating system" are added detail, and "which account" was matched on answers that only mention an account. Gemma restates its evidence and passes a claim check before use. Some of the judge's template counts are duplicates: its sentence splitter joins the "To move this forward:" line and an inline citation with the next sentence.
+**Status:** Measured with stand-ins and only 7 drafts per run, so the numbers are indicative. Rerun on the integrated pipeline.
+
 ---
 
 ## D5 · Integration and release
