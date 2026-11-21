@@ -52,7 +52,7 @@ Entries below are dated 2026-11-21. The first entries in each section come from 
 
 ## D1 · Data and evaluation
 
-D1 keeps its own numbered log in [docs/D1_decisions.md](docs/D1_decisions.md). This section summarizes it and lists plan items D1 hasn't logged yet.
+D1 keeps its own numbered log in [docs/D1_decisions.md](docs/D1_decisions.md). This section summarizes it.
 
 ### D1-01 to D1-12 (on `main`)
 - Main CSV only (`aa_dataset-tickets-multi-lang-5-2-50-version.csv`, 28,587 rows). The brief's `load_dataset` call mixes in a file with 8,395 repeated bodies and a German file with a different taxonomy.
@@ -62,22 +62,18 @@ D1 keeps its own numbered log in [docs/D1_decisions.md](docs/D1_decisions.md). T
 - Split independently re-derived and verified. Source SHA-256 `f187c090e59581c2bbf3aa1377c8db4dd647464ecf2ae51bf8966e42e0ed6bc0`.
 - Repo stays private until submission and must be judge-accessible by 2:50.
 
-### D1-13 to D1-16 (on branch `d1/data-eval`, not merged yet)
-- D1 work goes on `d1/data-eval` and reaches `main` only through a PR.
-- Near-twin paraphrases stay in the split: 520 holdout tickets (9.1%) have a KB ticket at word TF-IDF cosine ≥ 0.8. Every triage metric is reported on all 5,715 tickets and again without the near-twins. The plan's MinHash audit becomes the official twin list.
-- Every metric is also broken down by language detected from the body, not by the `language` label. German tickets score clearly lower on the baseline.
-- Joint Incident + high recall is reported two ways: both predictions right, and escalated on predicted high priority alone.
-
-### From the team plan, not yet in D1's log
-- **Internal KB partitions.** Split the KB (never the holdout) 80/10/10 into fit, calibration and validation, seeded and stratified by type × priority, and publish the ID manifest. All fitting, calibration and threshold tuning uses these partitions, so the holdout stays untouched until the 1:00 freeze. The manifest isn't in the repo yet, and D2 needs it before calibration.
-- **Scoring rules.** A separate scorer is the only code that opens `test_labels`. It scores all 5,715 frozen predictions by ticket ID, rejecting missing, repeated or unknown IDs, after the predictions are hashed. It reports:
-  - per-target macro-F1 next to the majority-class baseline
-  - per-class precision, recall and F1 with support, and confusion matrices
-  - recall for `type == Incident AND priority == high`, plus the share the gate sends to humans and to on-call, with counts
-  - 10-bin ECE and reliability plots
-  - retrieval agreement proxies
-  - a generation audit on 100 holdout IDs chosen by seed before scoring
-  - warm p50/p95 latency per stage
+### D1-13 to D1-36 (on branch `d1/data-eval`, not merged yet)
+- **Process:** D1 work goes on `d1/data-eval` and reaches `main` only through a PR (D1-13). `docs/D1_handoff.md` tells each role what to use, and `reports/LEAKAGE.md` is the judge-facing leakage statement (D1-36).
+- **Reproducible data:** `download_data.py` pins HF revision `ddf1c81…` and checks the source SHA-256. `make_split.py` refuses to write a split whose counts, boundary IDs or spot check differ. `requirements.txt` pins exact versions (D1-17 to D1-19).
+- **KB partitions:** fit 18,285 / calib 2,286 / val 2,286, stratified on type|priority, in `data/processed/kb_partitions.parquet` (D1-20).
+- **Scorer:** `score.py` is the only reader of `test_labels`. It rejects missing, repeated or unknown IDs, unseen labels, out-of-range confidences, and any holdout ID in `retrieved_ids` or `cited_ids`. "Routed to a human" means `escalate_oncall` or `human_review` (D1-22). It reports 10-bin ECE and reliability plots when confidences are present (D1-33). `run_eval.py` scores the full holdout, without the 12 near-copies and without the 520 twins in one run (D1-34). The predictions format is a draft in `docs/prediction_format.md` (D1-23).
+- **Generation audit:** 100 holdout IDs are fixed in `reports/generation_sample_ids.txt` (D1-21). `judge_drafts.py` runs deterministic checks and grades every claim supported / partially supported / unsupported, with a judge model different from the drafting model (D1-29).
+- **Text handling:** one shared normalizer, `scripts/text_normalize.py`, applied in code. Greeting stripping is optional and off by default. 79 placeholder spellings map to six kinds: `<name>`, `<tel_num>`, `<acc_num>`, `<email>`, `<url>`, `<amount>` (D1-30 to D1-32).
+- **EDA and baselines:** `eda.py` reads only the KB; baselines are separate scripts scored by `score.py` (D1-24).
+- **Twins:** 12 near-copies (MinHash) and 520 paraphrase twins (TF-IDF cosine ≥ 0.8). Every number is reported with and without each list (D1-14, D1-25, D1-26, D1-28).
+- **Per-language scores:** every metric is also broken down by language detected from the body. German tickets score clearly lower (D1-15).
+- **Outage metric:** joint Incident + high recall is reported two ways: both predictions right, and escalated on predicted high priority alone (D1-16).
+- **Index leakage helper:** `scripts/leakage.py` `assert_kb_only(ids)` for D3's index (D1-27).
 
 ---
 
@@ -182,10 +178,16 @@ D1 keeps its own numbered log in [docs/D1_decisions.md](docs/D1_decisions.md). T
 
 ## Open
 
-- **Python and tooling.** The plan assumes Python 3.12 with `uv` (`uv sync --frozen`, `uv run …`). The repo uses a Python 3.14 venv with `pip` and scikit-learn 1.8.0 because of Windows Smart App Control (D1-07). Pick one before the README and Dockerfile are written.
-- **Pin pandas** to an exact version so the shuffle reproduces on every machine (D1 open item).
-- **Holdout numbers.** `eda.py` reads `test_labels`, and D1-14 to D1-16 quote baseline scores measured on the holdout. Move label reading into the scorer, and agree that thresholds and gate rules are picked on the KB validation partition, never from holdout numbers.
+- **Python and tooling.** The plan assumes `uv` with Python 3.12. D1 pins exact versions for `pip` (D1-19), and D5's branch adds `pyproject.toml` and `uv.lock` (`requires-python >=3.12,<3.15`). Settle one requirements source before the README and Dockerfile are final.
+- **Holdout numbers.** D1 reports holdout baselines for reference only (D1-24). Thresholds and gate rules are picked on the KB validation partition, never from holdout numbers.
+- **D2's split.** D2's branch trains on its own 80/10/10 split built from all three CSVs (`scripts/load_split_811.py`), not on D1's KB partitions. That split can put D1's holdout tickets into D2's training data. Train on D1's fit partition before any holdout scoring.
+- **Two decision files.** D5's branch adds `decisions.md` at the repo root, and this file is `DECISIONS.md`. On macOS and Windows those are the same file name, so merging both breaks checkouts. Rename one before either reaches `main`. D5's own log also numbers D5-01 to D5-21 differently from the plan-derived D5 entries here; D5's numbering wins and the D5 section here becomes a summary.
+- **Status names.** D5's contract uses `draft_ready`, `escalate`, `review` and `needs_clarification`. D1's scorer reads `auto_draft`, `escalate_oncall`, `human_review` and `needs_clarification`. The predictions writer maps draft_ready → auto_draft, escalate → escalate_oncall, review → human_review, or one side renames.
+- **Predictions format.** D5 to confirm `docs/prediction_format.md` (D1-23), including the draft columns.
 - **Outage rule.** Escalate on predicted Incident + high (D4-01 rule 2), or on predicted high priority alone, which D1-16 reports catches more real high Incidents? D2 and D4 decide on KB validation.
-- **Strip greeting boilerplate** ("Dear Customer Support Team, I hope this message…") before indexing and feature extraction? The EDA recommends it for retrieval.
-- **Branches and merging.** D1 (`d1/data-eval`), D2 (`D2`) and D4 (`D4`) each have their own branch, and D1's work reaches `main` through a PR. Still open: the same rule for D3 and D5, and who reviews and merges PRs into `main`.
+- **Password-reset demo.** All 483 KB password tickets are labelled Incident or Problem, none Request, so the planned password-reset demo has no routine precedent. D4 and D5 pick another routine ticket.
+- **Threshold-check labels.** The plan has D3 and D4 hand-label 60 KB-validation queries for whether the retrieved answer safely covers the request. D1's log doesn't include this. Confirm who labels.
+- **Judge model.** The generation judge must differ from the drafting model (D1-29). Pick both on the team's GCP project.
+- **Greeting stripping.** Off by default (D1-31). Measure it on D3's dense embeddings once they exist.
+- **Branches and merging.** D1 (`d1/data-eval`), D2 (`D2`), D4 (`D4`) and D5 (`ajin-frank-justin`) each have their own branch, and D1's work reaches `main` through a PR. Still open: D3's branch, and who reviews and merges PRs into `main`.
 - **Repo visibility** for judges before 2:50 (D1-11).
