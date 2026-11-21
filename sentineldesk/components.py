@@ -95,4 +95,42 @@ def load_components() -> Components:
     mode = os.environ.get("SENTINELDESK_MODE", "fixture")
     if mode == "fixture":
         return fixture_components()
-    raise ValueError(f"unknown SENTINELDESK_MODE={mode!r}; only 'fixture' is wired so far")
+    if mode == "managed":
+        return managed_components()
+    raise ValueError(f"unknown SENTINELDESK_MODE={mode!r}; expected fixture or managed")
+
+
+def managed_components() -> Components:
+    from pathlib import Path
+
+    from .agent_retrieval import AgentRetrieval
+    from .gemini_triage import GeminiTriage
+    from .safety.pii import mask_ticket
+    from .schemas import Reason
+
+    store = AgentRetrieval()
+    data_dir = Path(os.environ.get("SENTINELDESK_DATA_DIR", "data/processed"))
+    model = os.environ.get("SENTINELDESK_TRIAGE_MODEL", "gemini-3.8-flash")
+    classifier = GeminiTriage(store, data_dir, model)
+
+    def review(ticket, language, triage, precedents):
+        return Decision(
+            status="review",
+            destination="human_review",
+            reasons=[Reason(code="OPERATOR_REVIEW", message="Review the classification and precedents.")],
+        )
+
+    return Components(
+        mask=mask_ticket,
+        detect_language=detect_language_langdetect,
+        triage=None,
+        retrieve=store.retrieve,
+        gate=review,
+        draft=None,
+        validate=None,
+        release_id=os.environ.get("SENTINELDESK_RELEASE_ID", "managed-triage"),
+        retrieval_mode="agent_retrieval",
+        generator_mode="none",
+        artifacts={"training_examples": True, "drafting": False},
+        triage_with_precedents=classifier.predict,
+    )

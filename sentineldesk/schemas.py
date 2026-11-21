@@ -44,8 +44,10 @@ class TicketInput(_Model):
 
 class Prediction(_Model):
     label: str
-    confidence: float = Field(ge=0.0, le=1.0, description="Calibrated probability of `label`.")
-    probabilities: dict[str, float] = Field(description="Calibrated probability per class.")
+    confidence: float = Field(ge=0.0, le=1.0, description="Estimated probability of the selected label.")
+    probabilities: dict[str, float] = Field(description="Estimated probability per class.")
+
+    calibrated: bool | None = None
 
 
 class Triage(_Model):
@@ -78,6 +80,8 @@ ReasonCode = Literal[
     "OUTAGE_RISK",  # 6 Incident and high probabilities both above risk thresholds
     "LOW_CONFIDENCE",  # 7
     "WEAK_EVIDENCE",  # 8
+    "OPERATOR_REVIEW",
+    "TRIAGE_UNAVAILABLE",
     "DRAFT_FAILED",  # 9 abstain, timeout, or failed validation
 ]
 
@@ -139,7 +143,7 @@ class Validation(_Model):
 
 # ---------------------------------------------------------------- response (D5)
 
-RetrievalMode = Literal["fixture", "sparse", "dense"]
+RetrievalMode = Literal["fixture", "sparse", "dense", "agent_retrieval"]
 GeneratorMode = Literal["fixture", "offline_templates", "gemma", "none"]
 
 

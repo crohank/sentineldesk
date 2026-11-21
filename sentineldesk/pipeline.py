@@ -53,15 +53,16 @@ class MaskedTicket:
 class Components:
     mask: Callable[[TicketInput], MaskedTicket]
     detect_language: Callable[[MaskedTicket], str]
-    triage: Callable[[MaskedTicket], Triage]
+    triage: Callable[[MaskedTicket], Triage] | None
     retrieve: Callable[[MaskedTicket, int], list[Precedent]]
     gate: Callable[[MaskedTicket, str, Triage, list[Precedent]], Decision]
-    draft: Callable[[MaskedTicket, str, list[Precedent]], Draft]
-    validate: Callable[[Draft, str, list[Precedent]], Validation]
+    draft: Callable[[MaskedTicket, str, list[Precedent]], Draft] | None
+    validate: Callable[[Draft, str, list[Precedent]], Validation] | None
     release_id: str
     retrieval_mode: RetrievalMode
     generator_mode: GeneratorMode
     artifacts: dict[str, bool]
+    triage_with_precedents: Callable[[MaskedTicket, list[Precedent]], Triage] | None = None
 
 
 def has_usable_text(body: str) -> bool:
@@ -141,9 +142,24 @@ def analyze(
         )
         language = "und"
     else:
-        triage = clock.run("triage", c.triage, masked)
-        precedents = clock.run("retrieval", c.retrieve, masked, k)
-        decision = clock.run("gate", c.gate, masked, language, triage, precedents)
+        if c.triage_with_precedents is None:
+            triage = clock.run("triage", c.triage, masked)
+            precedents = clock.run("retrieval", c.retrieve, masked, k)
+        else:
+            try:
+                precedents = clock.run("retrieval", c.retrieve, masked, k)
+                triage = clock.run("triage", c.triage_with_precedents, masked, precedents)
+            except Exception as exc:
+                log.error("managed triage failed request_id=%s error=%s", request_id, type(exc).__name__)
+
+        if triage is None:
+            decision = Decision(
+                status="review",
+                destination="human_review",
+                reasons=[Reason(code="TRIAGE_UNAVAILABLE", message="Managed triage is unavailable. Review this ticket manually.")],
+            )
+        else:
+            decision = clock.run("gate", c.gate, masked, language, triage, precedents)
 
         if decision.status == "draft_ready":
             generator_mode = c.generator_mode

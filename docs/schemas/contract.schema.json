@@ -179,8 +179,20 @@
       "Prediction": {
         "additionalProperties": false,
         "properties": {
+          "calibrated": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Calibrated"
+          },
           "confidence": {
-            "description": "Calibrated probability of `label`.",
+            "description": "Estimated probability of the selected label.",
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Confidence",
@@ -194,7 +206,7 @@
             "additionalProperties": {
               "type": "number"
             },
-            "description": "Calibrated probability per class.",
+            "description": "Estimated probability per class.",
             "title": "Probabilities",
             "type": "object"
           }
@@ -221,6 +233,8 @@
               "OUTAGE_RISK",
               "LOW_CONFIDENCE",
               "WEAK_EVIDENCE",
+              "OPERATOR_REVIEW",
+              "TRIAGE_UNAVAILABLE",
               "DRAFT_FAILED"
             ],
             "title": "Code",
@@ -414,7 +428,8 @@
         "enum": [
           "fixture",
           "sparse",
-          "dense"
+          "dense",
+          "agent_retrieval"
         ],
         "title": "Retrieval Mode",
         "type": "string"
@@ -483,7 +498,8 @@
         "enum": [
           "fixture",
           "sparse",
-          "dense"
+          "dense",
+          "agent_retrieval"
         ],
         "title": "Retrieval Mode",
         "type": "string"

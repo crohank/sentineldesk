@@ -224,3 +224,31 @@ def test_unknown_sample_404(client):
 def test_result_shows_pipeline_stepper(client):
     html = client.get("/?fixture=insufficient").text
     assert 'class="stepper"' in html and "skipped" in html
+
+
+def test_managed_pipeline_passes_one_retrieval_to_classifier_and_gate():
+    fixture = load_fixture("routine")
+    calls = []
+
+    def retrieve(ticket, k):
+        calls.append("retrieve")
+        assert k == 5
+        return fixture.precedents
+
+    def classify(ticket, precedents):
+        calls.append("classify")
+        assert precedents is fixture.precedents
+        return fixture.triage
+
+    def gate(ticket, language, triage, precedents):
+        calls.append("gate")
+        assert precedents is fixture.precedents
+        return load_fixture("on_call").decision
+
+    comps = dataclasses.replace(fixture_components(), triage=None, retrieve=retrieve,
+                                triage_with_precedents=classify, gate=gate,
+                                retrieval_mode="agent_retrieval", generator_mode="none")
+    result = analyze(TicketInput(body="An example ticket"), comps)
+    assert calls == ["retrieve", "classify", "gate"]
+    assert result.precedents == fixture.precedents
+    assert result.draft is None

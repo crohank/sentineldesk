@@ -28,7 +28,9 @@
 {% endif %}
 
 {% set stage_labels = [
-  ("masking", "Mask PII"), ("language", "Language"), ("triage", "Triage"), ("retrieval", "Precedents"),
+  ("masking", "Mask PII"), ("language", "Language")] +
+  ([("retrieval", "Precedents"), ("triage", "Triage")] if comps.retrieval_mode == "agent_retrieval"
+  else [("triage", "Triage"), ("retrieval", "Precedents")]) + [
   ("gate", "Gate"), ("generation", "Draft"), ("validation", "Validate")] %}
 
 <main class="layout{% if result %} has-result{% endif %}">
@@ -65,10 +67,16 @@
     <h2>How it works</h2>
     <ol class="flow-explain">
       <li><span class="step-dot blue"></span><div><strong>Mask and detect.</strong> Emails, phone numbers and account IDs are masked. Language is detected from the text, not from metadata.</div></li>
+      {% if comps.retrieval_mode == "agent_retrieval" %}
+      <li><span class="step-dot green"></span><div><strong>Precedents.</strong> Agent Retrieval finds five similar tickets.</div></li>
+      <li><span class="step-dot yellow"></span><div><strong>Triage.</strong> Gemini uses the five labeled examples to predict type, queue and priority.</div></li>
+      <li><span class="step-dot red"></span><div><strong>Operator review.</strong> Review the predictions and precedents before taking action.</div></li>
+      {% else %}
       <li><span class="step-dot yellow"></span><div><strong>Triage.</strong> Three calibrated heads predict type, queue and priority.</div></li>
       <li><span class="step-dot green"></span><div><strong>Precedents.</strong> Five similar historical tickets are retrieved, each with its answer.</div></li>
       <li><span class="step-dot red"></span><div><strong>Gate.</strong> Outages go to on-call. Refunds, overrides, low confidence and weak evidence go to a human.</div></li>
       <li><span class="step-dot blue"></span><div><strong>Grounded draft.</strong> Every claim cites a precedent and quotes its evidence. A draft that fails validation is withheld.</div></li>
+      {% endif %}
     </ol>
     <p class="muted small">Nothing is sent to a customer. Every draft is for operator review.</p>
   </section>
@@ -113,6 +121,7 @@
   <section class="panel triage">
     <h2>Triage</h2>
     {% if result.triage %}
+    {% if result.triage.type.calibrated is sameas false %}<p class="muted small">Gemini probability estimates are uncalibrated.</p>{% endif %}
     {% for head in ["type", "queue", "priority"] %}
     {% set p = result.triage | attr(head) %}
     <div class="head">

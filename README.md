@@ -16,7 +16,7 @@ python -m pytest -q               # split contract, leakage helpers, dup audit
 python scripts/eda.py             # docs/eda_stats.txt, docs/figures/ (KB only)
 ```
 
-Data files are gitignored. Everyone regenerates the same split from the scripts.
+The D1 branch provides shareable KB data, the split manifest, and test inputs. Generate the sealed test labels locally for evaluation.
 
 ### Console and API (uv)
 
@@ -26,7 +26,7 @@ uv run serve        # http://127.0.0.1:8000  (POST /api/triage, GET /healthz)
 uv run pytest
 ```
 
-Until the real components are wired, the service runs in fixture mode and the console shows a banner saying so. Shared request and response models live in `sentineldesk/schemas.py`. The exported JSON Schema is in `docs/schemas/contract.schema.json`.
+The console starts in fixture mode by default. For live Gemini triage with managed retrieval, see [the managed retrieval setup](deploy/retrieval/README.md). Shared request and response models live in `sentineldesk/schemas.py`. The exported JSON Schema is in `docs/schemas/contract.schema.json`.
 ## Evaluation
 
 Prediction code writes one row per holdout ticket in the format in [docs/prediction_format.md](docs/prediction_format.md), then:
