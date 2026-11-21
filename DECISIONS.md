@@ -131,7 +131,7 @@ D1 keeps its own numbered log in [docs/D1_decisions.md](docs/D1_decisions.md). T
 **Why:** Implements the brief's gate (high + Incident, low confidence, unsupported requests) and makes every escalation explainable.
 *Statuses, destinations and reason codes: D4-11. Rules 1 and 9 also run in the pipeline (D5-06 on D5's branch).*
 
-### D4-02 How thresholds are chosen
+### D4-02 How thresholds are chosen *(Superseded by D4-18)*
 **Decision:** Start at 0.45 per head and 0.35 for each outage probability. Search the outage pair over 0.30–0.70 in 0.05 steps and pick the highest-precision pair with at least 90% validation recall. Choose confidence and evidence thresholds on 60 hand-labelled KB-validation queries: the most draft coverage with zero unsafe drafts.
 **Why:** Thresholds come from data the holdout never touches. Sixty examples support an operating choice, not a safety guarantee.
 
@@ -219,6 +219,29 @@ On-call wins over review, and the reason of every rule that fired is kept. When 
 **Decision:** Until D2's and D3's components are available, `scripts/d4/dev_standins.py` provides an uncalibrated TF-IDF + logistic-regression triage fit on the fit partition, and TF-IDF retrieval whose `answer_snippet` is the full masked answer. `scripts/d4/demo.py` runs tickets through mask, language detection, triage, retrieval, gate, draft and validate, applying rules 1 and 9 the same way as the pipeline. Neither ships.
 **Why:** D4's rules and drafts can be exercised on real KB data now. Numbers measured with the stand-ins are marked provisional.
 
+### D4-17 Outage rule: keep the brief's rule plus rule 6
+**Decision:** Rule 2 stays "predicted Incident and high". Rule 6 (both probabilities at or above a pair) adds recall, and "high priority alone" is not used. On the KB validation partition with the stand-in triage (`reports/d4/outage_rules.md`):
+
+| variant | recall of true Incident + high | sent to on-call |
+|---|---|---|
+| Incident + high | 65.0% | 18.9% |
+| high alone | 72.5% | 38.8% |
+| Incident + high, plus rule 6 at 0.35 / 0.35 | 76.1% | 24.8% |
+
+No pair in the plan's 0.30–0.70 grid reaches 90% recall with this triage.
+**Why:** Rule 6 catches more true outages than "high alone" while sending far fewer tickets to on-call (a quarter instead of almost two fifths). D2 picks the release pair on its calibrated probabilities and reruns `scripts/d4/val_report.py`.
+**Status:** Provisional until D2's calibrated validation probabilities are available.
+
+### D4-18 Thresholds chosen on KB validation without hand labels
+**Decision:** Thresholds are type 0.45, queue 0.45, priority 0.75, and best sparse similarity 0.28 (`reports/d4/thresholds.md`). They're picked with these rules:
+- **Evidence:** the lowest similarity where the best precedent matches the ticket's queue and type for at least 80% of tickets.
+- **Type:** the lowest confidence with at least 80% accuracy above it, never below 0.45.
+- **Queue and priority:** the lowest pair where queue and priority are both right for at least 80% of the tickets that end with a validated draft.
+
+With the stand-ins, 4.9% of validation tickets get a validated draft (87% of them correctly routed), 69% go to review and 25% to on-call. Dense retrieval keeps its own threshold (0.80, not yet measured).
+**Why:** No hand-labelled set exists yet, so label agreement replaces the plan's 60 labelled queries (D4-02). It's a proxy, not a safety check. The drafts only ask for information that a cited past answer also asked for, so the worst case is an unhelpful draft, not an invented commitment.
+**Status:** Provisional. Rerun `scripts/d4/val_report.py` with D2's probabilities and D3's retrieval, and check against hand labels if someone produces them.
+
 ---
 
 ## D5 · Integration and release
@@ -250,7 +273,7 @@ On-call wins over review, and the reason of every rule that fired is kept. When 
 - **Status names.** D5's contract uses `draft_ready`, `escalate`, `review` and `needs_clarification`. D1's scorer reads `auto_draft`, `escalate_oncall`, `human_review` and `needs_clarification`. The predictions writer maps draft_ready → auto_draft, escalate → escalate_oncall, review → human_review, or one side renames.
 - **Precedent text for drafting.** D4 takes evidence spans from `answer_snippet`, as the pipeline's citation check requires. D3: put the full redacted answer there (answers are short: median 58 words, 99th percentile about 102).
 - **Predictions format.** D5 to confirm `docs/prediction_format.md` (D1-23), including the draft columns.
-- **Outage rule.** Escalate on predicted Incident + high (D4-01 rule 2), or on predicted high priority alone, which D1-16 reports catches more real high Incidents? D2 and D4 decide on KB validation.
+- **Outage rule pair.** D4-17 keeps Incident + high plus rule 6. D2 selects the rule 6 pair on its calibrated validation probabilities.
 - **Password-reset demo.** All 483 KB password tickets are labelled Incident or Problem, none Request, so the planned password-reset demo has no routine precedent. D4 and D5 pick another routine ticket.
 - **Threshold-check labels.** The plan has D3 and D4 hand-label 60 KB-validation queries for whether the retrieved answer safely covers the request. D1's log doesn't include this. Confirm who labels.
 - **Judge model.** The generation judge must differ from the drafting model (D1-29). Pick both on the team's GCP project.
