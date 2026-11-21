@@ -87,3 +87,45 @@
 
 @media (max-width: 1100px) { .board-main { grid-template-columns: 1fr; } }
 @media (max-width: 700px) { .lanes { grid-template-columns: repeat(5, 78vw); } .board-top, .kpis, .board-main { padding-left: 16px; padding-right: 16px; } .incident-banner { margin: 14px 16px 0; } }
+
+.viewtabs { display: flex; background: var(--surface-container-high); border-radius: 20px; padding: 3px; }
+.vt { border: 0; background: transparent; color: var(--on-surface-variant); font: inherit; font-size: .88rem; padding: 6px 16px; border-radius: 18px; cursor: pointer; }
+.vt.active { background: var(--primary); color: var(--on-primary); }
+.clickable { cursor: pointer; }
+.lane h2.clickable:hover { color: var(--primary); }
+.kpi.clickable:hover { background: var(--surface-container); }
+
+.inbox { display: grid; grid-template-columns: 220px 360px 1fr; gap: 12px; padding: 14px 20px 24px; height: calc(100vh - 230px); min-height: 480px; }
+.inbox[hidden], .board-main[hidden] { display: none; }
+.folders, .mail-list, .reader { background: var(--surface-container-low); border-radius: 14px; overflow-y: auto; }
+.folders { padding: 8px; display: flex; flex-direction: column; gap: 2px; }
+.folder { display: flex; align-items: center; gap: 8px; border: 0; background: transparent; color: var(--on-surface); font: inherit; font-size: .86rem; text-align: left; padding: 8px 10px; border-radius: 18px; cursor: pointer; }
+.folder:hover { background: var(--surface-container); }
+.folder.active { background: var(--secondary-container); color: var(--on-secondary-container); font-weight: 600; }
+.folder .count { margin-left: auto; font-variant-numeric: tabular-nums; }
+.mail-list { padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+.mail { display: flex; flex-direction: column; gap: 3px; text-align: left; border: 0; border-left: 4px solid var(--outline-variant); background: var(--surface-container-lowest); color: var(--on-surface); font: inherit; padding: 8px 10px; border-radius: 8px; cursor: pointer; }
+.mail.prio-high { border-left-color: var(--g-red); }
+.mail.prio-medium { border-left-color: #fbbc04; }
+.mail.prio-low { border-left-color: #34a853; }
+.mail.active { background: var(--primary-container); color: var(--on-primary-container); }
+.m-top { display: flex; justify-content: space-between; font-size: .7rem; opacity: .75; }
+.m-id { font-family: ui-monospace, Consolas, monospace; }
+.m-subj { font-size: .86rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-snip { font-size: .76rem; opacity: .75; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.m-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.pad { padding: 10px; }
+.reader { padding: 18px 22px; }
+.r-head h2 { margin: 0 0 4px; font-size: 1.15rem; }
+.r-body { white-space: pre-wrap; background: var(--surface-container-lowest); border-radius: 10px; padding: 12px 14px; font-size: .9rem; line-height: 1.5; }
+.r-body.draft { border-left: 4px solid #34a853; }
+.reader h3 { font-size: .9rem; margin: 18px 0 6px; }
+.reader table { border-collapse: collapse; width: 100%; }
+.reader th, .reader td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--outline-variant); font-weight: 400; }
+.reasons { margin: 0; padding-left: 18px; font-size: .84rem; line-height: 1.5; }
+.reasons code { font-size: .74rem; background: var(--surface-container-high); padding: 1px 5px; border-radius: 4px; }
+.decision { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: .8rem; font-weight: 600; text-transform: capitalize; background: var(--surface-container-high); }
+.decision.d-escalate { background: var(--error-container); color: var(--on-error-container); }
+.decision.d-review { background: var(--warning-container); color: var(--on-warning-container); }
+.decision.d-draft_ready { background: var(--tertiary-container); color: var(--on-tertiary-container); }
+@media (max-width: 1000px) { .inbox { grid-template-columns: 1fr; height: auto; } .folders { flex-direction: row; flex-wrap: wrap; } .mail-list { max-height: 50vh; } }

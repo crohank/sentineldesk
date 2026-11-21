@@ -18,6 +18,10 @@
     <span class="chip" id="mode-triage">triage: loading</span>
     <span class="chip" id="feed-status">feed: loading</span>
   </div>
+  <div class="viewtabs" role="tablist">
+    <button class="vt active" data-view="board" role="tab">Board</button>
+    <button class="vt" data-view="inbox" role="tab">Inbox</button>
+  </div>
   <div class="controls">
     <button id="btn-play" class="btn primary" disabled>Start stream</button>
     <label class="speed">Every
@@ -46,10 +50,16 @@
   <div class="kpi yellow"><span class="kpi-val" id="k-review">0</span><span class="kpi-label">human review</span></div>
   <div class="kpi green"><span class="kpi-val" id="k-draft">0</span><span class="kpi-label">drafts ready</span></div>
   <div class="kpi"><span class="kpi-val" id="k-acc">n/a</span><span class="kpi-label">queue label match</span></div>
-  <div class="kpi"><span class="kpi-val" id="k-ms">n/a</span><span class="kpi-label">median ms per ticket</span></div>
+  <div class="kpi"><span class="kpi-val" id="k-ms">n/a</span><span class="kpi-label">median ms per ticket (full path)</span></div>
 </section>
 
-<main class="board-main">
+<main class="inbox" id="inbox" hidden>
+  <nav class="folders" id="folders"></nav>
+  <section class="mail-list" id="mail-list"></section>
+  <article class="reader" id="reader"><p class="muted">Select a ticket.</p></article>
+</main>
+
+<main class="board-main" id="board-view">
   <div class="lanes">
     <section class="lane" data-lane="escalate"><h2><span class="dot red"></span>On-call <span class="count">0</span></h2><div class="cards"></div></section>
     <section class="lane" data-lane="review"><h2><span class="dot yellow"></span>Human review <span class="count">0</span></h2><div class="cards"></div></section>
@@ -78,8 +88,8 @@
       <div id="prio-bars" class="bars"><p class="muted small">Waiting for tickets.</p></div>
     </div>
     <div class="panel-card">
-      <h3>Ticket detail</h3>
-      <div id="detail" class="detail"><p class="muted small">Click a card to see the ticket, the gate reasons and the known labels.</p></div>
+      <h3>Inbox</h3>
+      <div id="detail" class="detail"><p class="muted small">Click any card, lane title or count to open it in the inbox.</p></div>
     </div>
     <p class="muted small note">Feed replays KB validation tickets (labels known, never used to fit the board model).
       The outage burst replays real tickets picked for similar wording and is marked SIMULATED.

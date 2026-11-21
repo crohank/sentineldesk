@@ -173,6 +173,7 @@ class Board:
     def ingest(self, ticket_id: str | None, subject: str, body: str, simulated: bool,
                kind: str = "feed") -> dict:
         self._ready.wait(timeout=120)
+        started = time.perf_counter()
         result = analyze(TicketInput(subject=subject or None, body=body), self.comps, mode="live")
         text = f"{subject}\n{body}"
         triage = result.triage
@@ -204,7 +205,14 @@ class Board:
             "kind": kind,
             "id": ticket_id or result.request_id,
             "subject": subject or body[:90],
-            "body": body[:400],
+            "body": body[:4000],
+            "received": time.time(),
+            # Fixture mode swaps in the local gate, so the pipeline's fixture draft and
+            # precedents do not belong to this decision.
+            "draft": result.draft.reply_text if result.draft and source == "pipeline" else None,
+            "precedents": [{"ticket_id": p.ticket_id, "subject": p.subject, "score": round(p.score, 2)}
+                           for p in result.precedents] if result.retrieval_mode != "fixture" else [],
+            "reason_text": [{"code": r.code, "message": r.message} for r in result.decision.reasons],
             "language": result.language,
             "triage": {h: {"label": getattr(triage, h).label, "confidence": getattr(triage, h).confidence}
                        for h in HEADS} if triage else None,
@@ -212,7 +220,8 @@ class Board:
             "status": result.decision.status,
             "destination": result.decision.destination,
             "reasons": [r.code for r in result.decision.reasons],
-            "total_ms": round(result.total_ms, 1),
+            # Whole board path: pipeline plus the local classifier and gate in fixture mode.
+            "total_ms": round((time.perf_counter() - started) * 1000, 1),
             "triage_source": source,
             "retrieval_mode": result.retrieval_mode,
             "simulated": simulated,
