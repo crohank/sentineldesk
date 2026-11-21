@@ -2,8 +2,8 @@
 
 - predictions: `data/predictions/tfidf_logreg.parquet`
 - sha256: `bc39736a98fc72f526dd2810a85fc3b51fbefa2b45d35708a972a1957599bb74`
-- git commit: c98c534-dirty
-- scored at: 2026-11-21T16:20:29Z
+- git commit: 986bfbf
+- scored at: 2026-11-21T16:21:12Z
 
 - full: [reports/tfidf_logreg/metrics.md](../tfidf_logreg/metrics.md)
 - no near-dups: [reports/tfidf_logreg_no_near_dups/metrics.md](../tfidf_logreg_no_near_dups/metrics.md), excluding 12 IDs in `reports/near_dup_holdout_ids.txt`

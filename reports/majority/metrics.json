@@ -4,8 +4,8 @@
     "predictions_path": "data/predictions/majority.parquet",
     "predictions_sha256": "568ec78e1763012713346071c34db9f74ad4d9dd9e39042d15b508792d1a696d",
     "rows": 5715,
-    "scored_at": "2026-11-21T16:20:44Z",
-    "git_commit": "c98c534-dirty",
+    "scored_at": "2026-11-21T16:21:27Z",
+    "git_commit": "ab6cdf1",
     "optional_columns": []
   },
   "full": {

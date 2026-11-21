@@ -3,8 +3,8 @@
 - predictions: `data/predictions/tfidf_logreg.parquet`
 - sha256: `bc39736a98fc72f526dd2810a85fc3b51fbefa2b45d35708a972a1957599bb74`
 - rows: 5715
-- scored at: 2026-11-21T16:20:29Z
-- git commit: c98c534-dirty
+- scored at: 2026-11-21T16:21:12Z
+- git commit: 986bfbf
 
 Rates are shown as value (numerator/denominator).
 

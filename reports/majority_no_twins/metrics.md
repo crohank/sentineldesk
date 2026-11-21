@@ -3,8 +3,8 @@
 - predictions: `data/predictions/majority.parquet`
 - sha256: `568ec78e1763012713346071c34db9f74ad4d9dd9e39042d15b508792d1a696d`
 - rows: 5715
-- scored at: 2026-11-21T16:20:46Z
-- git commit: c98c534-dirty
+- scored at: 2026-11-21T16:21:28Z
+- git commit: ab6cdf1
 - excluded IDs: 520 from `reports/twin_holdout_ids.txt`
 
 Rates are shown as value (numerator/denominator).

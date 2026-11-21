@@ -2,8 +2,8 @@
 
 - predictions: `data/predictions/majority.parquet`
 - sha256: `568ec78e1763012713346071c34db9f74ad4d9dd9e39042d15b508792d1a696d`
-- git commit: c98c534-dirty
-- scored at: 2026-11-21T16:20:44Z
+- git commit: ab6cdf1
+- scored at: 2026-11-21T16:21:27Z
 
 - full: [reports/majority/metrics.md](../majority/metrics.md)
 - no near-dups: [reports/majority_no_near_dups/metrics.md](../majority_no_near_dups/metrics.md), excluding 12 IDs in `reports/near_dup_holdout_ids.txt`
