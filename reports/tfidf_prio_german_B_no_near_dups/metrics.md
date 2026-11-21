@@ -3,8 +3,8 @@
 - predictions: `data/predictions/tfidf_prio_german_B.parquet`
 - sha256: `8d0035584af704ef9f83dc3855dd949cbd7409c3dd86392498fa9ef2ff0240d1`
 - rows: 5715
-- scored at: 2026-11-21T16:38:30Z
-- git commit: 1a23ec9
+- scored at: 2026-11-21T17:05:55Z
+- git commit: 567d741
 - excluded IDs: 12 from `reports/near_dup_holdout_ids.txt`
 
 Rates are shown as value (numerator/denominator).

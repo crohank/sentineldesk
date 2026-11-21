@@ -3,8 +3,8 @@
 - predictions: `data/predictions/tfidf_prio_german_A.parquet`
 - sha256: `c303499b28efc2d60af06618c7f180d355d64ad78a6af7e7db1669e56715c80e`
 - rows: 5715
-- scored at: 2026-11-21T16:38:14Z
-- git commit: 1a23ec9
+- scored at: 2026-11-21T17:05:39Z
+- git commit: 567d741
 
 Rates are shown as value (numerator/denominator).
 

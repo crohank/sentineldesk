@@ -2,8 +2,8 @@
 
 - predictions: `data/predictions/tfidf_prio_german_C.parquet`
 - sha256: `4a89b7eb47148209dbbb8d729b9f7e346a72c9262f1bf1b347190353357d96eb`
-- git commit: 1a23ec9
-- scored at: 2026-11-21T16:38:43Z
+- git commit: 567d741
+- scored at: 2026-11-21T17:06:09Z
 
 - full: [reports/tfidf_prio_german_C/metrics.md](../tfidf_prio_german_C/metrics.md)
 - no near-dups: [reports/tfidf_prio_german_C_no_near_dups/metrics.md](../tfidf_prio_german_C_no_near_dups/metrics.md), excluding 12 IDs in `reports/near_dup_holdout_ids.txt`

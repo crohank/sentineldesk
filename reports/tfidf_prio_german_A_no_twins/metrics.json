@@ -4,8 +4,8 @@
     "predictions_path": "data/predictions/tfidf_prio_german_A.parquet",
     "predictions_sha256": "c303499b28efc2d60af06618c7f180d355d64ad78a6af7e7db1669e56715c80e",
     "rows": 5715,
-    "scored_at": "2026-11-21T16:38:17Z",
-    "git_commit": "1a23ec9",
+    "scored_at": "2026-11-21T17:05:42Z",
+    "git_commit": "567d741",
     "optional_columns": [
       "conf_priority",
       "conf_queue",
