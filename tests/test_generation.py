@@ -106,7 +106,7 @@ def test_assemble_markers_placeholders_greeting_and_reassign():
 
 
 def test_fill_placeholders_both_languages():
-    assert fill_placeholders("Call <tel_num>, <name>.", "en") == "Call our support phone number."
+    assert fill_placeholders("Please allow us to call <tel_num>, <name>.", "en") == "Please allow us to call <tel_num>."  # ambiguous: left for repair
     assert fill_placeholders("Send your account number <acc_num> and contact us at <tel_num>.", "en") == \
         "Send your account number and contact us by phone."
     assert fill_placeholders("Kontaktieren Sie uns unter <tel_num>.", "de") == "Kontaktieren Sie uns telefonisch."
@@ -137,3 +137,17 @@ def test_gemma_end_to_end():
         pytest.skip("Ollama not running")
     res = Generator([GemmaOllama()], budget_s=15).draft_with_mode(TICKET, "en", EN)
     assert res.draft.abstain or check_draft(res.draft, "en", EN, TICKET["body"]) == []
+
+
+def test_junk_sentence_fails():
+    d = good_draft()
+    d.claims[0].text = "source: TKT-00100"
+    assert any("not a reply sentence" in e for e in check_draft(d, "en", EN))
+
+
+def test_ambiguous_phone_placeholder_is_not_guessed():
+    raw = {"abstain": False, "sentences": [
+        {"text": "Please allow us to call <tel_num> to discuss further.", "source": "TKT-00200",
+         "evidence_span": "Could you please tell us the printer model"}]}
+    d = assemble(raw, EN, "en")
+    assert "<tel_num>" in d.reply_text and any("placeholder" in e for e in check_draft(d, "en", EN))

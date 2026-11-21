@@ -1,0 +1,91 @@
+{
+  "judge_model": "gemini-3.5-flash",
+  "thinking_level": "high",
+  "prompt_versions": [
+    "judge-v1",
+    "draft-v1"
+  ],
+  "data": "KB validation tickets (provisional partition), drafts from scripts/eval_generation.py",
+  "caveat": "the judge is the same model family as the 'gemini' drafter",
+  "backends": {
+    "gemma": {
+      "drafts": 40,
+      "cited_sentences": 88,
+      "cited_sentence_verdicts": {
+        "supported": 85,
+        "partially_supported": 1,
+        "unsupported": 2
+      },
+      "cited_supported_rate": 0.966,
+      "uncited_non_greeting_sentences": 5,
+      "uncited_sentence_verdicts": {
+        "supported": 5,
+        "partially_supported": 0,
+        "unsupported": 0
+      },
+      "greetings_counted_as_filler": 31,
+      "drafts_with_any_unsupported": 2,
+      "drafts_fully_supported": 37,
+      "responsiveness": {
+        "responsive": 33,
+        "not_responsive": 2,
+        "partially_responsive": 5
+      },
+      "agreement_with_agent_answer": {
+        "agrees": 13,
+        "disagrees": 6,
+        "partially_agrees": 21
+      },
+      "by_generator_mode": {
+        "gemma": {
+          "responsive": 30,
+          "partially_responsive": 3,
+          "not_responsive": 1
+        },
+        "offline_templates": {
+          "responsive": 3,
+          "not_responsive": 1,
+          "partially_responsive": 2
+        }
+      }
+    },
+    "gemini": {
+      "drafts": 40,
+      "cited_sentences": 75,
+      "cited_sentence_verdicts": {
+        "supported": 75,
+        "partially_supported": 0,
+        "unsupported": 0
+      },
+      "cited_supported_rate": 1.0,
+      "uncited_non_greeting_sentences": 11,
+      "uncited_sentence_verdicts": {
+        "supported": 11,
+        "partially_supported": 0,
+        "unsupported": 0
+      },
+      "greetings_counted_as_filler": 31,
+      "drafts_with_any_unsupported": 0,
+      "drafts_fully_supported": 40,
+      "responsiveness": {
+        "responsive": 36,
+        "partially_responsive": 4
+      },
+      "agreement_with_agent_answer": {
+        "agrees": 13,
+        "disagrees": 3,
+        "partially_agrees": 24
+      },
+      "by_generator_mode": {
+        "gemini": {
+          "responsive": 35,
+          "partially_responsive": 3
+        },
+        "offline_templates": {
+          "partially_responsive": 1,
+          "responsive": 1
+        }
+      }
+    }
+  }
+}

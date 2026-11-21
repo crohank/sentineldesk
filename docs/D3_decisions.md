@@ -116,6 +116,20 @@ It changed the top precedent for 78% of no-twin queries, made queue agreement wo
 **Decision:** `D3.load()` wires language detection, retrieval (RAG Engine if configured, else EmbeddingGemma, else sparse) and drafting (Gemini, Gemma 4, extractive) with every fallback per request. It exposes `detect_language`, `retrieve`, `draft` and `validate` with the signatures in D5's `Components`, plus `analyze_ticket`, which returns the modes that actually served the call without shared state. The relevance guard threshold is picked per retrieval mode.
 **Why:** D5 integrates one object instead of four modules, and the console can show the real retrieval and generator modes per request. With RAG Engine blocked (D3-16), the 1:00 candidate is EmbeddingGemma retrieval + Gemini 3.5 Flash drafting, with Gemma 4 and extractive fallbacks.
 
+### D3-21 Model-judged draft quality, and two fixes it found
+**Decision:** Judge drafts with `gemini-3.5-flash` (thinking `high`, temperature 0; no Pro model is available to the new project) using D1's `judge-v1` rubric verbatim for every sentence, plus a draft-level prompt (`draft-v1`): does the draft respond to the ticket, and does its next step agree with the answer the human agent actually gave (available for KB validation tickets only). `scripts/judge_generation.py`, results in `reports/judge_generation.json`. Fixes made from its findings: (1) reject "sentences" that are formatting debris (`source: TKT-11245`, ticket IDs in the text, fewer than 3 words); (2) stop filling `<tel_num>` and `<email>` generically, because they can be the customer's or ours: outside "at/unter <tel_num>" they now fail the placeholder check and go to repair.
+**Why:** The deterministic checks prove quoting, not meaning. On the 40 + 40 validation drafts (before the two fixes):
+
+| | Gemma 4 | Gemini 3.5 Flash |
+|---|---|---|
+| cited sentences supported | 85/88 (96.6%), 1 partial, 2 unsupported | 75/75 (100%) |
+| uncited non-greeting sentences supported | 5/5 | 11/11 |
+| drafts with every sentence supported | 37/40 | 40/40 |
+| responds to the ticket (yes / partly / no) | 33 / 5 / 2 | 36 / 4 / 0 |
+| next step agrees with the agent's real answer (yes / partly / no) | 13 / 21 / 6 | 13 / 24 / 3 |
+
+Both "unsupported" Gemma sentences were real defects (the debris sentence, and "call `<tel_num>`" filled as "call our support phone number" when the evidence meant the customer's number). The one "not responsive" Gemma draft cited real evidence about a different problem: grounding does not guarantee relevance. Caveats: the judge is the same model family as the Gemini drafter (self-preference possible; the Gemma comparison shows it does flag problems); 40 drafts per model; "agrees with the agent" compares against one synthetic answer, and many "partly" cases are drafts asking for details where the agent took an action.
+
 ## Open
 
 - Swap the provisional partition for D1's manifest once published.

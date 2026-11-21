@@ -159,11 +159,12 @@ def _snap_span(span: str, evidence: str) -> str:
 _GREETING = re.compile(r"^(?:thank|thanks|hello|hi|dear|good (?:morning|afternoon)|guten tag|hallo|vielen dank|"
                        r"danke|sehr geehrte|liebe|wir danken|we appreciate)\b", re.I)
 
-_FILL = [  # (pattern, English, German); spans keep the original tokens, only reply text is filled
+# (pattern, English, German); spans keep the original tokens, only reply text is filled. Phone and
+# email tokens are not filled generically: "<tel_num>" can be the customer's number or ours, and a
+# wrong guess flips the meaning (judge finding, D3-21). Outside "at/unter <tel_num>" they stay, the
+# placeholder check fails, and the repair prompt asks the model to rephrase.
+_FILL = [
     (r"<\s*acc[_ -]?num\s*>|\[\s*acc[_ -]?num\s*\]|\[Account Number\]|\[Kontonummer\]", "your account number", "Ihre Kontonummer"),
-    (r"<\s*tel[_ -]?num(?:ber)?\s*>|\[\s*tel[_ -]?(?:num|number|nummer)\s*\]|\[Phone Number\]|\[Telefonnummer\]|<Tel-Nummer>",
-     "our support phone number", "unsere Support-Telefonnummer"),
-    (r"<\s*email\s*>|\[\s*email\s*\]", "our support email address", "unsere Support-E-Mail-Adresse"),
     (r"<\s*website_url\s*>", "our website", "unsere Website"),
     (r",?\s*(?:<\s*name\s*>|\[\s*(?:your\s+|ihr\s+)?name\s*\])", "", ""),
 ]
@@ -231,6 +232,8 @@ def check_draft(draft: Draft, language: str, precedents: list[Any], ticket_text:
         if tid not in evidence:
             errors.append(f"cites {tid}, which was not retrieved")
     for i, c in enumerate(draft.claims):
+        if TICKET_ID.search(c.text) or re.search(r"\b(?:source|evidence_span)\s*:", c.text, re.I) or len(c.text.split()) < 3:
+            errors.append(f"sentence {i + 1} is not a reply sentence: {c.text[:40]!r}")
         if c.ticket_id not in draft.cited_ticket_ids:
             errors.append(f"sentence {i + 1} cites {c.ticket_id}, which is not in cited_ticket_ids")
         if c.ticket_id in evidence:

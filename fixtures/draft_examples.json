@@ -14,7 +14,7 @@
       "language": "en",
       "retrieval_mode": "dense:embeddinggemma",
       "generator_mode": "gemini",
-      "generation_ms": 1713.1,
+      "generation_ms": 1851.8,
       "draft": {
         "reply_text": "Thank you for reaching out to us regarding your account access. Please provide a detailed description of the error message you receive and attempt to access your account again. [TKT-17664]",
         "cited_ticket_ids": [
@@ -45,7 +45,7 @@
       "language": "de",
       "retrieval_mode": "dense:embeddinggemma",
       "generator_mode": "gemini",
-      "generation_ms": 4516.7,
+      "generation_ms": 1486.3,
       "draft": {
         "reply_text": "Vielen Dank für Ihre Nachricht bezüglich des Zugangs zu Ihrem Portal. Bitte geben Sie uns die genaue Fehlermeldung an, die Sie beim Anmeldeversuch erhalten. [TKT-18593]",
         "cited_ticket_ids": [
@@ -76,7 +76,7 @@
       "language": "de",
       "retrieval_mode": "dense:embeddinggemma",
       "generator_mode": "gemini",
-      "generation_ms": 1919.8,
+      "generation_ms": 2222.3,
       "draft": {
         "reply_text": "Vielen Dank für Ihre Nachricht. Könnten Sie uns bitte das genaue Druckermodell nennen und uns mitteilen, ob Fehlermeldungen auf dem Display oder dem Computer angezeigt werden? [TKT-11927] Geben Sie uns bitte auch Bescheid, ob das Gerät über USB oder über das Netzwerk verbunden ist. [TKT-11927]",
         "cited_ticket_ids": [
@@ -112,7 +112,7 @@
       "language": "en",
       "retrieval_mode": "dense:embeddinggemma",
       "generator_mode": "gemini",
-      "generation_ms": 1224.5,
+      "generation_ms": 859.8,
       "draft": {
         "reply_text": "Thank you for reaching out to us regarding your invoice. Please provide your account number for invoice support. [TKT-07379]",
         "cited_ticket_ids": [
