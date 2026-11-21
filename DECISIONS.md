@@ -197,7 +197,7 @@ On-call wins over review, and the reason of every rule that fired is kept. When 
 **Decision:** `mask_pii` masks emails, phone numbers (8–15 digits), IPv4 and IPv6 addresses, IBANs, card numbers (Luhn-checked) and labelled account IDs, using the KB's placeholder kinds: `<email>`, `<tel_num>`, `<acc_num>`, plus `<ip_address>`. Ticket IDs, error codes, versions and dates are kept. `mask_ticket` is the pipeline's mask stage, and the same function masks answer excerpts before display and any text sent to a hosted model.
 **Why:** Masked tickets then use the same tokens as the training data (D1-32). Names are not masked; that limit is stated rather than hidden.
 
-### D4-14 Offline template generator
+### D4-14 Offline template generator *(Texts superseded by D4-25)*
 **Decision:** The default generator writes a fixed greeting and thank-you, then up to three reviewed actions, then a fixed closing. Each action is cited inline as `[TKT-12345]`, pointing to the highest-scoring precedent with an answer sentence that supports it. The catalogue holds five information requests in English and German: the error message or code, more details, software version / device / operating system, the affected account, and a convenient time for a call. The reply follows the detected language even when the evidence is in the other language. If no action is supported, the draft abstains. Evidence spans come from `answer_snippet`, which is what the pipeline's citation check reads (D5-07).
 **Why:** Information requests are what past answers actually do: in the fit partition, 66% of English and 45% of German answers support at least one of them (`reports/d4/action_mining.md`). Troubleshooting steps (restart, update, clear the cache, check the connection) were tried and dropped, because the answer sentences that mention them mostly report what the customer already tried, so a recommended step would often be unsupported. The fixed texts contain no numbers, commitments or product names, so the generator can't invent them.
 
@@ -283,6 +283,17 @@ With the stand-ins, 4.9% of validation tickets get a validated draft (87% of the
 
 **Why:** This is the plan's generation acceptance test, run before the release decision. The judge finds that the fixed template texts can say more than their evidence. "What you were doing when it occurred" and "device and operating system" are added detail, and "which account" was matched on answers that only mention an account. Gemma restates its evidence and passes a claim check before use. Some of the judge's template counts are duplicates: its sentence splitter joins the "To move this forward:" line and an inline citation with the next sentence.
 **Status:** Measured with stand-ins and only 7 drafts per run, so the numbers are indicative. Rerun on the integrated pipeline.
+
+### D4-25 Template texts narrowed to their evidence
+**Decision:** Each template now says no more than the evidence it needs:
+- error message ("Could you send us the exact error message you see?"), matched only on answers that ask for an error message
+- more details about the request
+- software version only (no device or operating system)
+- account details, matched only when an answer explicitly asks for them
+- a convenient time for a call
+
+The "To move this forward:" line is removed. This changed after the 1:00 evaluation freeze, so it is a separate run: `reports/d4/generation_audit_templates_v2.md`, with the original run kept.
+**Why:** The audit (D4-24) found template lines that added detail their evidence didn't have. On the same 100 IDs, the rerun has 7 drafts, 24 of 24 claims supported, and every draft fully supported (was 24 of 32 and 3 of 7). Fit-partition answers supporting at least one action drop from 66% to 64% (English) and from 45% to 43% (German).
 
 ---
 

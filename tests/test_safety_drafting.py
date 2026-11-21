@@ -29,12 +29,12 @@ def test_german_evidence_is_matched():
     p = precedent(answer="Bitte senden Sie uns die genaue Fehlermeldung. Starten Sie das Gerät neu.", lang="de")
     d = draft(ticket("Fehler beim Export."), "de", [p])
     assert [cl.text for cl in d.claims] == [
-        "Könnten Sie uns die genaue Fehlermeldung oder den Fehlercode schicken und mitteilen, seit wann sie auftritt?"
+        "Könnten Sie uns die genaue Fehlermeldung schicken?"
     ]
 
 
 def test_troubleshooting_steps_are_never_suggested():
-    p = precedent(answer="Please restart the application and send us the error log.")
+    p = precedent(answer="Please restart the application and send us the exact error message.")
     d = draft(ticket("The app keeps showing an error."), "en", [p])
     assert not any("restart" in cl.text.lower() for cl in d.claims)
     assert any("error message" in cl.text for cl in d.claims)

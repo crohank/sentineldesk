@@ -46,20 +46,17 @@ class Action:
 
 
 ACTIONS: tuple[Action, ...] = (
+    # Texts say no more than their evidence must contain (generation audit, D4-25).
     Action(
         "ask_error_details",
-        en="Could you send us the exact error message or code you see, and tell us when it first appeared?",
-        de="Könnten Sie uns die genaue Fehlermeldung oder den Fehlercode schicken und mitteilen, seit wann sie auftritt?",
-        evidence=(re.compile(
-            r"""\b(?:error\ (?:messages?|codes?|details|logs?)|logs?\b|log\ files?|screenshots?|fehlermeldung\w*
-            |fehlercode\w*|protokoll\w*|logdatei\w*|screenshot\w*|bildschirmfoto\w*)""",
-            _F,
-        ), ASK),
+        en="Could you send us the exact error message you see?",
+        de="Könnten Sie uns die genaue Fehlermeldung schicken?",
+        evidence=(re.compile(r"\b(?:error\ messages?|fehlermeldung\w*)", _F), ASK),
     ),
     Action(
         "ask_more_details",
-        en="Could you share a few more details about the issue, such as what you were doing when it occurred?",
-        de="Könnten Sie uns noch etwas mehr zum Problem mitteilen, zum Beispiel, was Sie gerade getan haben, als es auftrat?",
+        en="Could you share more details about your request?",
+        de="Könnten Sie uns weitere Details zu Ihrem Anliegen mitteilen?",
         evidence=(re.compile(
             r"""\b(?:more|additional|further|specific|detailed)\ (?:details|information|info|context)\b
             |(?:weitere|zus[aä]tzliche|genauere|detaillierte|n[aä]here)n?\ (?:details|informationen|angaben)""",
@@ -67,23 +64,21 @@ ACTIONS: tuple[Action, ...] = (
         ), ASK),
     ),
     Action(
-        "ask_environment",
-        en="Which software version, device and operating system are you using?",
-        de="Welche Softwareversion, welches Gerät und welches Betriebssystem verwenden Sie?",
-        evidence=(re.compile(
-            r"""\b(?:versions?|devices?|operating\ systems?|browsers?|ger[aä]t\w*|betriebssystem\w*)\b""",
-            _F,
-        ), ASK),
+        "ask_version",
+        en="Which software version are you using?",
+        de="Welche Softwareversion verwenden Sie?",
+        evidence=(re.compile(r"\b(?:versions?|versionen?)\b", _F), ASK),
     ),
     Action(
         "ask_account",
-        en="Please let us know which account this concerns so the team can look into it.",
-        de="Bitte teilen Sie uns mit, welches Konto betroffen ist, damit das Team die Angelegenheit prüfen kann.",
+        en="Could you share the account details related to this request?",
+        de="Könnten Sie uns die Kontodaten zu diesem Anliegen mitteilen?",
         evidence=(re.compile(
-            r"""account\ (?:number|details|information|id|name)|<acc_num>|customer\ (?:number|id)|kontonummer
-            |kontodaten|kundennummer|kontoinformationen|kundenkonto""",
+            r"""\b(?:provide|share|send|confirm|include)\b[^.!?]{0,40}\baccount\ (?:number|details|information|id)
+            |\b(?:kontonummer|kontodaten|kundennummer|kontoinformationen)\w*[^.!?]{0,40}\b(?:an|mit|bereit|zu)\w*
+            |\b(?:geben|teilen|senden|nennen)\ sie\b[^.!?]{0,40}\b(?:kontonummer|kontodaten|kundennummer|kontoinformationen)""",
             _F,
-        ), ASK),
+        ),),
     ),
     Action(
         "offer_call",
@@ -100,12 +95,11 @@ ACTIONS_BY_ID = {a.id: a for a in ACTIONS}
 
 GREETING = {"en": "Hello,", "de": "Guten Tag,"}
 THANKS = {"en": "Thank you for contacting us.", "de": "vielen Dank für Ihre Nachricht."}
-LEAD = {"en": "To move this forward:", "de": "Damit wir weiterhelfen können:"}
 CLOSING = {"en": "Best regards,\nSupport Team", "de": "Mit freundlichen Grüßen\nIhr Support-Team"}
 
 # Fixed lines that carry no claim, per language (normalized for comparison).
 BOILERPLATE = {
-    lang: {norm(x) for x in (GREETING[lang], THANKS[lang], LEAD[lang], *CLOSING[lang].split("\n"))}
+    lang: {norm(x) for x in (GREETING[lang], THANKS[lang], *CLOSING[lang].split("\n"))}
     for lang in ("en", "de")
 }
 # Reviewed action texts per language (normalized).

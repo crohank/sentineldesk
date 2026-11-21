@@ -10,7 +10,7 @@ from __future__ import annotations
 import os
 
 from . import contracts as c
-from .actions import ACTIONS, CLOSING, GREETING, LEAD, THANKS, Action
+from .actions import ACTIONS, CLOSING, GREETING, THANKS, Action
 from .config import DEFAULT_CONFIG, SafetyConfig
 from .gate import SUPPORTED_LANGUAGES, normalize_language
 from .text import sentences
@@ -53,7 +53,7 @@ def draft_template(masked_ticket, language, precedents, *, config: SafetyConfig 
     plan = plan_actions(masked_ticket, precedents, config=config) if lang in SUPPORTED_LANGUAGES else []
     if not plan:
         return c.Draft(reply_text="", cited_ticket_ids=[], claims=[], abstain=True)
-    lines = [GREETING[lang], "", THANKS[lang], LEAD[lang]]
+    lines = [GREETING[lang], "", THANKS[lang]]
     claims: list[c.Claim] = []
     cited: list[str] = []
     for action, p, span in plan:
