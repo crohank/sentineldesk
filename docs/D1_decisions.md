@@ -112,8 +112,11 @@ One entry per decision. Newest at the bottom. Each says what was decided and why
 **Decision:** `scripts/leakage.py` exposes `assert_kb_only(ids)`, raising `LeakageError` (an `AssertionError` subclass) with counts and example IDs if any ID is a holdout ID or not in kb_train. D3 calls it on the index IDs.
 **Why:** Plan acceptance test "KB-only index membership". A subclass survives `python -O`, a bare `assert` does not.
 
+### D1-28 Paraphrase-twin list saved for the scorer
+**Decision:** `scripts/twin_audit.py` flags holdout tickets whose subject + body has word 1-2 gram TF-IDF (min_df=2, sublinear tf, fit on KB) cosine >= 0.8 to any KB ticket. Writes `reports/twin_holdout_ids.txt` (520 IDs) and `reports/twin_audit.md`. Reads only kb_train and test_inputs. Scored as `reports/tfidf_logreg_no_twins/`.
+**Why:** Reproduces the D1-14 count exactly (520, and 92 at >= 0.9). Unigram body-only TF-IDF flags 1,430 at the same threshold because single shared words (product names, boilerplate) score high, so the setting matters and is fixed here. Baseline without twins: macro-F1 type 0.876, queue 0.555, priority 0.602; Incident+high recall 0.636 (615/967).
+
 ## Open
 
-- Write the 520 cosine-twin holdout IDs to a file in `reports/` so `score.py --exclude-ids` can report that scope too.
 - D5 to confirm the predictions format (D1-23).
 - Tell D4/D5: no KB password ticket is a Request (all 483 are Incident or Problem), so the planned password-reset demo has no routine precedent. Pick another routine demo ticket.
