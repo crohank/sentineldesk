@@ -92,10 +92,9 @@ The full test (34k vectors, ScaNN index, 50 timed queries, recall@5 against exac
 | resource | purpose | keep? |
 |---|---|---|
 | Agent Retrieval collection `sd-kb` (us-central1) | release KB index | yes |
-| Agent Retrieval collection `sd-e2e` | 500-vector speed test | delete |
 | Bucket `gs://sentineldesk-gdc-1121-agent-retrieval` | bulk import files | delete after load |
-| VM `sd-embed` (n2-standard-8, us-central1-a, about $0.39/hour) | EmbeddingGemma + Qdrant, side A of the comparison | until the latency test is done |
-| Firewall `sd-embed-allow-laptop` | VM ports 11434/6333 open to one IP; Ollama and Qdrant have no auth | delete with the VM |
+
+Deleted on 2026-11-21: VM `sd-embed` (EmbeddingGemma + Qdrant, side A), its firewall rule `sd-embed-allow-laptop`, and test collections `sd-e2e` and `sd-smoke`. A teammate has Agent Retrieval working end to end, so the Qdrant fallback was dropped.
 
 APIs enabled: `aiplatform`, `vectorsearch`, `compute`.
 
