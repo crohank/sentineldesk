@@ -160,8 +160,13 @@ One entry per decision. Newest at the bottom. Each says what was decided and why
 **Decision:** The 13k German file stays out. `scripts/audit_german.py`, `scripts/experiment_german_priority.py` and `reports/audit_german.md` record the test.
 **Why:** It is clean and genuinely German (2,000/2,000 detected `de`, no overlap or twins with the holdout; nearest holdout cosine 0.289), but retraining the priority head with it did nothing useful. German priority macro-F1 rose 0.002 to 0.004, English fell 0.003 to 0.005, German priority ECE got worse in every variant (0.082 to 0.090 to 0.096), across all three mappings tried (critical/very_low folded, dropped, folded at weight 0.5). Its topics (groceries, books, gardens) are far from IT support, and the 5-to-3 priority mapping is an untested assumption.
 
+### D1-40 Gemini classifier as an offline baseline (planned)
+**Decision:** Add an LLM baseline for type / queue / priority using the Gemini API with an AI Studio key on the credits project, plan in `docs/D1_gemini_classifier_plan.md`. Candidates `gemini-3.5-flash-lite`, `gemini-3.8-flash`, `gemini-4-carbon`; zero-shot vs kNN few-shot from the KB; chosen on 300 `val` tickets; enum-constrained JSON; synchronous parallel calls, not Batch mode. Few-shot pool excludes `kb_extra`.
+**Why:** Answers "why not just ask an LLM" with measured numbers on the same scorer. Batch is half price but targets 24 h turnaround, too slow for today. A full holdout run is estimated at $5 to $27 depending on model. Latency (1 to 2 s) keeps it out of the default serving path unless D2 and D5 decide otherwise. Excluding `kb_extra` keeps the comparison with the TF-IDF baseline like for like.
+
 ## Open
 
+- D1-40: user to create the Gemini API key and check per-model RPM in AI Studio before step 1.
 - D2: compare their model trained with and without `kb_extra` on the `val` partition; drop the extension if it does not help (D1-38).
 
 - D3 to call `assert_kb_only` on the index IDs, then update LEAKAGE.md.
