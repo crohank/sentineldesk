@@ -63,3 +63,33 @@ python -m pytest -q
 - Predictions format for evaluation: [prediction_format.md](prediction_format.md). Needs your confirmation that the pipeline can emit it.
 - One command scores a run in all three scopes (full, no near-copies, no twins): `python scripts/run_eval.py data/predictions/<run>.parquet --run-name <run>`.
 - Evaluation freeze is 1:00 PM. Send D1 the frozen predictions file; D1 hashes it before scoring.
+
+## Gemini classifier and hybrid (D1-40 to D1-47)
+
+State as of commit 0e71f8f. Plan: [D1_gemini_classifier_plan.md](D1_gemini_classifier_plan.md).
+
+**Access.** Vertex AI through `gcloud.cmd auth login` (PowerShell blocks `gcloud.ps1`), project `sentineldesk-gdc-1121` on the GDP Event Credit billing account, location `global` only (us-central1 returns 404). Set `GOOGLE_CLOUD_PROJECT=sentineldesk-gdc-1121`. `scripts/gemini_client.py` finds gcloud and refreshes expired tokens.
+
+**Models.** `gemini-3.8-flash` (thinking `low`), `gemini-3.5-flash-lite` (`minimal`) work. `gemini-4-carbon` answers single calls but every batch call returned 429, so it is not compared (D1-46). Logprobs are not supported on any of them; confidence is the model's own per-label probability.
+
+**Results on the same 300 `val` tickets** (`reports/llm/val300_comparison.md`), macro-F1 type / queue / priority:
+
+| row | type | queue | priority | Incident+high |
+|---|---|---|---|---|
+| TF-IDF, fit partition | 0.890 | 0.570 | 0.598 | 32/51 |
+| gemini-3.5-flash-lite, 8 examples | 0.918 | 0.681 | 0.709 | 39/51 |
+| gemini-3.8-flash, 8 examples | 0.950 | 0.754 | 0.766 | 44/51 |
+| blend 50/50 TF-IDF + flash | 0.939 | 0.759 | 0.764 | 46/51 |
+
+Flash beats TF-IDF with paired bootstrap CIs excluding 0, also without the 24 twin tickets. Blending does not raise F1 over Flash, but TF-IDF / Flash agreement separates 83 to 97% accurate tickets from 59 to 67% ones (`reports/llm/blend_val300.md`). LLM and blended confidences are poorly calibrated; do not threshold on them until calibrated.
+
+**Unit cost (flash).** About 1,800 input and 280 output tokens per ticket, $0.0024 per ticket, p50 3.2 s. 8 parallel calls give 1.24 tickets/s; more triggers 429s. Full holdout about $14 and 77 minutes at 8 workers.
+
+**Hybrid design (classifier only; escalation is D4's).** TF-IDF and Gemini run in parallel; per head the blended probabilities feed D4's `Prediction(label, confidence, probabilities)`; if Gemini times out or returns 429, TF-IDF's probabilities are used and marked `tfidf_only`.
+
+**Next steps.**
+1. Run flash on the 2,286 `calib` tickets (about $5.50, 30 min): `python scripts/llm_classify.py --split calib --mode few --k 8 --backend vertex --model gemini-3.8-flash --thinking-level low --workers 8 --budget-usd 8 --run-name calib_flash_few8`.
+2. Fit the blend weight and a temperature per head on calib; rescore once on val300.
+3. Holdout run and `run_eval.py`, if it fits before the evaluation freeze.
+
+**Scripts.** `llm_smoke.py` (model check), `llm_classify.py` (runs; cache in `data/llm_cache/` makes reruns free), `llm_compare.py` (like-for-like table), `blend_val.py` (blend test), `judge_drafts.py` (generation audit judge).
