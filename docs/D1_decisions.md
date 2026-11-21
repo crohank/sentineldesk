@@ -52,8 +52,159 @@ One entry per decision. Newest at the bottom. Each says what was decided and why
 **Decision:** Accept the split as canonical.
 **Why:** A separate re-derivation from the raw CSV (not importing `make_split.py`) matched every row and passed 22 checks: counts, boundary IDs, exact column sets, disjoint IDs, zero cross-split duplicate bodies, unchanged labels, `TKT-09746` spot check. Source CSV SHA-256 `f187c090e59581c2bbf3aa1377c8db4dd647464ecf2ae51bf8966e42e0ed6bc0`.
 
-## Open
+### D1-13 D1 work on its own branch
+**Decision:** All D1 work goes on branch `d1/data-eval`. Nothing more is pushed straight to `main`; it lands through a PR.
+**Why:** Five people share the repo, and `main` should only get reviewed changes. The first two commits (repo setup, this log) were already on `main` before this rule.
 
-- Pin the HF dataset revision and make `make_split.py` fail on a hash or count mismatch.
-- Pin pandas to an exact version (3.1.1 on this machine) so the shuffle is reproducible on other machines.
-- Move the drift check and baseline scoring out of `eda.py`, which currently reads `test_labels`. Only the scorer should.
+### D1-14 Near-twin paraphrases stay in the split, scores reported both ways
+**Decision:** Keep the canonical split. The scorer reports every triage metric on all 5,715 holdout tickets and again with near-twins excluded.
+**Why:** 520 holdout tickets (9.1%) have a KB ticket at word TF-IDF cosine >= 0.8, and labels agree on 99.8 to 100% of those pairs. They are generator paraphrases ("seeking guidance on integrating Steinberg Cubase 11..." vs "seeking detailed guidance on integrating..."), not exact duplicates, so D1-03 does not catch them. They inflate scores: queue macro-F1 0.587 overall vs 0.555 without them. This refines D1-10, which only looked at shared openings. The MinHash audit from the plan becomes the official twin list; the cosine check is the cross-check.
+
+### D1-15 Score per detected language
+**Decision:** The scorer breaks every metric down by language detected from the body (langdetect), not by the `language` label. Report both breakdowns in the README if space allows.
+**Why:** The label is wrong for 3,406 of 28,572 rows (11.9%; 3,353 labelled `de` but English, 53 the other way). German is much weaker on the baseline: queue macro-F1 0.455 for detected German vs 0.643 for English, priority 0.518 vs 0.682. Averaging hides that.
+
+### D1-16 Outage metric reports both escalation definitions
+**Decision:** Report joint Incident+high recall two ways: both predictions right (baseline 0.654) and escalated on predicted high priority alone (baseline 0.735).
+**Why:** The gate can escalate on high priority without needing the type prediction, and the gap is 8 points. D2 picks the operating rule; D1 reports both with counts.
+
+### D1-17 Source pinned to an HF revision and a file hash
+**Decision:** `download_data.py` downloads revision `ddf1c81a5475992c4fa6752bf1e8b4e31f07bbeb` and exits non-zero if the main CSV's SHA-256 is not `f187c090...6bc0`. Only the main CSV is hashed; the other files are pinned by revision only.
+**Why:** An upstream edit would still parse and split cleanly, just into different ticket IDs. Only the main CSV feeds the split.
+
+### D1-18 make_split.py refuses to write a different split
+**Decision:** Before writing, it checks the source hash (before reading), then row counts, duplicates removed, boundary IDs and the `TKT-09746` spot check. Any mismatch raises `SplitMismatch` listing every expected vs observed value, and the output folder is not created. Output parquet hashes are not checked. Added `--out` to both data scripts.
+**Why:** Plan rule: never silently produce a new ID mapping. Parquet bytes depend on the pyarrow version, while input hash plus counts and IDs already lock the mapping. Tested with three deliberate mismatches.
+
+### D1-19 Exact version pins
+**Decision:** `requirements.txt` pins exact versions from the working venv: pandas 3.1.1, pyarrow 26.0.1, huggingface_hub 2.4.0, langdetect 1.0.9, matplotlib 3.11.2, scipy 1.18.1, scikit-learn 1.8.0, pytest 9.2.0.
+**Why:** The shuffle is only guaranteed identical on the same pandas version.
+
+### D1-20 KB partitions: 80/10/10 stratified on type|priority
+**Decision:** `make_partitions.py` sorts KB by `ticket_id`, then two `train_test_split` calls (0.2, then 0.5 of that), both seed 42, both stratified on `type|priority`. fit 18,285, calib 2,286, val 2,286. Output `data/processed/kb_partitions.parquet` (SHA-256 `7e70ffd4...`), summary in `reports/kb_partitions_summary.md`.
+**Why:** Plan requirement. Sorting first makes it independent of file row order. Type and priority shares differ by under 0.1 points across partitions; queue up to 2.2 and language 1.3, since those were not stratified.
+
+### D1-21 Generation audit sample fixed now
+**Decision:** 100 holdout IDs drawn with seed 42 from the sorted `test_inputs` IDs, saved in `reports/generation_sample_ids.txt`.
+**Why:** Plan requirement: chosen before any scoring so nobody can pick favourable tickets.
+
+### D1-22 Scorer rules
+**Decision:** `score.py` is the only code that reads `test_labels`. It hashes the predictions file first, and rejects missing, repeated or unknown IDs, labels never seen in kb_train, nulls, confidences outside [0, 1], and any holdout ID in `retrieved_ids` or `cited_ids`. "Routed to a human" means `escalate_oncall` or `human_review`; `needs_clarification` does not count. Per-language macro-F1 averages over classes present in that slice. Language is detected with langdetect seed 0. A training-majority reference is computed in every report.
+**Why:** Bad inputs should fail loudly instead of quietly lowering scores. A holdout ID in retrieval output is leakage by definition.
+
+### D1-23 Predictions file format (draft)
+**Decision:** One row per holdout ticket, required `ticket_id`, `pred_type`, `pred_queue`, `pred_priority`; optional confidences, decision fields, `retrieved_ids`, `cited_ids`, `latency_ms`. Spec in `docs/prediction_format.md`.
+**Why:** The scorer needs a fixed contract. Still a draft until D5 confirms the live pipeline can emit it.
+
+### D1-24 EDA reads only the KB; baselines are separate scripts
+**Decision:** `eda.py` no longer opens `test_inputs` or `test_labels`. The TF-IDF baseline moved to `baseline_tfidf.py`, plus a new `baseline_majority.py`; both write prediction files and are scored by `score.py`.
+**Why:** Plan rule that only the scorer opens labels. Scored: TF-IDF macro-F1 type 0.884, queue 0.587, priority 0.631; majority 0.144, 0.046, 0.191; Incident+high recall 0.654 (685/1047) vs 0.
+
+### D1-25 Near-duplicate audit method
+**Decision:** MinHash in numpy (not datasketch), word 5-grams on lowercased, whitespace-collapsed bodies, 128 hashes in 16 bands of 8, seed 42, every candidate verified by exact Jaccard >= 0.85. Bodies under 5 words become one shingle. An exact all-pairs scan cross-checks recall. Label agreement uses KB-KB pairs only.
+**Why:** No new dependency, so no Smart App Control risk. Exact scan found the same 12 holdout tickets, so MinHash missed none. The audit must not read test labels.
+
+### D1-26 Two twin lists, different meanings
+**Decision:** The plan's MinHash audit flags 12 holdout tickets (near-copies). The TF-IDF cosine >= 0.8 check from D1-14 flags 520 (paraphrases). Both are reported; neither replaces the other.
+**Why:** 5-gram Jaccard misses paraphrases where a word changes every few words, and those are what inflate scores (queue 0.587 to 0.555 without the 520). Excluding only the 12 would understate the inflation.
+
+### D1-27 Leakage helper for the index
+**Decision:** `scripts/leakage.py` exposes `assert_kb_only(ids)`, raising `LeakageError` (an `AssertionError` subclass) with counts and example IDs if any ID is a holdout ID or not in kb_train. D3 calls it on the index IDs.
+**Why:** Plan acceptance test "KB-only index membership". A subclass survives `python -O`, a bare `assert` does not.
+
+### D1-28 Paraphrase-twin list saved for the scorer
+**Decision:** `scripts/twin_audit.py` flags holdout tickets whose subject + body has word 1-2 gram TF-IDF (min_df=2, sublinear tf, fit on KB) cosine >= 0.8 to any KB ticket. Writes `reports/twin_holdout_ids.txt` (520 IDs) and `reports/twin_audit.md`. Reads only kb_train and test_inputs. Scored as `reports/tfidf_logreg_no_twins/`.
+**Why:** Reproduces the D1-14 count exactly (520, and 92 at >= 0.9). Unigram body-only TF-IDF flags 1,430 at the same threshold because single shared words (product names, boilerplate) score high, so the setting matters and is fixed here. Baseline without twins: macro-F1 type 0.876, queue 0.555, priority 0.602; Incident+high recall 0.636 (615/967).
+
+### D1-29 Generation judge
+**Decision:** `scripts/judge_drafts.py` grades the 100 fixed sample drafts. Deterministic checks per draft: citations are KB IDs that were retrieved, claim IDs are among the cited, evidence spans occur in the cited answer, numbers not in the cited answers, mask placeholders, reply language vs ticket language. A judge grades every claim supported / partially_supported / unsupported against the full cited answers. Draft sentences not listed as claims are graded too. Backends: `gemini` (API key), `vertex` (project + token), `manual` (CSV sheet), `mock` (offline rules, for tests only). Prompt version `judge-v1`; judge ID, prompt hash and predictions hash go in every report. Responses are cached in `data/judge_cache/`. A holdout ID cited as evidence fails the run.
+**Why:** Plan requires a model judge with recorded ID and prompt version, or the same rubric by hand. Plain HTTP (urllib) instead of the Google SDK keeps it free of new compiled dependencies under Smart App Control. `--model` has no default: pass a different model from the one that wrote the drafts, so the judge does not grade its own output. Denominators are emitted drafts, per the plan.
+
+### D1-30 One shared text normalizer, applied in code, not in the split
+**Decision:** `scripts/text_normalize.py` provides `normalize_text`, `ticket_text` and `find_placeholders`. Always on: HTML tags (known tag names only, so `<tel_num>` survives), whitespace, NFC. Optional: `strip_greeting` (EN/DE salutations, pleasantries, sign-offs) and `placeholders` = keep / canonical / remove. The parquet files stay unnormalized.
+**Why:** Live tickets arrive raw, so training, retrieval and serving must run the same function, or the model trains on clean text and serves messy text. Pattern lists were built from the most common first and last sentences in the data. "I am writing to inquire" is kept because it signals request vs incident.
+
+### D1-31 Greeting stripping is optional, not default
+**Decision:** `strip_greeting` defaults to False. It never returns an empty body (falls back to unstripped text; 2 KB bodies hit this).
+**Why:** Measured on sparse TF-IDF it changes nothing: macro-F1 moves under 0.004 per head, top-1 neighbour queue agreement 0.707 both ways, because IDF already discounts boilerplate. It touches 37% of KB bodies (6.8 words each), so it may still help dense embeddings, LLM prompts and UI snippets; that is unmeasured.
+
+### D1-32 Placeholders mapped to six kinds
+**Decision:** 79 spellings (20,681 occurrences) map to `<name>`, `<tel_num>`, `<acc_num>`, `<email>`, `<url>`, `<amount>`. Unknown tokens like `[Company]` are left alone. `find_placeholders` returns sorted kinds for D4's draft validator.
+**Why:** Mixed EN/DE spellings (`[Telefonnummer]`, `<Tel-Nummer>`) would otherwise each need their own check.
+
+### D1-33 Calibration measured by the scorer
+**Decision:** When `conf_<head>` columns exist, `score.py` reports 10-bin top-label ECE (right-closed bins), a per-bin table and a reliability plot per head, overall and per detected language. Baseline ECE: type 0.026, queue 0.081, priority 0.018.
+**Why:** Plan requirement, and it lets D2 just emit calibrated confidences. Queue is underconfident (mean confidence 0.50 vs accuracy 0.58), and priority's low overall ECE hides en 0.040 vs de 0.082.
+
+### D1-34 One command scores all three scopes
+**Decision:** `run_eval.py` scores full, without the 12 near-copies, and without the 520 twins, and writes `reports/<run>/summary.md` with the predictions hash and commit. It stops if the predictions file changes between scopes.
+**Why:** D1-14 and D1-26 require every number both ways; one command keeps the three from drifting apart.
+
+### D1-35 Report commit stamp ignores reports/
+**Decision:** `-dirty` is added to the stamped commit only when tracked files outside `reports/` have uncommitted changes.
+**Why:** Regenerating tracked reports marked every run dirty, so the stamp could never be clean.
+
+### D1-36 Leakage statement and team handoff
+**Decision:** `reports/LEAKAGE.md` is the judge-facing leakage statement; `docs/D1_handoff.md` tells each role what to use. LEAKAGE.md says plainly that the index check is not wired in yet.
+**Why:** Judge question 1 in the plan. Claims about other people's code stay as requirements until that code exists.
+
+### D1-37 Do not add the 20k file to the KB
+**Decision:** Keep the KB at the 22,857 main-file tickets. `scripts/audit_20k.py` and `reports/audit_20k.md` stay as the record; `baseline_tfidf.py --extra` reproduces the experiment.
+**Why:** Of the 20k file's 19,998 non-empty rows, 6,685 repeat a KB body and 1,717 repeat a holdout body (merging the files and re-splitting would have leaked those). 11,595 are new and 11,489 of those are not holdout twins; labels agree with the main file on 99.7% or more of the repeats, so the data is consistent. But training TF-IDF on KB + 11,489 made every head slightly worse on the unchanged holdout: macro-F1 type 0.884 to 0.879, queue 0.587 to 0.569, priority 0.631 to 0.624 (same direction in the no-twins scope; `reports/tfidf_logreg_plus20k/summary.md`). Incident+high recall on predicted high alone rose only 0.735 to 0.741. More rows from an older generator version do not pay for the added risk.
+
+### D1-38 Adopt the 20k file as an opt-in KB extension (supersedes D1-37)
+**Decision:** The 11,489 approved 20k-file rows become `data/processed/kb_extra.parquet` (IDs `EXT-00000`.., kb_train columns minus `version`, plus `source`). `audit_20k.py` refuses to write unless the file's SHA-256 and every count match. `leakage.kb_ids` / `assert_kb_only` and `score.py` accept EXT IDs as KB precedents; holdout IDs are still rejected. Label sets and the majority reference stay kb_train only. EXT rows go to training (`fit`) and the retrieval index only; `calib` and `val` stay main-file only, so thresholds are tuned on the holdout's distribution. The holdout is unchanged.
+**Why:** Team call (user). The data is clean: labels agree with the main file on 99.7% or more of shared tickets, every leaked or twin row is removed, and it adds 11,489 answered precedents for retrieval. The TF-IDF drop in D1-37 (queue 0.587 to 0.569) is one linear model; larger models may use the extra rows better. D2 should confirm on `val` with their real model before shipping, not on the holdout.
+
+### D1-39 Do not use the German file
+**Decision:** The 13k German file stays out. `scripts/audit_german.py`, `scripts/experiment_german_priority.py` and `reports/audit_german.md` record the test.
+**Why:** It is clean and genuinely German (2,000/2,000 detected `de`, no overlap or twins with the holdout; nearest holdout cosine 0.289), but retraining the priority head with it did nothing useful. German priority macro-F1 rose 0.002 to 0.004, English fell 0.003 to 0.005, German priority ECE got worse in every variant (0.082 to 0.090 to 0.096), across all three mappings tried (critical/very_low folded, dropped, folded at weight 0.5). Its topics (groceries, books, gardens) are far from IT support, and the 5-to-3 priority mapping is an untested assumption.
+
+### D1-40 Gemini classifier as an offline baseline (planned)
+**Decision:** Add an LLM baseline for type / queue / priority using the Gemini API with an AI Studio key on the credits project, plan in `docs/D1_gemini_classifier_plan.md`. Candidates `gemini-3.5-flash-lite`, `gemini-3.8-flash`, `gemini-4-carbon`; zero-shot vs kNN few-shot from the KB; chosen on 300 `val` tickets; enum-constrained JSON; synchronous parallel calls, not Batch mode. Few-shot pool excludes `kb_extra`.
+**Why:** Answers "why not just ask an LLM" with measured numbers on the same scorer. Batch is half price but targets 24 h turnaround, too slow for today. A full holdout run is estimated at $5 to $27 depending on model. Latency (1 to 2 s) keeps it out of the default serving path unless D2 and D5 decide otherwise. Excluding `kb_extra` keeps the comparison with the TF-IDF baseline like for like.
+
+### D1-41 Gemini classifier code (plan steps 1 to 3)
+**Decision:** `scripts/gemini_client.py` holds the HTTP, retry, cache, token and budget code; `judge_drafts.py` now uses it. `scripts/llm_classify.py` runs zero-shot or kNN few-shot (k=8, word 1-2 gram TF-IDF over greeting-stripped `ticket_text`) with a schema that forces one allowed label per head plus a probability per label; confidence is the renormalized probability of the chosen label. `--split val|calib` scores against KB labels in-script; `--split holdout` writes `data/predictions/<run>.parquet` for `run_eval.py`. `--budget-usd` stops new calls past an estimated spend; the cache in `data/llm_cache/` makes reruns resume for free. `scripts/llm_smoke.py` checks each candidate model, thinking levels and logprobs with one KB ticket. The mock backend (kNN vote, majority for zero-shot) exists only for tests.
+**Why:** One client avoids two copies of retry and key handling. The API key goes in a header, never the URL. Thinking-level names and logprobs are unconfirmed in the docs, so they are flags the smoke test verifies rather than defaults. Mock kNN on the holdout scored type 0.808, queue 0.424, priority 0.558 macro-F1, so the pipeline and scorer integration work; it is not an LLM result and is not reported.
+
+### D1-42 GCP project and model settings for the LLM baseline
+**Decision:** Use Vertex AI through `gcloud` login (no API key) on new project `sentineldesk-gdc-1121`, billed to the GDP Event Credit account, location `global`. Thinking level per model: `gemini-3.5-flash-lite` minimal, `gemini-3.8-flash` low, `gemini-4-carbon` low. Confidence comes from the model's self-reported per-label probabilities. Smoke results in `reports/llm/smoke.md`.
+**Why:** The user's existing projects were not on the credit billing account. Smoke test (one KB ticket): all three models answer with the enum schema; `minimal` is rejected by 3.8-flash and carbon (HTTP 400); `low` removes thinking tokens entirely (594 to 0 on 3.8-flash) and cuts latency 6.3 s to 2.5 s; logprobs are rejected on all three ("not supported for this model"). Latency at those settings: flash-lite 1.3 s, 3.8-flash 2.5 s, carbon 6.7 s. On the smoke ticket (true labels Incident / Sales and Pre-Sales / low) all three answered Technical Support / high: one ticket proves nothing, but it matches the expectation that these labels follow dataset conventions. New-project IAM took about a minute to propagate (403 before that).
+
+### D1-43 Do not relabel the German file with Gemini
+**Decision:** The relabel plan stops at its first two checks. `scripts/llm_relabel_pilot.py` and `reports/llm_relabel_pilot.md` record gate 1; `reports/audit_german.md` records gate 0.
+**Why:** Gate 0: training priority on only the 1,222 on-topic ("IT & Technology") German rows gave German priority macro-F1 0.517 to 0.519 vs 0.518 baseline, with worse German ECE. Gate 1: `gemini-3.8-flash` (Vertex, location global, 10 few-shot examples) labelled 300 German `val` tickets with known labels and scored well below a TF-IDF classifier fit on `fit`: macro-F1 type 0.705 vs 0.831, queue 0.220 vs 0.414, priority 0.408 vs 0.557. It also called 20 real support tickets out of scope. The dataset's labels follow generator conventions an LLM does not reproduce, so LLM labels on the German file would be noise. Cost of the pilot: 366k input and 10k output tokens.
+
+### D1-44 Commit the shareable processed files
+**Decision:** `kb_train`, `kb_partitions`, `kb_extra` and `test_inputs` parquet files are committed (about 17 MB). `test_labels`, raw CSVs and the German/20k working files stay out of git. Supersedes D1-06 for these four files.
+**Why:** D2 and D3 can start immediately without the download and rebuild. Files are byte-identical to a local rebuild, so nothing drifts. Keeping labels out of git means only D1's scorer holds them, which also strengthens the leakage story.
+
+### D1-45 LLM model selection on 300 val tickets, compared like for like
+**Decision:** `scripts/llm_compare.py` scores every row on the identical 300 `val` tickets (stratified seed 42) with the same `fit` few-shot pool, k=8 and prompt `classify-v1`, and fails if ID sets, few-shot IDs or recomputed scores disagree. Rows: majority, TF-IDF fit on `fit` only, kNN vote over the LLM's own 8 examples, each LLM run. Report: `reports/llm/val300_comparison.md`. `gemini-3.8-flash` is the candidate for the holdout run.
+**Why:** The holdout TF-IDF numbers are not comparable to val LLM numbers (different tickets, KB-wide training). Results, macro-F1 type / queue / priority: TF-IDF 0.890 / 0.570 / 0.598; kNN vote 0.847 / 0.455 / 0.578; flash-lite 0.918 / 0.681 / 0.709; flash 0.950 / 0.754 / 0.766, Incident+high recall 44/51 vs TF-IDF 32/51. Flash minus TF-IDF paired bootstrap 95% CIs exclude 0 on all heads, also on the 276 non-twins (24 val tickets have a twin in the few-shot set). The kNN vote sits below TF-IDF, so the gain is not label copying. German (91 tickets) also beats TF-IDF: 0.906 / 0.620 / 0.605 vs 0.858 / 0.527 / 0.519. Flash confidences are worse calibrated (ECE 0.097 / 0.110 / 0.061 vs 0.049 / 0.082 / 0.033), so plan step 5 is required before any threshold use. Cost $0.0024 per ticket, p50 3.2 s.
+
+### D1-46 gemini-4-carbon not run
+**Decision:** Carbon is left out of the selection for now.
+**Why:** Every call on project `sentineldesk-gdc-1121` returned HTTP 429 RESOURCE_EXHAUSTED across 4 attempts at 4 and then 2 workers, with zero answers, so nothing was spent. Flash-lite and flash on the same project worked at the same time, which points to a per-model quota for carbon. Options: request quota in the Cloud console, retry later, or skip.
+
+### D1-47 Hybrid classifier: blend test on val300
+**Decision:** The hybrid classifier averages TF-IDF and Gemini probabilities per head (both run in parallel) and outputs D4's `Prediction(label, confidence, probabilities)` per head. Escalation stays with D4. The blend weight and a confidence calibration are fit on `calib`, not on val. `scripts/blend_val.py` runs the pre-registered 50/50 test; report `reports/llm/blend_val300.md`.
+**Why:** Results with gemini-3.8-flash at w = 0.5, macro-F1 type / queue / priority: 0.939 / 0.759 / 0.764, vs Flash alone 0.950 / 0.754 / 0.766 and TF-IDF 0.890 / 0.570 / 0.598. So the blend does not raise F1 over Flash; Incident+high recall 46/51 vs 44/51 is 2 tickets, within noise. Two real gains: (1) when the models agree the blend is right 97% / 83% / 83% of the time, when they disagree 66% / 59% / 67%, so agreement is a strong reliability signal (they agree on 88% / 56% / 60% of tickets); (2) TF-IDF answers when Gemini cannot. Blended confidence is worse calibrated (ECE 0.110 / 0.189 / 0.134 vs TF-IDF 0.049 / 0.082 / 0.033), so calibration on `calib` is required before D4 thresholds use it. The other weights in the report are context only.
+
+### D1-48 Retrieval on Google Cloud: Gemini Embedding 2 + Vertex AI Agent Retrieval
+**Decision:** Embed the KB (`kb_train` + `kb_extra`, 34,339 tickets with answers) with `gemini-embedding-2` on project `sentineldesk-gdc-1121` and serve search from Agent Retrieval collection `sd-kb`, with our own vectors (no built-in embedding). Load it regardless of the comparison; keep it as the release store if search p95 is under about 1 s, else fall back to Qdrant on Compute Engine with EmbeddingGemma. Details and status: `docs/RAG_pipeline.md`.
+**Why:** RAG Engine is blocked on D3's project by a 5-per-minute embedding quota (D3-16); Gemini Embedding 2 on the global endpoint ran 36,632 calls at about 96 per second with no errors. Same protocol as D3 (2,286 `valid` queries, fit-only index, exact search): queue top-1 0.764 vs EmbeddingGemma 0.777, about 1.4 SE, so close to noise (`reports/retrieval_gemini_embedding_2.json`). A fully managed path removes the self-run VM and covers `kb_extra`, which D3's EmbeddingGemma index lacks. Scores are compressed, so the relevance guard moves from 0.35 to about 0.70 (off-topic 0.60 to 0.64, short real tickets about 0.78).
+
+## Open
+- D1-48: finish the Agent Retrieval import, add the ScaNN index, time 50 queries and check recall@5 against exact search; then decide keep vs Qdrant and delete the unused side (VM `sd-embed` or collection `sd-kb`).
+- D1-48: D3 to add an `AgentRetrievalRetriever` (same `retrieve_with_mode`, falls back to local on error, timeout or empty result) and fix the RAG Engine empty-corpus fallback.
+- D1-47: run gemini-3.8-flash on the 2,286 `calib` tickets (~$5.50, ~30 min) to fit the blend weight and calibration.
+- D1-46: decide whether to retry gemini-4-carbon or skip it.
+- D2: compare their model trained with and without `kb_extra` on the `val` partition; drop the extension if it does not help (D1-38).
+
+- D3 to call `assert_kb_only` on the index IDs, then update LEAKAGE.md.
+- Measure `strip_greeting` on the dense embedding model once D3 has one.
+- Judge model ID for the real run: pick one available on the team's GCP project, different from D4's drafting model.
+- D5 to confirm the predictions format (D1-23), including the draft columns.
+- Tell D4/D5: no KB password ticket is a Request (all 483 are Incident or Problem), so the planned password-reset demo has no routine precedent. Pick another routine demo ticket.

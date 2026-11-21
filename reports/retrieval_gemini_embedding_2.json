@@ -1,0 +1,59 @@
+{
+  "n_queries": 2286,
+  "n_index": 18280,
+  "twin_rule": {
+    "sparse": 0.5,
+    "gemini_embedding_2": 0.9357
+  },
+  "queries_with_twin": 0.6142,
+  "mean_twins_removed": 1.32,
+  "with_twins": {
+    "queue": {
+      "top1": 0.7638,
+      "any_top5": 0.8946
+    },
+    "type": {
+      "top1": 0.909,
+      "any_top5": 0.9895
+    },
+    "priority": {
+      "top1": 0.7913,
+      "any_top5": 0.9554
+    }
+  },
+  "no_twin": {
+    "queue": {
+      "top1": 0.472,
+      "any_top5": 0.7428
+    },
+    "type": {
+      "top1": 0.7918,
+      "any_top5": 0.9689
+    },
+    "priority": {
+      "top1": 0.5468,
+      "any_top5": 0.8889
+    }
+  },
+  "by_query_language": {
+    "en": {
+      "n": 1596,
+      "queue_top1": 0.7926
+    },
+    "de": {
+      "n": 690,
+      "queue_top1": 0.6971
+    }
+  },
+  "top1_score": {
+    "5": 0.8649,
+    "25": 0.9105,
+    "50": 0.9405,
+    "75": 0.968,
+    "95": 0.9868
+  },
+  "cross_lingual_top1": {
+    "query_en_hit_de_body": 99,
+    "query_de_hit_en_body": 127
+  }
+}
