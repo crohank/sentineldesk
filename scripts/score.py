@@ -469,12 +469,17 @@ def render_md(meta: dict, full: dict, excluded: dict | None) -> str:
 
 
 def git_commit() -> str:
-    """Short HEAD hash, with -dirty if tracked files have uncommitted changes (untracked files are ignored)."""
+    """Short HEAD hash, with -dirty if tracked code has uncommitted changes.
+
+    Untracked files and reports/ are ignored: a scoring run rewrites tracked reports, which
+    would otherwise mark every regenerated report dirty.
+    """
     def git(*a: str) -> str:
         return subprocess.run(["git", *a], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()
     try:
         head = git("rev-parse", "--short", "HEAD")
-        return head + ("-dirty" if git("status", "--porcelain", "--untracked-files=no") else "")
+        dirty = git("status", "--porcelain", "--untracked-files=no", "--", ".", ":(exclude)reports")
+        return head + ("-dirty" if dirty else "")
     except (OSError, subprocess.CalledProcessError):
         return "unknown"
 
