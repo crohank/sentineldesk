@@ -56,6 +56,18 @@ One entry per decision. Newest at the bottom. Each says what was decided and why
 **Decision:** All D1 work goes on branch `d1/data-eval`. Nothing more is pushed straight to `main`; it lands through a PR.
 **Why:** Five people share the repo, and `main` should only get reviewed changes. The first two commits (repo setup, this log) were already on `main` before this rule.
 
+### D1-14 Near-twin paraphrases stay in the split, scores reported both ways
+**Decision:** Keep the canonical split. The scorer reports every triage metric on all 5,715 holdout tickets and again with near-twins excluded.
+**Why:** 520 holdout tickets (9.1%) have a KB ticket at word TF-IDF cosine >= 0.8, and labels agree on 99.8 to 100% of those pairs. They are generator paraphrases ("seeking guidance on integrating Steinberg Cubase 11..." vs "seeking detailed guidance on integrating..."), not exact duplicates, so D1-03 does not catch them. They inflate scores: queue macro-F1 0.587 overall vs 0.555 without them. This refines D1-10, which only looked at shared openings. The MinHash audit from the plan becomes the official twin list; the cosine check is the cross-check.
+
+### D1-15 Score per detected language
+**Decision:** The scorer breaks every metric down by language detected from the body (langdetect), not by the `language` label. Report both breakdowns in the README if space allows.
+**Why:** The label is wrong for 3,406 of 28,572 rows (11.9%; 3,353 labelled `de` but English, 53 the other way). German is much weaker on the baseline: queue macro-F1 0.455 for detected German vs 0.643 for English, priority 0.518 vs 0.682. Averaging hides that.
+
+### D1-16 Outage metric reports both escalation definitions
+**Decision:** Report joint Incident+high recall two ways: both predictions right (baseline 0.654) and escalated on predicted high priority alone (baseline 0.735).
+**Why:** The gate can escalate on high priority without needing the type prediction, and the gap is 8 points. D2 picks the operating rule; D1 reports both with counts.
+
 ## Open
 
 - Pin the HF dataset revision and make `make_split.py` fail on a hash or count mismatch.
