@@ -1,0 +1,8 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ticket inbox · SentinelDesk</title><link rel="stylesheet" href="/static/inbox.css"></head><body>
+<header><b>SentinelDesk</b><span>Support workspace</span><a href="/">Triage console ↗</a></header>
+<main><aside><div class="inbox-title"><h1>Inbox</h1><span id="count"></span></div><label for="filter">Find a sample email</label><input id="filter" type="search" placeholder="Search subject or message"><nav aria-label="Sample emails" id="list"></nav></aside>
+<section class="reader" aria-label="Selected ticket"><div class="toolbar"><span id="ref"></span><span id="status" role="status">Loading emails…</span></div>
+<h2 id="subject"></h2><p class="message" id="body"></p><button id="run" disabled>Run triage</button><p id="error" role="alert"></p>
+<section id="result" hidden><h3>Triage</h3><dl id="labels"></dl><p id="reason"></p><h3>Historical precedents</h3><div id="evidence"></div></section>
+<section id="compose" hidden><h3>Reply draft</h3><label for="reply">Message to customer</label><textarea id="reply" rows="7"></textarea><label for="recipient">Recipient email (optional)</label><input id="recipient" type="email" placeholder="Enter a recipient here or in Gmail"><button id="gmail">Open in Gmail ↗</button></section>
+</section></main><script src="/static/inbox.js" defer></script></body></html>

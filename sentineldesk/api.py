@@ -116,6 +116,10 @@ def create_app(components: Components | None = None) -> FastAPI:
     app.state.components = comps
     app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
 
+    @app.get("/inbox", response_class=HTMLResponse)
+    def inbox(request: Request):
+        return templates.TemplateResponse(request, "inbox.html", {})
+
     @app.get("/healthz", response_model=Health)
     def healthz() -> Health:
         ready = all(comps.artifacts.values()) if comps.artifacts else True

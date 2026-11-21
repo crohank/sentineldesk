@@ -1,0 +1,102 @@
+[
+  {
+    "subject": "Update pricing for bundled products",
+    "body": "We need to update the pricing structure for the bundled product offerings in our project management SaaS. Please review the current setup and tell us what is needed to make the change.",
+    "lang": "EN"
+  },
+  {
+    "subject": "Two charges for one subscription",
+    "body": "Hello, my card shows two charges for this month’s subscription. I only have one account. Could you check the invoice?",
+    "lang": "EN"
+  },
+  {
+    "subject": "Zwei Abbuchungen für ein Abo",
+    "body": "Guten Tag, auf meiner Karte sehe ich zwei Abbuchungen für diesen Monat. Ich habe nur ein Konto. Können Sie die Rechnung prüfen?",
+    "lang": "DE"
+  },
+  {
+    "subject": "How do I change my postal address?",
+    "body": "Hi, I’ve moved and want future letters sent to my new address. Where can I update it in my customer profile?",
+    "lang": "EN"
+  },
+  {
+    "subject": "Wie ändere ich meine Postanschrift?",
+    "body": "Hallo, ich bin umgezogen und möchte meine Post an die neue Adresse bekommen. Wo kann ich die Anschrift in meinem Kundenprofil ändern?",
+    "lang": "DE"
+  },
+  {
+    "subject": "Support hours on Saturdays",
+    "body": "Hello, I’d like to call about my account this weekend. Is your support team available on Saturdays?",
+    "lang": "EN"
+  },
+  {
+    "subject": "Erreichbarkeit am Samstag",
+    "body": "Guten Tag, ich möchte am Wochenende wegen meines Kontos anrufen. Ist Ihr Support auch samstags erreichbar?",
+    "lang": "DE"
+  },
+  {
+    "subject": "Where can I find my leave balance?",
+    "body": "Hello HR team, my employee portal shows my approved leave dates. Where can I see how many vacation days I have left?",
+    "lang": "EN"
+  },
+  {
+    "subject": "Wo finde ich meinen Resturlaub?",
+    "body": "Hallo Personalteam, im Mitarbeiterportal sehe ich meine genehmigten Urlaubstage. Wo steht, wie viele Tage ich noch übrig habe?",
+    "lang": "DE"
+  },
+  {
+    "subject": "My office laptop cannot connect to Wi-Fi",
+    "body": "Hi IT, my work laptop stopped connecting to the office Wi-Fi this morning. My colleagues are online. What should I check first?",
+    "lang": "EN"
+  },
+  {
+    "subject": "Mein Firmenlaptop kommt nicht ins WLAN",
+    "body": "Hallo IT-Team, mein Firmenlaptop verbindet sich seit heute Morgen nicht mehr mit dem Büro-WLAN. Bei den anderen funktioniert es. Was soll ich zuerst prüfen?",
+    "lang": "DE"
+  },
+  {
+    "subject": "PDF reports keep losing their last page",
+    "body": "Hello, the preview shows six pages, but the downloaded PDF has only five. This has happened with three reports. What details would help you investigate?",
+    "lang": "EN"
+  },
+  {
+    "subject": "Beim PDF-Export fehlt immer die letzte Seite",
+    "body": "Guten Tag, die Vorschau zeigt sechs Seiten, die heruntergeladene PDF aber nur fünf. Das ist bei drei Berichten passiert. Welche Angaben brauchen Sie zur Prüfung?",
+    "lang": "DE"
+  },
+  {
+    "subject": "Exchange a damaged keyboard",
+    "body": "Hi, the keyboard I received today has a broken key. Could you tell me how to request an exchange and whether you need a photo?",
+    "lang": "EN"
+  },
+  {
+    "subject": "Beschädigte Tastatur umtauschen",
+    "body": "Hallo, bei der heute gelieferten Tastatur ist eine Taste abgebrochen. Wie kann ich einen Umtausch beantragen? Benötigen Sie ein Foto?",
+    "lang": "DE"
+  },
+  {
+    "subject": "Preise für Produktpakete ändern",
+    "body": "Guten Tag, wir möchten die Preise unserer Produktpakete in der Projektmanagement-Software ändern. Welche Informationen brauchen Sie, um die Änderung vorzubereiten?",
+    "lang": "DE"
+  },
+  {
+    "subject": "Hospital VPN down at every site",
+    "body": "Urgent: all clinic staff have lost VPN access. Telemedicine appointments and patient records are unavailable across all sites. Please escalate this outage now.",
+    "lang": "EN"
+  },
+  {
+    "subject": "Krankenhaus-VPN an allen Standorten ausgefallen",
+    "body": "Dringend: Alle Mitarbeitenden unserer Klinik haben den VPN-Zugriff verloren. Telemedizin und Patientenakten sind an allen Standorten nicht erreichbar. Bitte eskalieren Sie den Ausfall sofort.",
+    "lang": "DE"
+  },
+  {
+    "subject": "Scheduled backups fail every Friday",
+    "body": "Hi, our scheduled backup has failed three Fridays in a row with error B17. Manual backups work. Which logs should I send?",
+    "lang": "EN"
+  },
+  {
+    "subject": "Die geplante Sicherung schlägt jeden Freitag fehl",
+    "body": "Hallo, unsere geplante Sicherung ist an drei Freitagen hintereinander mit Fehler B17 abgebrochen. Manuelle Sicherungen funktionieren. Welche Protokolle soll ich schicken?",
+    "lang": "DE"
+  }
+]
