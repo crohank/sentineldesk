@@ -138,10 +138,12 @@ D1 keeps its own numbered log in [docs/D1_decisions.md](docs/D1_decisions.md). T
 ### D4-03 Offline template drafts by default, Gemma optional
 **Decision:** The default generator fills reviewed English/German action templates tied to evidence spans in the retrieved answers. Gemma 3 4B (instruction-tuned) is switched on only if it passes German quality, JSON parsing and latency checks on validation. It gets a 6-second budget and one repair attempt, then falls back to the offline path. The console shows which generator produced each draft.
 **Why:** The template path can't invent facts and always works. An LLM writes better prose but needs checking and can fail at the venue.
+*Template details: D4-14.*
 
 ### D4-04 Draft validation
 **Decision:** Every cited ID must be one of the retrieved precedents, every quoted span must appear in that ticket's answer, and every substantive sentence needs support. Numbers, currencies, durations, scope, negation and qualifiers are compared within the claim, so "up to 48 hours" never supports "guaranteed within 48 hours".
 **Why:** The brief bans fabricated policies, prices and guarantees. Historical answers almost never mention money, percentages, refunds or SLA hours (under 0.5%), so such a claim in a draft is almost always unsupported.
+*Details: D4-15.*
 
 ### D4-05 PII and placeholders
 **Decision:** Regex-mask emails, phone numbers, IP addresses and labelled account IDs in incoming tickets and answer excerpts before logging, display or any external model call. Keep ticket IDs and error codes. Mask tokens in historical answers (`<tel_num>`, `<name>`, `<acc_num>`, `[Name]` and similar) are never copied into a draft as-is.
@@ -195,6 +197,28 @@ On-call wins over review, and the reason of every rule that fired is kept. When 
 **Decision:** `mask_pii` masks emails, phone numbers (8–15 digits), IPv4 and IPv6 addresses, IBANs, card numbers (Luhn-checked) and labelled account IDs, using the KB's placeholder kinds: `<email>`, `<tel_num>`, `<acc_num>`, plus `<ip_address>`. Ticket IDs, error codes, versions and dates are kept. `mask_ticket` is the pipeline's mask stage, and the same function masks answer excerpts before display and any text sent to a hosted model.
 **Why:** Masked tickets then use the same tokens as the training data (D1-32). Names are not masked; that limit is stated rather than hidden.
 
+### D4-14 Offline template generator
+**Decision:** The default generator writes a fixed greeting and thank-you, then up to three reviewed actions, then a fixed closing. Each action is cited inline as `[TKT-12345]`, pointing to the highest-scoring precedent with an answer sentence that supports it. The catalogue holds five information requests in English and German: the error message or code, more details, software version / device / operating system, the affected account, and a convenient time for a call. The reply follows the detected language even when the evidence is in the other language. If no action is supported, the draft abstains. Evidence spans come from `answer_snippet`, which is what the pipeline's citation check reads (D5-07).
+**Why:** Information requests are what past answers actually do: in the fit partition, 66% of English and 45% of German answers support at least one of them (`reports/d4/action_mining.md`). Troubleshooting steps (restart, update, clear the cache, check the connection) were tried and dropped, because the answer sentences that mention them mostly report what the customer already tried, so a recommended step would often be unsupported. The fixed texts contain no numbers, commitments or product names, so the generator can't invent them.
+
+### D4-15 Draft validation
+**Decision:** `validate()` withholds a draft (rule 9) if any check fails:
+- citations are a non-empty subset of the retrieved precedents, and every inline marker is cited
+- every claim's evidence span occurs in that precedent's `answer_snippet`
+- every sentence other than the fixed boilerplate is a claim
+- numbers, currencies, units and qualifiers (guarantee, within, up to, garantiert, innerhalb, bis zu, ...) in a claim also occur in its span
+- template text is the reviewed version for the requested language; model-written text must pass a language check
+- no mask placeholders
+- no commitment terms that the evidence lacks
+- at most 120 words
+- model-written drafts name no product that's absent from the ticket and the evidence
+
+**Why:** These are the grounding contract's deterministic checks. "Up to 48 hours" can never become "guaranteed within 48 hours", and since KB answers almost never contain money, refunds or SLA hours, those words are blocked.
+
+### D4-16 Dev-only stand-ins and demo script
+**Decision:** Until D2's and D3's components are available, `scripts/d4/dev_standins.py` provides an uncalibrated TF-IDF + logistic-regression triage fit on the fit partition, and TF-IDF retrieval whose `answer_snippet` is the full masked answer. `scripts/d4/demo.py` runs tickets through mask, language detection, triage, retrieval, gate, draft and validate, applying rules 1 and 9 the same way as the pipeline. Neither ships.
+**Why:** D4's rules and drafts can be exercised on real KB data now. Numbers measured with the stand-ins are marked provisional.
+
 ---
 
 ## D5 · Integration and release
@@ -224,6 +248,7 @@ On-call wins over review, and the reason of every rule that fired is kept. When 
 - **D2's split.** D2's branch trains on its own 80/10/10 split built from all three CSVs (`scripts/load_split_811.py`), not on D1's KB partitions. That split can put D1's holdout tickets into D2's training data. Train on D1's fit partition before any holdout scoring.
 - **Two decision files.** D5's branch adds `decisions.md` at the repo root, and this file is `DECISIONS.md`. On macOS and Windows those are the same file name, so merging both breaks checkouts. Rename one before either reaches `main`. D5's own log also numbers D5-01 to D5-21 differently from the plan-derived D5 entries here; D5's numbering wins and the D5 section here becomes a summary.
 - **Status names.** D5's contract uses `draft_ready`, `escalate`, `review` and `needs_clarification`. D1's scorer reads `auto_draft`, `escalate_oncall`, `human_review` and `needs_clarification`. The predictions writer maps draft_ready → auto_draft, escalate → escalate_oncall, review → human_review, or one side renames.
+- **Precedent text for drafting.** D4 takes evidence spans from `answer_snippet`, as the pipeline's citation check requires. D3: put the full redacted answer there (answers are short: median 58 words, 99th percentile about 102).
 - **Predictions format.** D5 to confirm `docs/prediction_format.md` (D1-23), including the draft columns.
 - **Outage rule.** Escalate on predicted Incident + high (D4-01 rule 2), or on predicted high priority alone, which D1-16 reports catches more real high Incidents? D2 and D4 decide on KB validation.
 - **Password-reset demo.** All 483 KB password tickets are labelled Incident or Problem, none Request, so the planned password-reset demo has no routine precedent. D4 and D5 pick another routine ticket.
