@@ -1,0 +1,76 @@
+{
+  "reranker": "BAAI/bge-reranker-v2-m3",
+  "first_stage": "embeddinggemma",
+  "n_queries": 500,
+  "pool": 20,
+  "no_twin": {
+    "embeddinggemma": {
+      "queue": {
+        "top1": 0.428,
+        "any_top5": 0.714
+      },
+      "type": {
+        "top1": 0.794,
+        "any_top5": 0.97
+      },
+      "priority": {
+        "top1": 0.486,
+        "any_top5": 0.872
+      }
+    },
+    "embeddinggemma+rerank": {
+      "queue": {
+        "top1": 0.398,
+        "any_top5": 0.694
+      },
+      "type": {
+        "top1": 0.802,
+        "any_top5": 0.97
+      },
+      "priority": {
+        "top1": 0.486,
+        "any_top5": 0.878
+      }
+    },
+    "top1_changed": 0.776,
+    "rerank_latency_ms": {
+      "p50": 863.1,
+      "p95": 1277.1
+    }
+  },
+  "with_twins": {
+    "embeddinggemma": {
+      "queue": {
+        "top1": 0.8,
+        "any_top5": 0.91
+      },
+      "type": {
+        "top1": 0.948,
+        "any_top5": 0.988
+      },
+      "priority": {
+        "top1": 0.816,
+        "any_top5": 0.962
+      }
+    },
+    "embeddinggemma+rerank": {
+      "queue": {
+        "top1": 0.756,
+        "any_top5": 0.896
+      },
+      "type": {
+        "top1": 0.93,
+        "any_top5": 0.996
+      },
+      "priority": {
+        "top1": 0.792,
+        "any_top5": 0.96
+      }
+    },
+    "top1_changed": 0.444,
+    "rerank_latency_ms": {
+      "p50": 862.4,
+      "p95": 1268.5
+    }
+  }
+}

@@ -59,8 +59,38 @@ Chance top-1 queue agreement is 0.169. The modes are within noise of each other,
 **Decision:** Every precedent carries its detected `answer_language`. The console and drafting step show it; we do not claim cross-lingual grounding unless the cited evidence is actually in the other language.
 **Why:** Top-1 precedents differ in language from the query for only 2.3% of validation queries (sparse). The KB has German coverage for German tickets, so even dense retrieval returns German precedents for German queries (28 de→en top-1 hits out of 688 German queries, vs 21 for sparse).
 
+### D3-12 Release retrieval mode: EmbeddingGemma, sparse as fallback (replaces D3-10)
+**Decision:** Release retrieval is dense search with Google EmbeddingGemma (`embeddinggemma` via local Ollama, 768-dim, prompts `task: search result | query: ` / `title: none | text: `). If Ollama is unreachable or takes over 2 s, `Retriever.retrieve` falls back to the sparse index in the same call and `last_mode` reports `sparse`, so the API and console can show which mode served the request. A blank body returns no precedents (gate rule 1).
+**Why:** The hackathon centres on Gemma open models, and EmbeddingGemma also measured best. Validation, 2,286 queries, fit-only index (`reports/retrieval_dense_embeddinggemma.json`, `reports/retrieval_no_twin.json`; the twin set is the union flagged by sparse, E5 and EmbeddingGemma, removed for every mode):
+
+| mode | queue top-1 | no-twin queue top-1 | no-twin type | no-twin priority | de→en top-1 hits |
+|---|---|---|---|---|---|
+| sparse | 0.708 | 0.316 | 0.735 | 0.419 | 21 |
+| E5 | 0.679 | 0.303 | 0.741 | 0.412 | 28 |
+| **EmbeddingGemma** | **0.776** | **0.437** | **0.799** | **0.519** | **184** |
+| RRF sparse + EmbeddingGemma | 0.724 | 0.331 | 0.756 | 0.429 | – |
+
+On authored tickets it returns more specific precedents: the German printer ticket gets "Druckprobleme", "Drucker-Probleme" and the English "Problem with Printer Not Printing" (sparse score 0.00 for that one); the German VPN outage gets hospital IT outage tickets; the German password ticket gets English login tickets, which is real cross-lingual matching (D3-11 still applies: we report `answer_language` per precedent). Equal-weight reciprocal rank fusion with sparse is worse than EmbeddingGemma alone because sparse is much weaker on fresh tickets, so it is not used. Cost: 74 ms p50 / 79 ms p95 per query on M3 Pro, full-KB index build 5 min at ~78 tickets/s, Ollama must be running (`ollama serve`, `ollama pull embeddinggemma`, 621 MB). Fully local, so the demo works without Wi-Fi.
+
+Score guidance for D4 (EmbeddingGemma cosine, top-1): paraphrase twins 0.85+ (queue agreement 0.97+), real support tickets with no twin about 0.45–0.55, off-topic text ("What is the weather in Paris tomorrow?", "Write me a poem about cats") about 0.19–0.21. A threshold around 0.35 separates out-of-scope from in-domain; whether the precedent actually supports the request still needs D4's check.
+
+### D3-13 No cross-encoder reranker
+**Decision:** Do not rerank EmbeddingGemma's results. `scripts/eval_rerank.py` stays so the result can be reproduced.
+**Why:** Reranking EmbeddingGemma's top 20 with `BAAI/bge-reranker-v2-m3` on 500 validation queries (`reports/rerank_eval.json`):
+
+| setting | queue top-1 | queue any-of-5 | type top-1 | priority top-1 |
+|---|---|---|---|---|
+| no-twin, EmbeddingGemma | 0.428 | 0.714 | 0.794 | 0.486 |
+| no-twin, + rerank | 0.398 | 0.694 | 0.802 | 0.486 |
+| with twins, EmbeddingGemma | 0.800 | 0.910 | 0.948 | 0.816 |
+| with twins, + rerank | 0.756 | 0.896 | 0.930 | 0.792 |
+
+It changed the top precedent for 78% of no-twin queries, made queue agreement worse, and left type and priority flat. It adds 863 ms p50 / 1,277 ms p95 per query on M3 Pro (MPS), more than ten times the retrieval itself (74 ms), which alone would break the plan's one-second local p95 target. It would also put torch and a 2.2 GB model into the serving path. Label agreement is only a proxy, so a reranker could still pick precedents a person finds closer, but nothing measured justifies the cost. The Gemma-based `bge-reranker-v2-gemma` was not tried: it is built on a 2B-class Gemma model, several times larger than `bge-reranker-v2-m3`, so it would be slower still, and the laptop has under 9 GB free.
+
 ## Open
 
 - Swap the provisional partition for D1's manifest once published.
-- Agree the weak-evidence similarity threshold with D4, using authored or no-twin queries (see D3-09). Starting guidance for sparse: 0.5 or more is a near-identical precedent, 0.2–0.5 topical, under 0.15 weak.
-- Pass the twin finding (D3-09) and HF revision (D3-01) to D1.
+- Agree the weak-evidence threshold with D4, using authored or no-twin queries (D3-09). Guidance in D3-12: EmbeddingGemma top-1 under about 0.35 means off-topic. Sparse scores use a different scale, so the fallback path needs its own threshold.
+- Export the top-5 precedents for every holdout input, for D1's scorer.
+- Pass the twin finding (D3-09) and the HF revision (D3-01) to D1.
+- D5: serving must start Ollama with `embeddinggemma` pulled, or every request falls back to sparse.

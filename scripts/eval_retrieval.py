@@ -1,10 +1,10 @@
 """Score retrieval on the KB validation partition against the fit-only index (D3-07).
 
-    python scripts/eval_retrieval.py [--mode sparse|dense|hybrid]
+    python scripts/eval_retrieval.py [--mode sparse|dense|hybrid] [--backend embeddinggemma|e5]
 
 Label agreement between a query and its neighbours is a coarse proxy for relevance,
 not proof the historical answer supports the request. Never reads holdout files.
-Writes reports/retrieval_<mode>.json.
+Writes reports/retrieval_<mode>[_<backend>].json.
 """
 import argparse
 import json
@@ -28,13 +28,13 @@ REPORTS = ROOT / "reports"
 K = 5
 
 
-def load_searcher(mode: str):
+def load_searcher(mode: str, backend: str):
     if mode == "sparse":
         r = Retriever.load(INDEX)
         return r, r.scores
     from sentineldesk.dense import DenseIndex, hybrid_scores  # optional dependency
     r = Retriever.load(INDEX)
-    d = DenseIndex.load(ROOT / "artifacts" / "dense" / "fit")
+    d = DenseIndex.load(ROOT / "artifacts" / "dense" / backend / "fit")
     assert (d.ids == r.ids).all(), "dense and sparse fit indexes cover different IDs"
     if mode == "dense":
         return r, d.scores
@@ -44,13 +44,14 @@ def load_searcher(mode: str):
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", choices=["sparse", "dense", "hybrid"], default="sparse")
+    ap.add_argument("--backend", choices=["embeddinggemma", "e5"], default="embeddinggemma")
     args = ap.parse_args()
 
     kb = pd.read_parquet(KB)
     parts = pd.read_csv(PARTS)
     valid_ids = set(parts.loc[parts["partition"] == "valid", "ticket_id"])
     q = kb[kb["ticket_id"].isin(valid_ids)].reset_index(drop=True)
-    r, score_fn = load_searcher(args.mode)
+    r, score_fn = load_searcher(args.mode, args.backend)
     assert not set(r.ids) & valid_ids, "validation ticket inside the fit index"
     ev = r.evidence
 
@@ -60,7 +61,7 @@ def main() -> None:
     top_ids = r.ids[top]
     top_scores = np.take_along_axis(S, top, axis=1)
 
-    res = {"mode": args.mode, "n_queries": len(q), "n_index": int(len(r.ids)), "k": K}
+    res = {"mode": args.mode, "backend": None if args.mode == "sparse" else args.backend, "n_queries": len(q), "n_index": int(len(r.ids)), "k": K}
     for lab in ["queue", "type", "priority"]:
         nb = ev[lab].reindex(top_ids.ravel()).to_numpy().reshape(top_ids.shape)
         gold = q[lab].to_numpy()[:, None]
@@ -102,7 +103,7 @@ def main() -> None:
                                       "p95": round(float(np.percentile(lat, 95)), 1)}
 
     REPORTS.mkdir(exist_ok=True)
-    out = REPORTS / f"retrieval_{args.mode}.json"
+    out = REPORTS / (f"retrieval_{args.mode}.json" if args.mode == "sparse" else f"retrieval_{args.mode}_{args.backend}.json")
     out.write_text(json.dumps(res, indent=2))
     print(json.dumps(res, indent=2))
     print("->", out.relative_to(ROOT))

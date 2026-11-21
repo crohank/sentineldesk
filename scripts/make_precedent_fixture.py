@@ -17,18 +17,22 @@ CASES = {
     "outage_vpn_hospital_de": {"subject": "VPN-Ausfall im Krankenhaus", "body": "Seit heute Morgen können sich alle Mitarbeitenden unserer Klinik nicht mehr per VPN verbinden. Telemedizin und der Zugriff auf die elektronische Patientenakte sind an allen Standorten ausgefallen."},
     "refund_demand_en": {"subject": None, "body": "Our service was interrupted. Confirm that we are entitled to a full refund and a guaranteed 25% SLA credit this month."},
     "password_reset_de": {"subject": None, "body": "Ich habe mein Passwort für das Kundenportal vergessen und habe noch Zugriff auf meine registrierte E-Mail-Adresse. Wie kann ich das Passwort zurücksetzen?"},
+    "printer_de_crosslingual": {"subject": None, "body": "Unser Drucker im Büro druckt seit gestern nur noch leere Seiten."},
+    "out_of_scope_en": {"subject": None, "body": "What is the weather in Paris tomorrow?"},
     "blank_body": {"subject": "Help", "body": "   "},
 }
 
 
 def main() -> None:
-    r = Retriever.load(ROOT / "artifacts" / "retrieval" / "full")
+    r = Retriever.load(ROOT / "artifacts" / "retrieval" / "full",
+                       dense=ROOT / "artifacts" / "dense" / "embeddinggemma" / "full")
     out = {
-        "_note": "Real output of the full-KB sparse index (D3-10). Fields follow PLAN.md Precedent. "
-                 "Scores are cosine similarity in [0, 1] and are only comparable within one retrieval mode. "
+        "_note": "Real output of the full-KB release retriever (D3-12: EmbeddingGemma via Ollama, sparse fallback). "
+                 "Fields follow PLAN.md Precedent. retrieval_mode per case says which mode served it. "
+                 "Scores are cosine similarity and are only comparable within one retrieval mode. "
                  "answer_snippet still contains dataset mask tokens such as <tel_num>; D4 decides how to render them. "
                  "Full answers: Retriever.full_answer(ticket_id).",
-        "retrieval_mode": r.mode,
+        "release_mode": r.mode,
         "index_manifest": r.manifest,
         "cases": {},
     }
@@ -39,6 +43,7 @@ def main() -> None:
             "detected_language": {"code": code, "probability": prob},
             "precedents": [p.to_dict() for p in r.retrieve(t, 5)],
         }
+        out["cases"][name]["retrieval_mode"] = r.last_mode
     path = ROOT / "fixtures" / "precedents_example.json"
     path.parent.mkdir(exist_ok=True)
     path.write_text(json.dumps(out, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

@@ -1,7 +1,16 @@
 """Precedent retrieval over the historical KB (D3).
 
-    retriever = Retriever.load("artifacts/retrieval/full")
-    precedents = retriever.retrieve({"subject": None, "body": "..."}, k=5)
+    retriever = Retriever.load("artifacts/retrieval/full",
+                               dense="artifacts/dense/embeddinggemma/full")
+    retriever.warm_up()   # once at startup: loads EmbeddingGemma into Ollama memory
+    precedents, mode = retriever.retrieve_with_mode({"subject": None, "body": "..."}, k=5)
+    # mode: "dense:embeddinggemma", "sparse" (fallback) or "none" (blank body)
+
+Release mode (D3-12): EmbeddingGemma dense search through local Ollama. If Ollama is
+unreachable or slow, the same call falls back to sparse TF-IDF and the returned mode says
+so. Use retrieve_with_mode in a server: `last_mode` (set by retrieve) is shared state and
+can be overwritten by a concurrent request.
+Scores from the two modes are on different scales; thresholds must be chosen per mode.
 
 Search runs on cleaned historical subject + body (D3-03, D3-04). Answers come from
 the evidence store by ticket ID after retrieval.
@@ -72,7 +81,9 @@ class Retriever:
         self.encoder = encoder
         self.evidence = evidence  # indexed by ticket_id
         self.manifest = manifest
+        self.dense = None  # optional DenseIndex over the same IDs
         self.mode = "sparse"
+        self.last_mode = "sparse"
 
     # ---------- build / persist ----------
     @classmethod
@@ -100,36 +111,70 @@ class Retriever:
         (out / "manifest.json").write_text(json.dumps(self.manifest, indent=2))
 
     @classmethod
-    def load(cls, path: str | Path) -> "Retriever":
+    def load(cls, path: str | Path, dense: str | Path | None = None) -> "Retriever":
         path = Path(path)
         ids = np.load(path / "ids.npy", allow_pickle=True)
         assert (ids < HOLDOUT_FIRST_ID).all(), "holdout ID in retrieval index"
         evidence = pd.read_parquet(path / "evidence.parquet").set_index("ticket_id")
-        return cls(ids, sparse.load_npz(path / "matrix.npz"), joblib.load(path / "encoder.joblib"),
-                   evidence, json.loads((path / "manifest.json").read_text()))
+        r = cls(ids, sparse.load_npz(path / "matrix.npz"), joblib.load(path / "encoder.joblib"),
+                evidence, json.loads((path / "manifest.json").read_text()))
+        if dense is not None and Path(dense).exists():
+            from sentineldesk.dense import DenseIndex
+            d = DenseIndex.load(dense)
+            assert (d.ids == ids).all(), "dense and sparse indexes cover different IDs"
+            r.dense = d
+            r.mode = f"dense:{d.backend}"
+            r.manifest = {**r.manifest, "dense": d.manifest}
+        return r
 
     # ---------- query ----------
     def scores(self, query_texts: list[str]) -> np.ndarray:
         q = self.encoder.transform(query_texts)
         return (q @ self.matrix.T).toarray()
 
-    def search(self, query_text: str, k: int = 5) -> list[tuple[str, float]]:
-        s = self.scores([query_text])[0]
+    def search(self, query_text: str, k: int = 5,
+               dense_timeout: float = 2.0) -> tuple[list[tuple[str, float]], str]:
+        """Top-k (ticket_id, score) and the mode that served them: dense if loaded and reachable, else sparse."""
+        s, mode = None, "sparse"
+        if self.dense is not None:
+            try:
+                s = self.dense.scores([query_text], timeout=dense_timeout)[0]
+                mode = self.mode
+            except Exception:  # Ollama down or slow: fall back, never fail the request
+                s = None
+        if s is None:
+            s = self.scores([query_text])[0]
+            mode = "sparse"
         top = np.argpartition(-s, k)[:k]
         top = top[np.argsort(-s[top])]
-        return [(str(self.ids[i]), float(s[i])) for i in top]
+        return [(str(self.ids[i]), float(s[i])) for i in top], mode
 
-    def retrieve(self, ticket: Any, k: int = 5) -> list[Precedent]:
+    def retrieve_with_mode(self, ticket: Any, k: int = 5) -> tuple[list[Precedent], str]:
         """ticket has `subject` (nullable) and `body`; dict or object. Expects masked text."""
-        text = clean_for_search(_field(ticket, "subject"), _field(ticket, "body"))
-        if not text:
-            return []
+        body = _field(ticket, "body")
+        text = clean_for_search(_field(ticket, "subject"), body)
+        if not text or not (body or "").strip():  # blank body = needs clarification (gate rule 1)
+            return [], "none"
+        hits, mode = self.search(text, k)
         out = []
-        for tid, score in self.search(text, k):
+        for tid, score in hits:
             ev = self.evidence.loc[tid]
             out.append(Precedent(tid, round(score, 4), ev["subject"], answer_snippet(ev["answer"]),
                                  ev["answer_language"]))
+        return out, mode
+
+    def retrieve(self, ticket: Any, k: int = 5) -> list[Precedent]:
+        """Same as retrieve_with_mode, but returns only the precedents and stores the mode in last_mode."""
+        out, self.last_mode = self.retrieve_with_mode(ticket, k)
         return out
+
+    def warm_up(self) -> str:
+        """Load the dense model into Ollama before the first request (cold query ~0.5 s, warm ~0.07 s).
+
+        Returns the mode a query would use right now: "dense:<backend>" or "sparse".
+        """
+        _, mode = self.search("warm up", 1, dense_timeout=60.0)
+        return mode
 
     def full_answer(self, ticket_id: str) -> str:
         """Full historical answer, for D4 validation and the console's expanded view."""

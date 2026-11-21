@@ -1,36 +1,79 @@
-"""Dense retrieval with multilingual-e5-small (optional; needs sentence-transformers).
+"""Dense retrieval backends (D3-10, D3-12).
 
-E5 expects "query: " / "passage: " prefixes and normalized vectors; cosine = dot product.
-Exact in-memory search: 22,857 x 384 floats is ~35 MB, no ANN index needed.
+Backends:
+  embeddinggemma  Google EmbeddingGemma (Gemma family, open weights), served locally by Ollama.
+                  Needs `ollama serve` and `ollama pull embeddinggemma`. No Python deps.
+  e5              intfloat/multilingual-e5-small via sentence-transformers (requirements-dense.txt).
+
+Vectors are L2-normalized, so cosine = dot product. Exact in-memory search:
+22,857 x 768 floats is ~70 MB, no ANN index needed.
 """
 from __future__ import annotations
 
 import json
+import os
+import urllib.request
 from pathlib import Path
 
 import numpy as np
 
-MODEL_ID = "intfloat/multilingual-e5-small"
-_model = None
+BACKENDS = {
+    "embeddinggemma": {"model": "embeddinggemma", "source": "ollama"},
+    "e5": {"model": "intfloat/multilingual-e5-small", "source": "sentence-transformers"},
+}
+OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
+
+# Prompt formats from each model card.
+_PREFIX = {
+    "embeddinggemma": {"query": "task: search result | query: ", "passage": "title: none | text: "},
+    "e5": {"query": "query: ", "passage": "passage: "},
+}
+
+_st_model = None
 
 
-def get_model(device: str | None = None):
-    global _model
-    if _model is None:
+def _e5_model():
+    global _st_model
+    if _st_model is None:
         import torch
         from sentence_transformers import SentenceTransformer
-        if device is None:
-            device = "mps" if torch.backends.mps.is_available() else "cpu"
-        _model = SentenceTransformer(MODEL_ID, device=device)
-        _model.max_seq_length = 256  # bodies: median 54 words, p99 104
-    return _model
+        device = "mps" if torch.backends.mps.is_available() else "cpu"
+        _st_model = SentenceTransformer(BACKENDS["e5"]["model"], device=device)
+        _st_model.max_seq_length = 256
+    return _st_model
 
 
-def encode(texts: list[str], kind: str, batch_size: int = 32) -> np.ndarray:
-    assert kind in ("query", "passage")
-    model = get_model()
-    return model.encode([f"{kind}: {t}" for t in texts], batch_size=batch_size,
-                        normalize_embeddings=True, convert_to_numpy=True).astype(np.float32)
+def _ollama_embed(texts: list[str], timeout: float) -> np.ndarray:
+    req = urllib.request.Request(
+        f"{OLLAMA_URL}/api/embed",
+        # keep_alive=-1: keep the model loaded, otherwise Ollama unloads it after 5 idle minutes
+        # and the next query pays a ~0.5 s reload.
+        data=json.dumps({"model": BACKENDS["embeddinggemma"]["model"], "input": texts,
+                         "keep_alive": -1}).encode(),
+        headers={"Content-Type": "application/json"},
+    )
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return np.asarray(json.loads(resp.read())["embeddings"], dtype=np.float32)
+
+
+def ollama_available(timeout: float = 1.0) -> bool:
+    try:
+        with urllib.request.urlopen(f"{OLLAMA_URL}/api/version", timeout=timeout):
+            return True
+    except OSError:
+        return False
+
+
+def encode(texts: list[str], kind: str, backend: str = "embeddinggemma", batch_size: int = 64,
+           timeout: float = 30.0) -> np.ndarray:
+    assert kind in ("query", "passage") and backend in BACKENDS
+    prefixed = [_PREFIX[backend][kind] + t for t in texts]
+    if backend == "e5":
+        return _e5_model().encode(prefixed, batch_size=32, normalize_embeddings=True,
+                                  convert_to_numpy=True).astype(np.float32)
+    vecs = np.vstack([_ollama_embed(prefixed[i:i + batch_size], timeout)
+                      for i in range(0, len(prefixed), batch_size)])
+    return vecs / np.linalg.norm(vecs, axis=1, keepdims=True)
 
 
 class DenseIndex:
@@ -38,6 +81,7 @@ class DenseIndex:
         self.ids = ids
         self.vectors = vectors
         self.manifest = manifest
+        self.backend = manifest.get("backend", "e5")
 
     def save(self, out: Path) -> None:
         out.mkdir(parents=True, exist_ok=True)
@@ -52,8 +96,8 @@ class DenseIndex:
         assert (ids < "TKT-22857").all(), "holdout ID in dense index"
         return cls(ids, np.load(path / "vectors.npy"), json.loads((path / "manifest.json").read_text()))
 
-    def scores(self, query_texts: list[str]) -> np.ndarray:
-        return encode(query_texts, "query") @ self.vectors.T
+    def scores(self, query_texts: list[str], timeout: float = 30.0) -> np.ndarray:
+        return encode(query_texts, "query", self.backend, timeout=timeout) @ self.vectors.T
 
 
 def hybrid_scores(sparse_s: np.ndarray, dense_s: np.ndarray, k: int = 60) -> np.ndarray:

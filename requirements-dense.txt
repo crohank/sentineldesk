@@ -1,4 +1,6 @@
-# Optional: only for scripts/build_dense.py and --mode dense|hybrid (D3-10). Not needed to serve.
+# Optional: only for the E5 comparison and the reranker evaluation (D3-10, D3-13):
+#   scripts/build_dense.py --backend e5, scripts/eval_rerank.py
+# Serving needs neither: EmbeddingGemma runs in Ollama and is called over HTTP.
 -r requirements.txt
 sentence-transformers==6.3.0
 torch==2.15.0

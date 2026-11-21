@@ -48,6 +48,30 @@ def test_null_subject_and_shape(full):
 
 def test_blank_body_returns_nothing(full):
     assert full.retrieve({"subject": None, "body": "   "}, k=5) == []
+    assert full.retrieve({"subject": "Help", "body": ""}, k=5) == []
+
+
+def test_dense_release_and_fallback():
+    dense = ROOT / "artifacts" / "dense" / "embeddinggemma" / "full"
+    if not (FULL.exists() and dense.exists()):
+        pytest.skip("no dense index")
+    import sentineldesk.dense as d
+    r = Retriever.load(FULL, dense=dense)
+    assert r.mode == "dense:embeddinggemma"
+    ticket = {"subject": None, "body": "Our office printer only prints blank pages since yesterday."}
+    if d.ollama_available():
+        assert r.warm_up() == "dense:embeddinggemma"
+        res, mode = r.retrieve_with_mode(ticket, 5)
+        assert len(res) == 5 and mode == "dense:embeddinggemma"
+    old = d.OLLAMA_URL
+    d.OLLAMA_URL = "http://localhost:1"  # nothing listens here
+    try:
+        res, mode = r.retrieve_with_mode(ticket, 5)
+        assert len(res) == 5 and mode == "sparse"
+        assert len(r.retrieve(ticket, 5)) == 5 and r.last_mode == "sparse"
+    finally:
+        d.OLLAMA_URL = old
+    assert r.retrieve_with_mode({"subject": "Help", "body": " "}, 5) == ([], "none")
 
 
 def test_object_input(full):

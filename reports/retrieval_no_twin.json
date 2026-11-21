@@ -1,46 +1,590 @@
 {
-  "twin_rule": "sparse>=0.5 or dense>=0.935",
-  "results_top1_any5": {
+  "n_queries": 2286,
+  "twin_rule": {
+    "sparse": 0.5,
+    "e5": 0.9354,
+    "embeddinggemma": 0.8178
+  },
+  "queries_with_twin": 0.7437,
+  "mean_twins_removed": 3.32,
+  "with_twins": {
     "sparse": {
-      "queue": [
-        0.342,
-        0.691
+      "queue": {
+        "top1": 0.7082,
+        "any_top5": 0.8714
+      },
+      "type": {
+        "top1": 0.8915,
+        "any_top5": 0.9851
+      },
+      "priority": {
+        "top1": 0.7546,
+        "any_top5": 0.9484
+      }
+    },
+    "dense_e5": {
+      "queue": {
+        "top1": 0.6789,
+        "any_top5": 0.8609
+      },
+      "type": {
+        "top1": 0.8863,
+        "any_top5": 0.9799
+      },
+      "priority": {
+        "top1": 0.7244,
+        "any_top5": 0.9536
+      }
+    },
+    "hybrid_e5": {
+      "queue": {
+        "top1": 0.7095,
+        "any_top5": 0.8675
+      },
+      "type": {
+        "top1": 0.8898,
+        "any_top5": 0.9856
+      },
+      "priority": {
+        "top1": 0.7537,
+        "any_top5": 0.9462
+      }
+    },
+    "dense_embeddinggemma": {
+      "queue": {
+        "top1": 0.7765,
+        "any_top5": 0.9059
+      },
+      "type": {
+        "top1": 0.9261,
+        "any_top5": 0.9882
+      },
+      "priority": {
+        "top1": 0.801,
+        "any_top5": 0.9545
+      }
+    },
+    "hybrid_embeddinggemma": {
+      "queue": {
+        "top1": 0.7235,
+        "any_top5": 0.8675
+      },
+      "type": {
+        "top1": 0.8998,
+        "any_top5": 0.9864
+      },
+      "priority": {
+        "top1": 0.7598,
+        "any_top5": 0.9514
+      }
+    }
+  },
+  "no_twin": {
+    "sparse": {
+      "queue": {
+        "top1": 0.3158,
+        "any_top5": 0.6772
+      },
+      "type": {
+        "top1": 0.7345,
+        "any_top5": 0.958
+      },
+      "priority": {
+        "top1": 0.4186,
+        "any_top5": 0.8679
+      }
+    },
+    "dense_e5": {
+      "queue": {
+        "top1": 0.3031,
+        "any_top5": 0.6588
+      },
+      "type": {
+        "top1": 0.741,
+        "any_top5": 0.9506
+      },
+      "priority": {
+        "top1": 0.4125,
+        "any_top5": 0.8626
+      }
+    },
+    "hybrid_e5": {
+      "queue": {
+        "top1": 0.3189,
+        "any_top5": 0.6654
+      },
+      "type": {
+        "top1": 0.7493,
+        "any_top5": 0.9584
+      },
+      "priority": {
+        "top1": 0.4304,
+        "any_top5": 0.8596
+      }
+    },
+    "dense_embeddinggemma": {
+      "queue": {
+        "top1": 0.4374,
+        "any_top5": 0.7314
+      },
+      "type": {
+        "top1": 0.7992,
+        "any_top5": 0.9624
+      },
+      "priority": {
+        "top1": 0.5192,
+        "any_top5": 0.8745
+      }
+    },
+    "hybrid_embeddinggemma": {
+      "queue": {
+        "top1": 0.3311,
+        "any_top5": 0.6728
+      },
+      "type": {
+        "top1": 0.7559,
+        "any_top5": 0.9637
+      },
+      "priority": {
+        "top1": 0.4291,
+        "any_top5": 0.857
+      }
+    }
+  },
+  "authored_top3": {
+    "pw_en": {
+      "sparse": [
+        {
+          "ticket_id": "TKT-17616",
+          "sparse": 0.271,
+          "subject": "Problem with Account Access"
+        },
+        {
+          "ticket_id": "TKT-00899",
+          "sparse": 0.234,
+          "subject": "Problem with Account Login"
+        },
+        {
+          "ticket_id": "TKT-18593",
+          "sparse": 0.189,
+          "subject": "Unable to Access the Account Management Portal"
+        }
       ],
-      "type": [
-        0.746,
-        0.962
+      "dense_e5": [
+        {
+          "ticket_id": "TKT-17717",
+          "sparse": 0.145,
+          "subject": ""
+        },
+        {
+          "ticket_id": "TKT-01997",
+          "sparse": 0.144,
+          "subject": ""
+        },
+        {
+          "ticket_id": "TKT-09852",
+          "sparse": 0.169,
+          "subject": ""
+        }
       ],
-      "priority": [
-        0.447,
-        0.874
+      "hybrid_e5": [
+        {
+          "ticket_id": "TKT-18593",
+          "sparse": 0.189,
+          "subject": "Unable to Access the Account Management Portal"
+        },
+        {
+          "ticket_id": "TKT-09852",
+          "sparse": 0.169,
+          "subject": ""
+        },
+        {
+          "ticket_id": "TKT-20781",
+          "sparse": 0.176,
+          "subject": "HR Portal Access Problem"
+        }
+      ],
+      "dense_embeddinggemma": [
+        {
+          "ticket_id": "TKT-18593",
+          "sparse": 0.189,
+          "subject": "Unable to Access the Account Management Portal"
+        },
+        {
+          "ticket_id": "TKT-06387",
+          "sparse": 0.122,
+          "subject": "Login Issues After Recent Server Update"
+        },
+        {
+          "ticket_id": "TKT-09852",
+          "sparse": 0.169,
+          "subject": ""
+        }
+      ],
+      "hybrid_embeddinggemma": [
+        {
+          "ticket_id": "TKT-18593",
+          "sparse": 0.189,
+          "subject": "Unable to Access the Account Management Portal"
+        },
+        {
+          "ticket_id": "TKT-17616",
+          "sparse": 0.271,
+          "subject": "Problem with Account Access"
+        },
+        {
+          "ticket_id": "TKT-00899",
+          "sparse": 0.234,
+          "subject": "Problem with Account Login"
+        }
       ]
     },
-    "dense": {
-      "queue": [
-        0.326,
-        0.68
+    "pw_de": {
+      "sparse": [
+        {
+          "ticket_id": "TKT-02182",
+          "sparse": 0.165,
+          "subject": "Probleme bei Zugriff auf Discord-Server"
+        },
+        {
+          "ticket_id": "TKT-07516",
+          "sparse": 0.164,
+          "subject": "Probleme bei der Anmeldung in verschiedenen Produkten"
+        },
+        {
+          "ticket_id": "TKT-13526",
+          "sparse": 0.162,
+          "subject": "Probleme bei der Anmeldung bei verschiedenen Produkten"
+        }
       ],
-      "type": [
-        0.753,
-        0.955
+      "dense_e5": [
+        {
+          "ticket_id": "TKT-02309",
+          "sparse": 0.087,
+          "subject": "Probleme mit dem Anmelden"
+        },
+        {
+          "ticket_id": "TKT-22248",
+          "sparse": 0.156,
+          "subject": ""
+        },
+        {
+          "ticket_id": "TKT-10111",
+          "sparse": 0.047,
+          "subject": ""
+        }
       ],
-      "priority": [
-        0.437,
-        0.871
+      "hybrid_e5": [
+        {
+          "ticket_id": "TKT-22248",
+          "sparse": 0.156,
+          "subject": ""
+        },
+        {
+          "ticket_id": "TKT-07675",
+          "sparse": 0.113,
+          "subject": "Probleme bei der Anmeldung auf verschiedenen Geräten"
+        },
+        {
+          "ticket_id": "TKT-09512",
+          "sparse": 0.129,
+          "subject": "Probleme mit der Anmeldung nach der neuesten Aktualisierung"
+        }
+      ],
+      "dense_embeddinggemma": [
+        {
+          "ticket_id": "TKT-06387",
+          "sparse": 0.042,
+          "subject": "Login Issues After Recent Server Update"
+        },
+        {
+          "ticket_id": "TKT-18593",
+          "sparse": 0.044,
+          "subject": "Unable to Access the Account Management Portal"
+        },
+        {
+          "ticket_id": "TKT-09852",
+          "sparse": 0.052,
+          "subject": ""
+        }
+      ],
+      "hybrid_embeddinggemma": [
+        {
+          "ticket_id": "TKT-22248",
+          "sparse": 0.156,
+          "subject": ""
+        },
+        {
+          "ticket_id": "TKT-07516",
+          "sparse": 0.164,
+          "subject": "Probleme bei der Anmeldung in verschiedenen Produkten"
+        },
+        {
+          "ticket_id": "TKT-07845",
+          "sparse": 0.125,
+          "subject": "Fehler durch das aktuelle Systemupdate"
+        }
       ]
     },
-    "hybrid": {
-      "queue": [
-        0.348,
-        0.68
+    "vpn_de": {
+      "sparse": [
+        {
+          "ticket_id": "TKT-05677",
+          "sparse": 0.177,
+          "subject": "Eilige Ausfallmeldung des Telemedizin-Services"
+        },
+        {
+          "ticket_id": "TKT-16649",
+          "sparse": 0.164,
+          "subject": "Dringender Hinweis: Ausfall des Cloud SaaS-Services"
+        },
+        {
+          "ticket_id": "TKT-05004",
+          "sparse": 0.152,
+          "subject": "Verlust von Patientendaten im Krankenhaus-System"
+        }
       ],
-      "type": [
-        0.763,
-        0.962
+      "dense_e5": [
+        {
+          "ticket_id": "TKT-13996",
+          "sparse": 0.065,
+          "subject": ""
+        },
+        {
+          "ticket_id": "TKT-03806",
+          "sparse": 0.032,
+          "subject": ""
+        },
+        {
+          "ticket_id": "TKT-21282",
+          "sparse": 0.068,
+          "subject": "Eilend benötigte Unterstützung"
+        }
       ],
-      "priority": [
-        0.455,
-        0.864
+      "hybrid_e5": [
+        {
+          "ticket_id": "TKT-16906",
+          "sparse": 0.147,
+          "subject": "Sperre im Krankenhaus-IT-System"
+        },
+        {
+          "ticket_id": "TKT-17389",
+          "sparse": 0.141,
+          "subject": "Probleme mit medizinischen Daten"
+        },
+        {
+          "ticket_id": "TKT-05004",
+          "sparse": 0.152,
+          "subject": "Verlust von Patientendaten im Krankenhaus-System"
+        }
+      ],
+      "dense_embeddinggemma": [
+        {
+          "ticket_id": "TKT-13401",
+          "sparse": 0.139,
+          "subject": "Ausfall der IT-Systeme im Krankenhaus"
+        },
+        {
+          "ticket_id": "TKT-13763",
+          "sparse": 0.144,
+          "subject": "Ausfall der Krankenhaus-IT-Infrastruktur"
+        },
+        {
+          "ticket_id": "TKT-07929",
+          "sparse": 0.114,
+          "subject": "Beeinträchtigte Krankenhausinfrastrukturen"
+        }
+      ],
+      "hybrid_embeddinggemma": [
+        {
+          "ticket_id": "TKT-13763",
+          "sparse": 0.144,
+          "subject": "Ausfall der Krankenhaus-IT-Infrastruktur"
+        },
+        {
+          "ticket_id": "TKT-13401",
+          "sparse": 0.139,
+          "subject": "Ausfall der IT-Systeme im Krankenhaus"
+        },
+        {
+          "ticket_id": "TKT-05677",
+          "sparse": 0.177,
+          "subject": "Eilige Ausfallmeldung des Telemedizin-Services"
+        }
+      ]
+    },
+    "invoice_en": {
+      "sparse": [
+        {
+          "ticket_id": "TKT-13005",
+          "sparse": 0.287,
+          "subject": "Issues with Invoice"
+        },
+        {
+          "ticket_id": "TKT-06795",
+          "sparse": 0.268,
+          "subject": "Found Problem with Billing"
+        },
+        {
+          "ticket_id": "TKT-04578",
+          "sparse": 0.245,
+          "subject": "Invoice Error"
+        }
+      ],
+      "dense_e5": [
+        {
+          "ticket_id": "TKT-13005",
+          "sparse": 0.287,
+          "subject": "Issues with Invoice"
+        },
+        {
+          "ticket_id": "TKT-19746",
+          "sparse": 0.095,
+          "subject": "Problem with Monthly Invoices"
+        },
+        {
+          "ticket_id": "TKT-03882",
+          "sparse": 0.174,
+          "subject": ""
+        }
+      ],
+      "hybrid_e5": [
+        {
+          "ticket_id": "TKT-13005",
+          "sparse": 0.287,
+          "subject": "Issues with Invoice"
+        },
+        {
+          "ticket_id": "TKT-07557",
+          "sparse": 0.235,
+          "subject": "Issues with Subscription Invoice"
+        },
+        {
+          "ticket_id": "TKT-06795",
+          "sparse": 0.268,
+          "subject": "Found Problem with Billing"
+        }
+      ],
+      "dense_embeddinggemma": [
+        {
+          "ticket_id": "TKT-21984",
+          "sparse": 0.206,
+          "subject": "Problems with Subscription-Invoicing Services"
+        },
+        {
+          "ticket_id": "TKT-07379",
+          "sparse": 0.215,
+          "subject": ""
+        },
+        {
+          "ticket_id": "TKT-06896",
+          "sparse": 0.177,
+          "subject": "Issue with Subscription Invoices"
+        }
+      ],
+      "hybrid_embeddinggemma": [
+        {
+          "ticket_id": "TKT-06795",
+          "sparse": 0.268,
+          "subject": "Found Problem with Billing"
+        },
+        {
+          "ticket_id": "TKT-07379",
+          "sparse": 0.215,
+          "subject": ""
+        },
+        {
+          "ticket_id": "TKT-05981",
+          "sparse": 0.212,
+          "subject": "Incorrect Invoice Subscription Issue"
+        }
+      ]
+    },
+    "printer_de": {
+      "sparse": [
+        {
+          "ticket_id": "TKT-12131",
+          "sparse": 0.159,
+          "subject": "Mehrere Geräte im Büro laufen ordnungsgemäß"
+        },
+        {
+          "ticket_id": "TKT-09095",
+          "sparse": 0.135,
+          "subject": "Website"
+        },
+        {
+          "ticket_id": "TKT-10317",
+          "sparse": 0.128,
+          "subject": "Druckprobleme"
+        }
+      ],
+      "dense_e5": [
+        {
+          "ticket_id": "TKT-12131",
+          "sparse": 0.159,
+          "subject": "Mehrere Geräte im Büro laufen ordnungsgemäß"
+        },
+        {
+          "ticket_id": "TKT-10747",
+          "sparse": 0.116,
+          "subject": "Zahlreiche Geräte im Büro laufen ordnungsgemäß"
+        },
+        {
+          "ticket_id": "TKT-12480",
+          "sparse": 0.013,
+          "subject": "Ausfallmeldungen bei der Login-Funktion gemäß heute"
+        }
+      ],
+      "hybrid_e5": [
+        {
+          "ticket_id": "TKT-12131",
+          "sparse": 0.159,
+          "subject": "Mehrere Geräte im Büro laufen ordnungsgemäß"
+        },
+        {
+          "ticket_id": "TKT-10747",
+          "sparse": 0.116,
+          "subject": "Zahlreiche Geräte im Büro laufen ordnungsgemäß"
+        },
+        {
+          "ticket_id": "TKT-09095",
+          "sparse": 0.135,
+          "subject": "Website"
+        }
+      ],
+      "dense_embeddinggemma": [
+        {
+          "ticket_id": "TKT-10317",
+          "sparse": 0.128,
+          "subject": "Druckprobleme"
+        },
+        {
+          "ticket_id": "TKT-19527",
+          "sparse": 0.113,
+          "subject": "Drucker-Probleme"
+        },
+        {
+          "ticket_id": "TKT-11927",
+          "sparse": 0.003,
+          "subject": "Problem with Printer Not Printing Files"
+        }
+      ],
+      "hybrid_embeddinggemma": [
+        {
+          "ticket_id": "TKT-10317",
+          "sparse": 0.128,
+          "subject": "Druckprobleme"
+        },
+        {
+          "ticket_id": "TKT-12131",
+          "sparse": 0.159,
+          "subject": "Mehrere Geräte im Büro laufen ordnungsgemäß"
+        },
+        {
+          "ticket_id": "TKT-19527",
+          "sparse": 0.113,
+          "subject": "Drucker-Probleme"
+        }
       ]
     }
   }

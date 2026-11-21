@@ -25,18 +25,24 @@ See [docs/EDA.md](docs/EDA.md). Short version: use the main CSV only (the HF loa
 
 ## Retrieval (D3)
 
+Release retriever: EmbeddingGemma through local Ollama, with sparse TF-IDF as automatic fallback ([D3-12](docs/D3_decisions.md)).
+
 ```bash
-python scripts/make_kb_partitions.py          # provisional fit/calib/valid partition of the KB
-python scripts/build_index.py --scope full    # release sparse index -> artifacts/retrieval/full
-python scripts/build_index.py --scope fit     # fit-only index for validation
-python scripts/eval_retrieval.py              # reports/retrieval_sparse.json
+ollama serve &                                 # keep running while serving
+ollama pull embeddinggemma                     # 621 MB, once per machine
+python scripts/make_kb_partitions.py           # provisional fit/calib/valid partition of the KB
+python scripts/build_index.py --scope full     # sparse index + evidence store -> artifacts/retrieval/full
+python scripts/build_dense.py --scope full     # EmbeddingGemma index -> artifacts/dense/embeddinggemma/full (~5 min)
 python -m pytest tests/test_retrieval.py
 ```
 
 ```python
 from sentineldesk.retrieval import Retriever
-r = Retriever.load("artifacts/retrieval/full")
-r.retrieve({"subject": None, "body": "..."}, k=5)   # list[Precedent]
+r = Retriever.load("artifacts/retrieval/full", dense="artifacts/dense/embeddinggemma/full")
+r.warm_up()                                        # once at startup, loads EmbeddingGemma into memory
+precedents, mode = r.retrieve_with_mode({"subject": None, "body": "..."}, k=5)
+# mode: "dense:embeddinggemma", "sparse" if Ollama was unreachable, "none" for a blank body
+r.full_answer("TKT-00123")                         # full historical answer, for validation and the expanded view
 ```
 
-Dense/hybrid comparison is optional: `pip install -r requirements-dense.txt`, then `scripts/build_dense.py`. Decisions and measured numbers: [docs/D3_decisions.md](docs/D3_decisions.md). Example output for the console: [fixtures/precedents_example.json](fixtures/precedents_example.json).
+Evaluation runs on the validation partition against fit-only indexes: `build_index.py --scope fit` and `build_dense.py --scope fit`, then `eval_retrieval.py --mode sparse|dense|hybrid`, `compare_retrieval.py` (paraphrase twins removed) and `eval_rerank.py`. E5 and the reranker need `pip install -r requirements-dense.txt`; serving does not. Decisions and measured numbers: [docs/D3_decisions.md](docs/D3_decisions.md). Example output for the console: [fixtures/precedents_example.json](fixtures/precedents_example.json).
