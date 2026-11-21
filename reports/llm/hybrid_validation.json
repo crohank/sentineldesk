@@ -1,0 +1,104 @@
+{
+  "selection_rows": 150,
+  "validation_rows": 150,
+  "cutoffs": {
+    "type": 1.01,
+    "queue": 1.01,
+    "priority": 1.01
+  },
+  "results": {
+    "all": {
+      "tickets": 150,
+      "tfidf": {
+        "type": 0.8838,
+        "queue": 0.4565,
+        "priority": 0.5886,
+        "high_incidents_caught": 13,
+        "actual_high_incidents": 24
+      },
+      "gemini": {
+        "type": 0.9518,
+        "queue": 0.9109,
+        "priority": 0.8228,
+        "high_incidents_caught": 19,
+        "actual_high_incidents": 24
+      },
+      "blend_50_50": {
+        "type": 0.9277,
+        "queue": 0.8322,
+        "priority": 0.8364,
+        "high_incidents_caught": 21,
+        "actual_high_incidents": 24
+      },
+      "hybrid": {
+        "type": 0.9518,
+        "queue": 0.9109,
+        "priority": 0.8228,
+        "high_incidents_caught": 19,
+        "actual_high_incidents": 24
+      }
+    },
+    "en": {
+      "tickets": 105,
+      "tfidf": {
+        "type": 0.8851,
+        "queue": 0.4789,
+        "priority": 0.6343,
+        "high_incidents_caught": 10,
+        "actual_high_incidents": 14
+      },
+      "gemini": {
+        "type": 0.9606,
+        "queue": 0.8835,
+        "priority": 0.8315,
+        "high_incidents_caught": 12,
+        "actual_high_incidents": 14
+      },
+      "blend_50_50": {
+        "type": 0.9448,
+        "queue": 0.7542,
+        "priority": 0.8322,
+        "high_incidents_caught": 13,
+        "actual_high_incidents": 14
+      },
+      "hybrid": {
+        "type": 0.9606,
+        "queue": 0.8835,
+        "priority": 0.8315,
+        "high_incidents_caught": 12,
+        "actual_high_incidents": 14
+      }
+    },
+    "de": {
+      "tickets": 43,
+      "tfidf": {
+        "type": 0.8667,
+        "queue": 0.4199,
+        "priority": 0.46,
+        "high_incidents_caught": 2,
+        "actual_high_incidents": 9
+      },
+      "gemini": {
+        "type": 0.92,
+        "queue": 0.9488,
+        "priority": 0.8061,
+        "high_incidents_caught": 6,
+        "actual_high_incidents": 9
+      },
+      "blend_50_50": {
+        "type": 0.8667,
+        "queue": 0.921,
+        "priority": 0.8561,
+        "high_incidents_caught": 7,
+        "actual_high_incidents": 9
+      },
+      "hybrid": {
+        "type": 0.92,
+        "queue": 0.9488,
+        "priority": 0.8061,
+        "high_incidents_caught": 6,
+        "actual_high_incidents": 9
+      }
+    }
+  }
+}

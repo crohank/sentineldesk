@@ -48,6 +48,7 @@ class Prediction(_Model):
     probabilities: dict[str, float] = Field(description="Estimated probability per class.")
 
     calibrated: bool | None = None
+    source: str | None = None
 
 
 class Triage(_Model):

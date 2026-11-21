@@ -53,5 +53,5 @@ class GeminiTriage:
                 raise ValueError(f"Invalid Gemini probabilities for {head}")
             score, probabilities = confidence(answer, head)
             predictions[head] = Prediction(label=label, confidence=score, probabilities=probabilities,
-                                           calibrated=False)
+                                           calibrated=False, source="Gemini")
         return Triage(**predictions)

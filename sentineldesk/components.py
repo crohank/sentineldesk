@@ -116,6 +116,11 @@ def managed_components() -> Components:
     data_dir = Path(os.environ.get("SENTINELDESK_DATA_DIR", "data/processed"))
     model = os.environ.get("SENTINELDESK_TRIAGE_MODEL", "gemini-3.8-flash")
     classifier = GeminiTriage(store, data_dir, model)
+    from .hybrid import HybridTriage
+    from .search_snapshot import SearchSnapshot
+    bundle = Path(os.environ.get("SENTINELDESK_MODEL_DIR", "artifacts/fast_path"))
+    store.snapshot = SearchSnapshot(bundle, data_dir)
+    classifier = HybridTriage(classifier, bundle)
     config = replace(DEFAULT_CONFIG, retrieval_backend="dense")
     detect_language_langdetect(MaskedTicket("", "Warm up the language profiles at startup."))
 

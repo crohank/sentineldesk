@@ -11,3 +11,5 @@ Run the console and API with `SENTINELDESK_MODE=managed python -m sentineldesk.a
 The managed app drafts replies from reviewed templates and validates each draft before showing it to the operator.
 
 Gemini probabilities are uncalibrated. The gate uses the predicted labels and provisional confidence and similarity floors. The probability-pair outage rule applies only when the predictions have no explicit uncalibrated flag. Validate the floors and calibrate the classifier before relying on these settings.
+
+The hybrid release also loads a calibrated TF-IDF model and an exact-search snapshot from `artifacts/fast_path`. Generate them with `python -m scripts.train_fast_path` and `python -m scripts.export_search_snapshot`. Copy the cutoffs from the release's hybrid validation report into `selection.json` in that directory, or reproduce them with `python -m scripts.eval_hybrid` after running `python -m scripts.calibrate_managed --validation-only`. Bundle that directory when building the Docker image. If the managed collection returns a quota error, the app uses the same Gemini query embedding against the snapshot for 60 seconds.

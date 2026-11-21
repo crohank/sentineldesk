@@ -209,6 +209,18 @@
             "description": "Estimated probability per class.",
             "title": "Probabilities",
             "type": "object"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source"
           }
         },
         "required": [

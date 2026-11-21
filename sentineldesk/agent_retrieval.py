@@ -15,8 +15,14 @@ PROJECT = "sentineldesk-ajin-ze3gmb"
 COLLECTION = "tickets-fit-ge2-v1"
 
 
+class QuotaExhausted(RuntimeError):
+    pass
+
+
 class AgentRetrieval:
     def __init__(self):
+        self.snapshot = None
+        self.search_retry_after = 0
         self.parent = f"projects/{PROJECT}/locations/us-central1/collections/{COLLECTION}"
         self.objects = f"https://vectorsearch.googleapis.com/v1/{self.parent}/dataObjects"
         self.embedding = (f"https://aiplatform.googleapis.com/v1/projects/{PROJECT}/locations/global/"
@@ -51,6 +57,8 @@ class AgentRetrieval:
                 if response.is_success:
                     return response.json()
                 if response.status_code not in (429, 500, 502, 503, 504) or attempt == attempts - 1:
+                    if response.status_code == 429:
+                        raise QuotaExhausted("Cloud quota exhausted")
                     raise RuntimeError(f"{response.status_code}: {response.json()['error']['message'][:400]}")
             time.sleep(2 ** attempt)
 
@@ -69,7 +77,16 @@ class AgentRetrieval:
         query = {"searchField": "embedding", "vector": {"values": vector}, "topK": k,
                  "distanceMetric": "COSINE_DISTANCE", "searchHint": {"knnHint": {}},
                  "outputFields": {"dataFields": ["ticket_id", "subject", "answer"]}}
-        hits = self.post(self.objects + ":search", {"vectorSearch": query}, attempts=2).get("results", [])
+        if self.snapshot is not None and time.monotonic() < self.search_retry_after:
+            hits = self.snapshot.search(vector, k)
+        else:
+            try:
+                hits = self.post(self.objects + ":search", {"vectorSearch": query}, attempts=2).get("results", [])
+            except QuotaExhausted:
+                if self.snapshot is None:
+                    raise
+                self.search_retry_after = time.monotonic() + 60
+                hits = self.snapshot.search(vector, k)
         results = []
         for hit in hits:
             row = hit["dataObject"]["data"]

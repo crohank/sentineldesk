@@ -69,7 +69,7 @@
       <li><span class="step-dot blue"></span><div><strong>Mask and detect.</strong> Emails, phone numbers and account IDs are masked. Language is detected from the text, not from metadata.</div></li>
       {% if comps.retrieval_mode == "agent_retrieval" %}
       <li><span class="step-dot green"></span><div><strong>Precedents.</strong> Agent Retrieval finds five similar tickets.</div></li>
-      <li><span class="step-dot yellow"></span><div><strong>Triage.</strong> Gemini uses the five labeled examples to predict type, queue and priority.</div></li>
+      <li><span class="step-dot yellow"></span><div><strong>Triage.</strong> TF-IDF and Gemini classify each ticket. Validation results determine which prediction is shown for each field.</div></li>
       <li><span class="step-dot red"></span><div><strong>Safety gate.</strong> Escalates high-impact outages, routes sensitive requests for review, and checks evidence before drafting.</div></li>
       <li><span class="step-dot blue"></span><div><strong>Grounded draft.</strong> The app checks every citation against the retrieved replies before showing a draft.</div></li>
       {% else %}
@@ -122,12 +122,11 @@
   <section class="panel triage">
     <h2>Triage</h2>
     {% if result.triage %}
-    {% if result.triage.type.calibrated is sameas false %}<p class="muted small">Gemini probability estimates are uncalibrated.</p>{% endif %}
     {% for head in ["type", "queue", "priority"] %}
     {% set p = result.triage | attr(head) %}
     <div class="head">
       <div class="head-row">
-        <span class="head-name">{{ head }}</span>
+        <span class="head-name">{{ head }}{% if p.source %} · {{ p.source }}{% if p.calibrated %} (calibrated){% endif %}{% endif %}</span>
         <span class="head-label">{{ p.label }}</span>
         <span class="head-conf">{{ "%.0f" | format(p.confidence * 100) }}%</span>
       </div>

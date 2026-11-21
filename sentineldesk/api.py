@@ -59,6 +59,26 @@ class Sample:
 # Authored inputs from the PLAN.md demo kit. Never special-case these in any component.
 SAMPLES = (
     Sample(
+        "pricing-en", "Bundle pricing", "EN", "green",
+        "Update pricing for bundled products",
+        "We need to update the pricing structure for the bundled product offerings in our project management SaaS. Please review the current setup and tell us what is needed to make the change.",
+    ),
+    Sample(
+        "billing-de", "Zahlungsarten", "DE", "green",
+        "Zahlungsarten und Abrechnungszyklen",
+        "Welche Zahlungsmethoden und Abrechnungszyklen stehen für Ihre SaaS-Plattform für Projektmanagement zur Verfügung? Bitte senden Sie mir eine Übersicht.",
+    ),
+    Sample(
+        "marketing-de", "Servicepakete", "DE", "green",
+        "Anfrage zu Digitalstrategien und Servicepaketen",
+        "Sehr geehrter Kundenservice, ich möchte mich nach digitalen Strategien zur Förderung unseres Markenwachstums erkundigen und nach den passenden Servicepaketen. Könnten Sie mir Informationen dazu geben?",
+    ),
+    Sample(
+        "invoice-en", "Billing options", "EN", "green",
+        "Billing cycles and payment methods",
+        "Could you please send me information on the billing cycles and payment methods available for your SaaS project management platform?",
+    ),
+    Sample(
         "outage-de", "Hospital VPN outage", "DE", "red",
         "VPN-Ausfall im Krankenhaus",
         "Seit heute Morgen können sich alle Mitarbeitenden unserer Klinik nicht mehr per VPN verbinden. "
