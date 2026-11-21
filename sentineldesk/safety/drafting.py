@@ -7,6 +7,8 @@ every action has a reviewed English and German text.
 """
 from __future__ import annotations
 
+import os
+
 from . import contracts as c
 from .actions import ACTIONS, CLOSING, GREETING, LEAD, THANKS, Action
 from .config import DEFAULT_CONFIG, SafetyConfig
@@ -65,11 +67,29 @@ def draft_template(masked_ticket, language, precedents, *, config: SafetyConfig 
 
 
 def draft_with_mode(masked_ticket, language, precedents, *, config: SafetyConfig = DEFAULT_CONFIG,
-                    generator: str = c.OFFLINE_TEMPLATES) -> tuple[c.Draft, str]:
-    """Draft plus the generator that actually produced it."""
+                    generator: str | None = None) -> tuple[c.Draft, str]:
+    """Draft plus the generator that actually produced it.
+
+    With generator "gemma", Gemma writes the draft; if it fails validation or the claim check
+    after one repair, or the time budget runs out, the template draft is returned instead and
+    the mode says offline_templates.
+    """
+    generator = generator or os.environ.get("SENTINELDESK_GENERATOR", c.OFFLINE_TEMPLATES)
+    if generator == c.GEMMA and normalize_language(language) in SUPPORTED_LANGUAGES:
+        from . import gemma
+        from .validation import validate
+
+        eligible = [p for p in precedents or [] if float(getattr(p, "score", 0.0)) >= config.evidence_threshold()]
+        if eligible:
+            result, _ = gemma.generate(
+                masked_ticket, language, eligible[:5], budget_s=config.model_budget_s,
+                validate_fn=lambda d: validate(d, language, precedents, ticket=masked_ticket, config=config),
+            )
+            if result is not None:
+                return result, c.GEMMA
     return draft_template(masked_ticket, language, precedents, config=config), c.OFFLINE_TEMPLATES
 
 
 def draft(masked_ticket, language, precedents) -> c.Draft:
-    """`draft` stage for the pipeline (PLAN.md signature)."""
+    """`draft` stage for the pipeline (PLAN.md signature). SENTINELDESK_GENERATOR=gemma selects Gemma."""
     return draft_with_mode(masked_ticket, language, precedents)[0]
