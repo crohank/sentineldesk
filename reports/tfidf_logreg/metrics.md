@@ -3,8 +3,8 @@
 - predictions: `data/predictions/tfidf_logreg.parquet`
 - sha256: `bc39736a98fc72f526dd2810a85fc3b51fbefa2b45d35708a972a1957599bb74`
 - rows: 5715
-- scored at: 2026-11-21T15:55:05Z
-- git commit: 38c8ccc
+- scored at: 2026-11-21T16:20:29Z
+- git commit: c98c534-dirty
 
 Rates are shown as value (numerator/denominator).
 
@@ -22,6 +22,9 @@ Rates are shown as value (numerator/denominator).
 | Incident+high precision, flag on pred Incident and pred high | 0.632 (685/1084) |
 | Incident+high recall, flag on pred high alone | 0.735 (770/1047) |
 | Incident+high precision, flag on pred high alone | 0.342 (770/2253) |
+| type ECE, 10 bins | 0.026 |
+| queue ECE, 10 bins | 0.081 |
+| priority ECE, 10 bins | 0.018 |
 
 ## Against a training-majority predictor
 
@@ -79,6 +82,69 @@ True events: 1047. Two flagging rules:
 | flag on pred high alone | 2253 | 0.735 (770/1047) | 0.342 (770/2253) |
 
 - routing: no decision_status column
+
+## Calibration (top-label confidence)
+
+`conf_<head>` is the confidence in the predicted label. 10 equal-width bins, each (lo, hi]. ECE = sum over bins of (bin n / N) * |bin accuracy - bin mean confidence|. Gap = accuracy minus mean confidence, so negative means overconfident.
+
+| head | n | mean confidence | accuracy | ECE | plot |
+|---|---|---|---|---|---|
+| type | 5715 | 0.850 | 0.876 (5004/5715) | 0.026 | [reliability_type.png](reliability_type.png) |
+| queue | 5715 | 0.495 | 0.575 (3286/5715) | 0.081 | [reliability_queue.png](reliability_queue.png) |
+| priority | 5715 | 0.644 | 0.642 (3670/5715) | 0.018 | [reliability_priority.png](reliability_priority.png) |
+
+### Bins: type
+
+| bin | n | mean confidence | accuracy | gap |
+|---|---|---|---|---|
+| (0.0, 0.1] | 0 | | | |
+| (0.1, 0.2] | 0 | | | |
+| (0.2, 0.3] | 0 | | | |
+| (0.3, 0.4] | 7 | 0.380 | 0.571 (4/7) | +0.192 |
+| (0.4, 0.5] | 61 | 0.476 | 0.459 (28/61) | -0.017 |
+| (0.5, 0.6] | 520 | 0.553 | 0.604 (314/520) | +0.051 |
+| (0.6, 0.7] | 618 | 0.650 | 0.696 (430/618) | +0.046 |
+| (0.7, 0.8] | 698 | 0.750 | 0.792 (553/698) | +0.042 |
+| (0.8, 0.9] | 842 | 0.853 | 0.892 (751/842) | +0.039 |
+| (0.9, 1.0] | 2969 | 0.976 | 0.985 (2924/2969) | +0.009 |
+
+### Bins: queue
+
+| bin | n | mean confidence | accuracy | gap |
+|---|---|---|---|---|
+| (0.0, 0.1] | 0 | | | |
+| (0.1, 0.2] | 30 | 0.185 | 0.167 (5/30) | -0.019 |
+| (0.2, 0.3] | 818 | 0.261 | 0.292 (239/818) | +0.031 |
+| (0.3, 0.4] | 1418 | 0.350 | 0.409 (580/1418) | +0.059 |
+| (0.4, 0.5] | 1215 | 0.447 | 0.558 (678/1215) | +0.111 |
+| (0.5, 0.6] | 765 | 0.547 | 0.671 (513/765) | +0.124 |
+| (0.6, 0.7] | 534 | 0.647 | 0.768 (410/534) | +0.121 |
+| (0.7, 0.8] | 364 | 0.746 | 0.843 (307/364) | +0.097 |
+| (0.8, 0.9] | 171 | 0.846 | 0.906 (155/171) | +0.060 |
+| (0.9, 1.0] | 400 | 0.972 | 0.998 (399/400) | +0.026 |
+
+### Bins: priority
+
+| bin | n | mean confidence | accuracy | gap |
+|---|---|---|---|---|
+| (0.0, 0.1] | 0 | | | |
+| (0.1, 0.2] | 0 | | | |
+| (0.2, 0.3] | 0 | | | |
+| (0.3, 0.4] | 204 | 0.378 | 0.373 (76/204) | -0.005 |
+| (0.4, 0.5] | 988 | 0.456 | 0.442 (437/988) | -0.014 |
+| (0.5, 0.6] | 1283 | 0.550 | 0.546 (701/1283) | -0.003 |
+| (0.6, 0.7] | 1170 | 0.650 | 0.675 (790/1170) | +0.025 |
+| (0.7, 0.8] | 1006 | 0.749 | 0.765 (770/1006) | +0.017 |
+| (0.8, 0.9] | 733 | 0.847 | 0.827 (606/733) | -0.020 |
+| (0.9, 1.0] | 331 | 0.937 | 0.876 (290/331) | -0.060 |
+
+### ECE by language detected from the body
+
+| language | n | type ECE | queue ECE | priority ECE |
+|---|---|---|---|---|
+| en | 3937 | 0.031 | 0.102 | 0.040 |
+| de | 1770 | 0.014 | 0.035 | 0.082 |
+| other | 8 | 0.225 | 0.361 | 0.169 |
 
 ## By language detected from the body
 

@@ -1,0 +1,1597 @@
+{
+  "meta": {
+    "run_name": "majority_no_twins",
+    "predictions_path": "data/predictions/majority.parquet",
+    "predictions_sha256": "568ec78e1763012713346071c34db9f74ad4d9dd9e39042d15b508792d1a696d",
+    "rows": 5715,
+    "scored_at": "2026-11-21T16:20:46Z",
+    "git_commit": "c98c534-dirty",
+    "optional_columns": [],
+    "exclude_ids_path": "reports/twin_holdout_ids.txt",
+    "excluded_ids": 520
+  },
+  "full": {
+    "n": 5715,
+    "targets": {
+      "type": {
+        "macro_f1": 0.1444126431060229,
+        "accuracy": {
+          "value": 0.4061242344706912,
+          "num": 2321,
+          "den": 5715
+        },
+        "majority_label": "Incident",
+        "majority_macro_f1": 0.1444126431060229,
+        "majority_accuracy": {
+          "value": 0.4061242344706912,
+          "num": 2321,
+          "den": 5715
+        },
+        "per_class": {
+          "Change": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 567
+            },
+            "f1": 0.0,
+            "support": 567
+          },
+          "Incident": {
+            "precision": {
+              "value": 0.4061242344706912,
+              "num": 2321,
+              "den": 5715
+            },
+            "recall": {
+              "value": 1.0,
+              "num": 2321,
+              "den": 2321
+            },
+            "f1": 0.5776505724240916,
+            "support": 2321
+          },
+          "Problem": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 1168
+            },
+            "f1": 0.0,
+            "support": 1168
+          },
+          "Request": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 1659
+            },
+            "f1": 0.0,
+            "support": 1659
+          }
+        },
+        "confusion": {
+          "labels": [
+            "Change",
+            "Incident",
+            "Problem",
+            "Request"
+          ],
+          "matrix": [
+            [
+              0,
+              567,
+              0,
+              0
+            ],
+            [
+              0,
+              2321,
+              0,
+              0
+            ],
+            [
+              0,
+              1168,
+              0,
+              0
+            ],
+            [
+              0,
+              1659,
+              0,
+              0
+            ]
+          ]
+        }
+      },
+      "queue": {
+        "macro_f1": 0.04601912973191432,
+        "accuracy": {
+          "value": 0.2988626421697288,
+          "num": 1708,
+          "den": 5715
+        },
+        "majority_label": "Technical Support",
+        "majority_macro_f1": 0.04601912973191432,
+        "majority_accuracy": {
+          "value": 0.2988626421697288,
+          "num": 1708,
+          "den": 5715
+        },
+        "per_class": {
+          "Billing and Payments": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 568
+            },
+            "f1": 0.0,
+            "support": 568
+          },
+          "Customer Service": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 840
+            },
+            "f1": 0.0,
+            "support": 840
+          },
+          "General Inquiry": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 77
+            },
+            "f1": 0.0,
+            "support": 77
+          },
+          "Human Resources": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 115
+            },
+            "f1": 0.0,
+            "support": 115
+          },
+          "IT Support": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 654
+            },
+            "f1": 0.0,
+            "support": 654
+          },
+          "Product Support": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 1020
+            },
+            "f1": 0.0,
+            "support": 1020
+          },
+          "Returns and Exchanges": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 315
+            },
+            "f1": 0.0,
+            "support": 315
+          },
+          "Sales and Pre-Sales": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 193
+            },
+            "f1": 0.0,
+            "support": 193
+          },
+          "Service Outages and Maintenance": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 225
+            },
+            "f1": 0.0,
+            "support": 225
+          },
+          "Technical Support": {
+            "precision": {
+              "value": 0.2988626421697288,
+              "num": 1708,
+              "den": 5715
+            },
+            "recall": {
+              "value": 1.0,
+              "num": 1708,
+              "den": 1708
+            },
+            "f1": 0.4601912973191432,
+            "support": 1708
+          }
+        },
+        "confusion": {
+          "labels": [
+            "Billing and Payments",
+            "Customer Service",
+            "General Inquiry",
+            "Human Resources",
+            "IT Support",
+            "Product Support",
+            "Returns and Exchanges",
+            "Sales and Pre-Sales",
+            "Service Outages and Maintenance",
+            "Technical Support"
+          ],
+          "matrix": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              568
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              840
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              77
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              115
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              654
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1020
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              315
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              193
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              225
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1708
+            ]
+          ]
+        }
+      },
+      "priority": {
+        "macro_f1": 0.19112997170910304,
+        "accuracy": {
+          "value": 0.4019247594050744,
+          "num": 2297,
+          "den": 5715
+        },
+        "majority_label": "medium",
+        "majority_macro_f1": 0.19112997170910304,
+        "majority_accuracy": {
+          "value": 0.4019247594050744,
+          "num": 2297,
+          "den": 5715
+        },
+        "per_class": {
+          "high": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 2294
+            },
+            "f1": 0.0,
+            "support": 2294
+          },
+          "low": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 1124
+            },
+            "f1": 0.0,
+            "support": 1124
+          },
+          "medium": {
+            "precision": {
+              "value": 0.4019247594050744,
+              "num": 2297,
+              "den": 5715
+            },
+            "recall": {
+              "value": 1.0,
+              "num": 2297,
+              "den": 2297
+            },
+            "f1": 0.5733899151273091,
+            "support": 2297
+          }
+        },
+        "confusion": {
+          "labels": [
+            "high",
+            "low",
+            "medium"
+          ],
+          "matrix": [
+            [
+              0,
+              0,
+              2294
+            ],
+            [
+              0,
+              0,
+              1124
+            ],
+            [
+              0,
+              0,
+              2297
+            ]
+          ]
+        }
+      }
+    },
+    "outage": {
+      "definition": "type == Incident AND priority == high",
+      "gold_events": 1047,
+      "rules": {
+        "type_and_priority": {
+          "flagged": 0,
+          "precision": {
+            "value": null,
+            "num": 0,
+            "den": 0
+          },
+          "recall": {
+            "value": 0.0,
+            "num": 0,
+            "den": 1047
+          }
+        },
+        "priority_only": {
+          "flagged": 0,
+          "precision": {
+            "value": null,
+            "num": 0,
+            "den": 0
+          },
+          "recall": {
+            "value": 0.0,
+            "num": 0,
+            "den": 1047
+          }
+        }
+      }
+    },
+    "by_detected_language": {
+      "en": {
+        "n": 3937,
+        "macro_f1": {
+          "type": 0.14646192528735633,
+          "queue": 0.04671987541366556,
+          "priority": 0.18875940762320953
+        },
+        "accuracy": {
+          "type": {
+            "value": 0.4142748285496571,
+            "num": 1631,
+            "den": 3937
+          },
+          "queue": {
+            "value": 0.3048006096012192,
+            "num": 1200,
+            "den": 3937
+          },
+          "priority": {
+            "value": 0.39497078994157986,
+            "num": 1555,
+            "den": 3937
+          }
+        },
+        "outage": {
+          "type_and_priority": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 722
+            }
+          },
+          "priority_only": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 722
+            }
+          }
+        }
+      },
+      "de": {
+        "n": 1770,
+        "macro_f1": {
+          "type": 0.1395112016293279,
+          "queue": 0.044463971880492094,
+          "priority": 0.19635977148930517
+        },
+        "accuracy": {
+          "type": {
+            "value": 0.3870056497175141,
+            "num": 685,
+            "den": 1770
+          },
+          "queue": {
+            "value": 0.2858757062146893,
+            "num": 506,
+            "den": 1770
+          },
+          "priority": {
+            "value": 0.4175141242937853,
+            "num": 739,
+            "den": 1770
+          }
+        },
+        "outage": {
+          "type_and_priority": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 323
+            }
+          },
+          "priority_only": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 323
+            }
+          }
+        }
+      },
+      "other": {
+        "n": 8,
+        "macro_f1": {
+          "type": 0.25641025641025644,
+          "queue": 0.08,
+          "priority": 0.1818181818181818
+        },
+        "accuracy": {
+          "type": {
+            "value": 0.625,
+            "num": 5,
+            "den": 8
+          },
+          "queue": {
+            "value": 0.25,
+            "num": 2,
+            "den": 8
+          },
+          "priority": {
+            "value": 0.375,
+            "num": 3,
+            "den": 8
+          }
+        },
+        "outage": {
+          "type_and_priority": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 2
+            }
+          },
+          "priority_only": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 2
+            }
+          }
+        }
+      }
+    },
+    "by_language_label": {
+      "en": {
+        "n": 3284,
+        "macro_f1": {
+          "type": 0.14312106063899152,
+          "queue": 0.0459300961764016,
+          "priority": 0.18885493961879818
+        },
+        "accuracy": {
+          "type": {
+            "value": 0.4010353227771011,
+            "num": 1317,
+            "den": 3284
+          },
+          "queue": {
+            "value": 0.2981120584652862,
+            "num": 979,
+            "den": 3284
+          },
+          "priority": {
+            "value": 0.39524969549330086,
+            "num": 1298,
+            "den": 3284
+          }
+        },
+        "outage": {
+          "type_and_priority": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 594
+            }
+          },
+          "priority_only": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 594
+            }
+          }
+        }
+      },
+      "de": {
+        "n": 2431,
+        "macro_f1": {
+          "type": 0.14614264919941775,
+          "queue": 0.046139240506329116,
+          "priority": 0.19416909620991255
+        },
+        "accuracy": {
+          "type": {
+            "value": 0.4129987659399424,
+            "num": 1004,
+            "den": 2431
+          },
+          "queue": {
+            "value": 0.29987659399424105,
+            "num": 729,
+            "den": 2431
+          },
+          "priority": {
+            "value": 0.4109419991772933,
+            "num": 999,
+            "den": 2431
+          }
+        },
+        "outage": {
+          "type_and_priority": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 453
+            }
+          },
+          "priority_only": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 453
+            }
+          }
+        }
+      },
+      "other": {
+        "n": 0
+      }
+    }
+  },
+  "excluded": {
+    "n": 5195,
+    "targets": {
+      "type": {
+        "macro_f1": 0.1462135657858894,
+        "accuracy": {
+          "value": 0.4132820019249278,
+          "num": 2147,
+          "den": 5195
+        },
+        "majority_label": "Incident",
+        "majority_macro_f1": 0.1462135657858894,
+        "majority_accuracy": {
+          "value": 0.4132820019249278,
+          "num": 2147,
+          "den": 5195
+        },
+        "per_class": {
+          "Change": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 505
+            },
+            "f1": 0.0,
+            "support": 505
+          },
+          "Incident": {
+            "precision": {
+              "value": 0.4132820019249278,
+              "num": 2147,
+              "den": 5195
+            },
+            "recall": {
+              "value": 1.0,
+              "num": 2147,
+              "den": 2147
+            },
+            "f1": 0.5848542631435576,
+            "support": 2147
+          },
+          "Problem": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 1070
+            },
+            "f1": 0.0,
+            "support": 1070
+          },
+          "Request": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 1473
+            },
+            "f1": 0.0,
+            "support": 1473
+          }
+        },
+        "confusion": {
+          "labels": [
+            "Change",
+            "Incident",
+            "Problem",
+            "Request"
+          ],
+          "matrix": [
+            [
+              0,
+              505,
+              0,
+              0
+            ],
+            [
+              0,
+              2147,
+              0,
+              0
+            ],
+            [
+              0,
+              1070,
+              0,
+              0
+            ],
+            [
+              0,
+              1473,
+              0,
+              0
+            ]
+          ]
+        }
+      },
+      "queue": {
+        "macro_f1": 0.046551469502289174,
+        "accuracy": {
+          "value": 0.3033686236766121,
+          "num": 1576,
+          "den": 5195
+        },
+        "majority_label": "Technical Support",
+        "majority_macro_f1": 0.046551469502289174,
+        "majority_accuracy": {
+          "value": 0.3033686236766121,
+          "num": 1576,
+          "den": 5195
+        },
+        "per_class": {
+          "Billing and Payments": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 501
+            },
+            "f1": 0.0,
+            "support": 501
+          },
+          "Customer Service": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 754
+            },
+            "f1": 0.0,
+            "support": 754
+          },
+          "General Inquiry": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 74
+            },
+            "f1": 0.0,
+            "support": 74
+          },
+          "Human Resources": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 97
+            },
+            "f1": 0.0,
+            "support": 97
+          },
+          "IT Support": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 592
+            },
+            "f1": 0.0,
+            "support": 592
+          },
+          "Product Support": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 936
+            },
+            "f1": 0.0,
+            "support": 936
+          },
+          "Returns and Exchanges": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 281
+            },
+            "f1": 0.0,
+            "support": 281
+          },
+          "Sales and Pre-Sales": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 177
+            },
+            "f1": 0.0,
+            "support": 177
+          },
+          "Service Outages and Maintenance": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 207
+            },
+            "f1": 0.0,
+            "support": 207
+          },
+          "Technical Support": {
+            "precision": {
+              "value": 0.3033686236766121,
+              "num": 1576,
+              "den": 5195
+            },
+            "recall": {
+              "value": 1.0,
+              "num": 1576,
+              "den": 1576
+            },
+            "f1": 0.4655146950228917,
+            "support": 1576
+          }
+        },
+        "confusion": {
+          "labels": [
+            "Billing and Payments",
+            "Customer Service",
+            "General Inquiry",
+            "Human Resources",
+            "IT Support",
+            "Product Support",
+            "Returns and Exchanges",
+            "Sales and Pre-Sales",
+            "Service Outages and Maintenance",
+            "Technical Support"
+          ],
+          "matrix": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              501
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              754
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              74
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              97
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              592
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              936
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              281
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              177
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              207
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1576
+            ]
+          ]
+        }
+      },
+      "priority": {
+        "macro_f1": 0.19171695008228196,
+        "accuracy": {
+          "value": 0.40365736284889314,
+          "num": 2097,
+          "den": 5195
+        },
+        "majority_label": "medium",
+        "majority_macro_f1": 0.19171695008228196,
+        "majority_accuracy": {
+          "value": 0.40365736284889314,
+          "num": 2097,
+          "den": 5195
+        },
+        "per_class": {
+          "high": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 2090
+            },
+            "f1": 0.0,
+            "support": 2090
+          },
+          "low": {
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 1008
+            },
+            "f1": 0.0,
+            "support": 1008
+          },
+          "medium": {
+            "precision": {
+              "value": 0.40365736284889314,
+              "num": 2097,
+              "den": 5195
+            },
+            "recall": {
+              "value": 1.0,
+              "num": 2097,
+              "den": 2097
+            },
+            "f1": 0.5751508502468459,
+            "support": 2097
+          }
+        },
+        "confusion": {
+          "labels": [
+            "high",
+            "low",
+            "medium"
+          ],
+          "matrix": [
+            [
+              0,
+              0,
+              2090
+            ],
+            [
+              0,
+              0,
+              1008
+            ],
+            [
+              0,
+              0,
+              2097
+            ]
+          ]
+        }
+      }
+    },
+    "outage": {
+      "definition": "type == Incident AND priority == high",
+      "gold_events": 967,
+      "rules": {
+        "type_and_priority": {
+          "flagged": 0,
+          "precision": {
+            "value": null,
+            "num": 0,
+            "den": 0
+          },
+          "recall": {
+            "value": 0.0,
+            "num": 0,
+            "den": 967
+          }
+        },
+        "priority_only": {
+          "flagged": 0,
+          "precision": {
+            "value": null,
+            "num": 0,
+            "den": 0
+          },
+          "recall": {
+            "value": 0.0,
+            "num": 0,
+            "den": 967
+          }
+        }
+      }
+    },
+    "by_detected_language": {
+      "en": {
+        "n": 3436,
+        "macro_f1": {
+          "type": 0.14945929402162825,
+          "queue": 0.04752607055691147,
+          "priority": 0.18944444444444444
+        },
+        "accuracy": {
+          "type": {
+            "value": 0.42636786961583234,
+            "num": 1465,
+            "den": 3436
+          },
+          "queue": {
+            "value": 0.3116996507566938,
+            "num": 1071,
+            "den": 3436
+          },
+          "priority": {
+            "value": 0.3969732246798603,
+            "num": 1364,
+            "den": 3436
+          }
+        },
+        "outage": {
+          "type_and_priority": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 645
+            }
+          },
+          "priority_only": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 645
+            }
+          }
+        }
+      },
+      "de": {
+        "n": 1753,
+        "macro_f1": {
+          "type": 0.1395970394736842,
+          "queue": 0.04466105449712007,
+          "priority": 0.19599946301516982
+        },
+        "accuracy": {
+          "type": {
+            "value": 0.38733599543639474,
+            "num": 679,
+            "den": 1753
+          },
+          "queue": {
+            "value": 0.2875071306332002,
+            "num": 504,
+            "den": 1753
+          },
+          "priority": {
+            "value": 0.41642897889332575,
+            "num": 730,
+            "den": 1753
+          }
+        },
+        "outage": {
+          "type_and_priority": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 320
+            }
+          },
+          "priority_only": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 320
+            }
+          }
+        }
+      },
+      "other": {
+        "n": 6,
+        "macro_f1": {
+          "type": 0.2222222222222222,
+          "queue": 0.05714285714285714,
+          "priority": 0.3333333333333333
+        },
+        "accuracy": {
+          "type": {
+            "value": 0.5,
+            "num": 3,
+            "den": 6
+          },
+          "queue": {
+            "value": 0.16666666666666666,
+            "num": 1,
+            "den": 6
+          },
+          "priority": {
+            "value": 0.5,
+            "num": 3,
+            "den": 6
+          }
+        },
+        "outage": {
+          "type_and_priority": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 2
+            }
+          },
+          "priority_only": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 2
+            }
+          }
+        }
+      }
+    },
+    "by_language_label": {
+      "en": {
+        "n": 2791,
+        "macro_f1": {
+          "type": 0.14644033443121357,
+          "queue": 0.046858710562414266,
+          "priority": 0.1899393628832522
+        },
+        "accuracy": {
+          "type": {
+            "value": 0.4141884629165174,
+            "num": 1156,
+            "den": 2791
+          },
+          "queue": {
+            "value": 0.3059835184521677,
+            "num": 854,
+            "den": 2791
+          },
+          "priority": {
+            "value": 0.39842350412038696,
+            "num": 1112,
+            "den": 2791
+          }
+        },
+        "outage": {
+          "type_and_priority": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 519
+            }
+          },
+          "priority_only": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 519
+            }
+          }
+        }
+      },
+      "de": {
+        "n": 2404,
+        "macro_f1": {
+          "type": 0.1459499263622975,
+          "queue": 0.04619321817018554,
+          "priority": 0.19376413888069244
+        },
+        "accuracy": {
+          "type": {
+            "value": 0.41222961730449253,
+            "num": 991,
+            "den": 2404
+          },
+          "queue": {
+            "value": 0.3003327787021631,
+            "num": 722,
+            "den": 2404
+          },
+          "priority": {
+            "value": 0.4097337770382696,
+            "num": 985,
+            "den": 2404
+          }
+        },
+        "outage": {
+          "type_and_priority": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 448
+            }
+          },
+          "priority_only": {
+            "flagged": 0,
+            "precision": {
+              "value": null,
+              "num": 0,
+              "den": 0
+            },
+            "recall": {
+              "value": 0.0,
+              "num": 0,
+              "den": 448
+            }
+          }
+        }
+      },
+      "other": {
+        "n": 0
+      }
+    }
+  }
+}
