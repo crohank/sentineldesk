@@ -2,6 +2,8 @@
 
 Multilingual (en/de) ticket triage, escalation gate, and precedent-grounded reply drafting over the [Customer Support Tickets dataset](https://huggingface.co/datasets/Tobi-Bueck/customer-support-tickets) (CC-BY-NC-4.0).
 
+**Live demo:** [sentineldesk-wwnd44xj6q-uc.a.run.app](https://sentineldesk-wwnd44xj6q-uc.a.run.app) (console and API on Cloud Run)
+
 ## Setup
 
 ```bash
