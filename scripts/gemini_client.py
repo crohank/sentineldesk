@@ -12,8 +12,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shutil
 import subprocess
-import sys
 import threading
 import time
 import urllib.error
@@ -70,14 +70,25 @@ def get_json(url: str, headers: dict, timeout: float = 30) -> dict:
         raise GeminiError(f"HTTP {e.code}: {e.read()[:400]!r}") from e
 
 
+def gcloud_path() -> str:
+    found = shutil.which("gcloud.cmd") or shutil.which("gcloud")
+    if found:
+        return found
+    # winget installs per user and the PATH change only reaches shells started afterwards.
+    default = Path(os.environ.get("LOCALAPPDATA", "")) / "Google/Cloud SDK/google-cloud-sdk/bin/gcloud.cmd"
+    if default.exists():
+        return str(default)
+    raise GeminiError("gcloud not found; install the Google Cloud CLI or set GOOGLE_ACCESS_TOKEN")
+
+
 def vertex_token() -> str:
     if os.environ.get("GOOGLE_ACCESS_TOKEN"):
         return os.environ["GOOGLE_ACCESS_TOKEN"]
     try:
-        return subprocess.run(["gcloud", "auth", "print-access-token"], capture_output=True,
-                              text=True, check=True, shell=sys.platform == "win32").stdout.strip()
+        return subprocess.run([gcloud_path(), "auth", "print-access-token"], capture_output=True,
+                              text=True, check=True).stdout.strip()
     except (OSError, subprocess.CalledProcessError) as e:
-        raise GeminiError("set GOOGLE_ACCESS_TOKEN or install and log in to gcloud") from e
+        raise GeminiError("gcloud auth print-access-token failed; run `gcloud.cmd auth login`") from e
 
 
 class GeminiClient:
