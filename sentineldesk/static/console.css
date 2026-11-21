@@ -498,3 +498,7 @@ mark { background: var(--highlight); color: inherit; padding: 0.05em 0.15em; bor
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+.case-labels { display: flex; flex-wrap: wrap; gap: .5rem 1rem; margin: .5rem 0; }
+.case-labels dt { font-size: .75rem; color: var(--on-surface-variant); }
+.case-labels dd { margin: 0; overflow-wrap: anywhere; }

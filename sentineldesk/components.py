@@ -109,20 +109,30 @@ def managed_components() -> Components:
     from .safety.config import DEFAULT_CONFIG
     from .safety.drafting import draft_template
     from .safety.gate import gate
-    from .safety.pii import mask_ticket
+    from .safety.pii import mask_pii, mask_ticket
     from .safety.validation import validate
 
     store = AgentRetrieval()
     data_dir = Path(os.environ.get("SENTINELDESK_DATA_DIR", "data/processed"))
     model = os.environ.get("SENTINELDESK_TRIAGE_MODEL", "gemini-3.8-flash")
-    classifier = GeminiTriage(store, data_dir, model)
+    gemini = GeminiTriage(store, data_dir, model)
     from .hybrid import HybridTriage
     from .search_snapshot import SearchSnapshot
     bundle = Path(os.environ.get("SENTINELDESK_MODEL_DIR", "artifacts/fast_path"))
     store.snapshot = SearchSnapshot(bundle, data_dir)
-    classifier = HybridTriage(classifier, bundle)
+    classifier = HybridTriage(gemini, bundle)
     config = replace(DEFAULT_CONFIG, retrieval_backend="dense")
     detect_language_langdetect(MaskedTicket("", "Warm up the language profiles at startup."))
+
+    def retrieve(ticket, k):
+        matches = store.retrieve(ticket, k)
+        for match in matches:
+            row = gemini.fit.loc[match.ticket_id]
+            match.body = mask_pii(row["body"]).text
+            match.type = row["type"]
+            match.queue = row["queue"]
+            match.priority = row["priority"]
+        return matches
 
     def decide(ticket, language, triage, precedents):
         result = gate(ticket, language, triage, precedents, config=config)
@@ -140,7 +150,7 @@ def managed_components() -> Components:
         mask=mask_ticket,
         detect_language=detect_language_langdetect,
         triage=None,
-        retrieve=store.retrieve,
+        retrieve=retrieve,
         gate=decide,
         draft=generate,
         validate=None,

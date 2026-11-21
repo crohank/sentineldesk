@@ -214,6 +214,16 @@
       </div>
       <div class="score-bar"><span style="width: {{ (p.score / max_score * 100) | round(1) }}%"></span></div>
       <div class="card-subject">{{ p.subject }}</div>
+      {% if p.type or p.queue or p.priority %}
+      <dl class="case-labels">
+        {% for label, value in [("Type", p.type), ("Queue", p.queue), ("Priority", p.priority)] %}
+        {% if value %}<div><dt>{{ label }}</dt><dd>{{ value }}</dd></div>{% endif %}
+        {% endfor %}
+      </dl>
+      {% endif %}
+      {% if p.body %}
+      <details><summary>Historical ticket body</summary><p class="snippet">{{ p.body }}</p></details>
+      {% endif %}
       <details{% if cited %} open{% endif %}>
         <summary>historical answer</summary>
         <p class="snippet">{{ p.answer_snippet | highlight(spans_by_id.get(p.ticket_id, [])) }}</p>

@@ -64,6 +64,10 @@ class Precedent(_Model):
     ticket_id: str = Field(pattern=r"^TKT-\d{5}$")
     score: float
     subject: str
+    body: str | None = None
+    type: str | None = None
+    queue: str | None = None
+    priority: str | None = None
     answer_snippet: str = Field(description="Redacted excerpt of the historical answer.")
     answer_language: str = Field(description="Detected from the answer text, not the metadata column.")
 
