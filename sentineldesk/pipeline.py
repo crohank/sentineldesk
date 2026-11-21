@@ -55,14 +55,15 @@ class Components:
     detect_language: Callable[[MaskedTicket], str]
     triage: Callable[[MaskedTicket], Triage] | None
     retrieve: Callable[[MaskedTicket, int], list[Precedent]]
-    gate: Callable[[MaskedTicket, str, Triage, list[Precedent]], Decision]
-    draft: Callable[[MaskedTicket, str, list[Precedent]], Draft] | None
+    gate: Callable[[MaskedTicket, str, Triage | None, list[Precedent]], Decision]
+    draft: Callable[[MaskedTicket, str, list[Precedent]], Draft | tuple[Draft, GeneratorMode]]
     validate: Callable[[Draft, str, list[Precedent]], Validation] | None
     release_id: str
     retrieval_mode: RetrievalMode
     generator_mode: GeneratorMode
     artifacts: dict[str, bool]
     triage_with_precedents: Callable[[MaskedTicket, list[Precedent]], Triage] | None = None
+    validate_with_ticket: Callable[[MaskedTicket, Draft, str, list[Precedent]], Validation] | None = None
 
 
 def has_usable_text(body: str) -> bool:
@@ -152,21 +153,27 @@ def analyze(
             except Exception as exc:
                 log.error("managed triage failed request_id=%s error=%s", request_id, type(exc).__name__)
 
+        decision = clock.run("gate", c.gate, masked, language, triage, precedents)
         if triage is None:
-            decision = Decision(
-                status="review",
-                destination="human_review",
-                reasons=[Reason(code="TRIAGE_UNAVAILABLE", message="Managed triage is unavailable. Review this ticket manually.")],
-            )
-        else:
-            decision = clock.run("gate", c.gate, masked, language, triage, precedents)
+            reason = Reason(code="TRIAGE_UNAVAILABLE", message="Managed triage is unavailable.")
+            if decision.status == "draft_ready":
+                decision = Decision(status="review", destination="human_review", reasons=[reason])
+            else:
+                decision.reasons.append(reason)
 
         if decision.status == "draft_ready":
             generator_mode = c.generator_mode
             candidate: Draft | None = None
             try:
-                candidate = clock.run("generation", c.draft, masked, language, precedents)
-                validation = clock.run("validation", c.validate, candidate, language, precedents)
+                generated = clock.run("generation", c.draft, masked, language, precedents)
+                if isinstance(generated, tuple):
+                    candidate, generator_mode = generated
+                else:
+                    candidate = generated
+                if c.validate_with_ticket is not None:
+                    validation = clock.run("validation", c.validate_with_ticket, masked, candidate, language, precedents)
+                else:
+                    validation = clock.run("validation", c.validate, candidate, language, precedents)
                 errors = list(validation.errors) + citation_errors(candidate, precedents)
                 failed = candidate.abstain or not validation.valid or bool(errors)
             except Exception as exc:  # rule 9: a generator or validator failure is a review, not a 500

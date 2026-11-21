@@ -98,7 +98,8 @@ def validate(draft, language, precedents, *, ticket=None, config: SafetyConfig =
             errors.append(f"unsupported sentence: {sentence[:60]}")
             continue
         low = span.lower()
-        errors += [f"number not in evidence: {n}" for n in _NUMBER.findall(sentence) if n not in span]
+        evidence_numbers = set(_NUMBER.findall(span))
+        errors += [f"number not in evidence: {n}" for n in _NUMBER.findall(sentence) if n not in evidence_numbers]
         errors += [f"unit not in evidence: {u}" for u in _UNIT.findall(sentence) if u.lower() not in low]
         errors += [f"qualifier not in evidence: {q}" for q in _QUALIFIER.findall(sentence) if q.lower() not in low]
         errors += [f"commitment not in evidence: {m.group(0)}" for m in COMMITMENT.finditer(sentence)

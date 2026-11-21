@@ -112,7 +112,9 @@ def gate(masked_ticket, language, triage, precedents, *, config: SafetyConfig = 
         # Rule 6: Incident and high both likely, even as runner-up labels.
         p_incident, p_high = _prob(triage.type, "Incident"), _prob(triage.priority, "high")
         min_incident, min_high = config.outage_pair
-        if not incident_high and p_incident >= min_incident and p_high >= min_high:
+        calibrated = all(getattr(getattr(triage, h), "calibrated", None) is not False
+                         for h in ("type", "priority"))
+        if calibrated and not incident_high and p_incident >= min_incident and p_high >= min_high:
             reasons.append(c.Reason(
                 code=c.OUTAGE_RISK,
                 message=f"Potential high-priority Incident: P(Incident) {p_incident:.2f}, P(high) {p_high:.2f}, "

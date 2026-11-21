@@ -101,36 +101,51 @@ def load_components() -> Components:
 
 
 def managed_components() -> Components:
+    from dataclasses import asdict, replace
     from pathlib import Path
 
     from .agent_retrieval import AgentRetrieval
     from .gemini_triage import GeminiTriage
+    from .safety.config import DEFAULT_CONFIG
+    from .safety.drafting import draft_with_mode
+    from .safety.gate import gate
     from .safety.pii import mask_ticket
-    from .schemas import Reason
+    from .safety.validation import validate
 
     store = AgentRetrieval()
     data_dir = Path(os.environ.get("SENTINELDESK_DATA_DIR", "data/processed"))
     model = os.environ.get("SENTINELDESK_TRIAGE_MODEL", "gemini-3.8-flash")
     classifier = GeminiTriage(store, data_dir, model)
+    generator = os.environ.get("SENTINELDESK_GENERATOR", "offline_templates")
+    if generator not in ("offline_templates", "gemma"):
+        raise ValueError("SENTINELDESK_GENERATOR must be offline_templates or gemma")
+    config = replace(DEFAULT_CONFIG, retrieval_backend="dense")
+    detect_language_langdetect(MaskedTicket("", "Warm up the language profiles at startup."))
 
-    def review(ticket, language, triage, precedents):
-        return Decision(
-            status="review",
-            destination="human_review",
-            reasons=[Reason(code="OPERATOR_REVIEW", message="Review the classification and precedents.")],
-        )
+    def decide(ticket, language, triage, precedents):
+        result = gate(ticket, language, triage, precedents, config=config)
+        return Decision.model_validate(asdict(result))
+
+    def generate(ticket, language, precedents):
+        result, actual_mode = draft_with_mode(ticket, language, precedents, config=config, generator=generator)
+        return Draft.model_validate(asdict(result)), actual_mode
+
+    def verify(ticket, draft, language, precedents):
+        result = validate(draft, language, precedents, ticket=ticket, config=config)
+        return Validation.model_validate(asdict(result))
 
     return Components(
         mask=mask_ticket,
         detect_language=detect_language_langdetect,
         triage=None,
         retrieve=store.retrieve,
-        gate=review,
-        draft=None,
+        gate=decide,
+        draft=generate,
         validate=None,
         release_id=os.environ.get("SENTINELDESK_RELEASE_ID", "managed-triage"),
         retrieval_mode="agent_retrieval",
-        generator_mode="none",
-        artifacts={"training_examples": True, "drafting": False},
+        generator_mode=generator,
+        artifacts={"training_examples": True, "drafting": True},
         triage_with_precedents=classifier.predict,
+        validate_with_ticket=verify,
     )

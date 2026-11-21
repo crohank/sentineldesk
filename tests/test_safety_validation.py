@@ -49,6 +49,11 @@ def test_changed_number_is_caught():
     assert "number not in evidence: 24" in errors(d)
 
 
+def test_number_cannot_match_a_substring_of_evidence_number():
+    d = model_draft("We usually reply within 4 hours.", "We usually reply within 48 hours.")
+    assert "number not in evidence: 4" in errors(d)
+
+
 def test_missing_qualifier_is_caught():
     d = model_draft("We guarantee a reply within 48 hours.", "We reply in up to 48 hours during holidays.")
     e = errors(d)

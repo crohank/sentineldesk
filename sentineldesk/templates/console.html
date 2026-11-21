@@ -70,7 +70,8 @@
       {% if comps.retrieval_mode == "agent_retrieval" %}
       <li><span class="step-dot green"></span><div><strong>Precedents.</strong> Agent Retrieval finds five similar tickets.</div></li>
       <li><span class="step-dot yellow"></span><div><strong>Triage.</strong> Gemini uses the five labeled examples to predict type, queue and priority.</div></li>
-      <li><span class="step-dot red"></span><div><strong>Operator review.</strong> Review the predictions and precedents before taking action.</div></li>
+      <li><span class="step-dot red"></span><div><strong>Safety gate.</strong> Escalates high-impact outages, routes sensitive requests for review, and checks evidence before drafting.</div></li>
+      <li><span class="step-dot blue"></span><div><strong>Grounded draft.</strong> The app checks every citation against the retrieved replies before showing a draft.</div></li>
       {% else %}
       <li><span class="step-dot yellow"></span><div><strong>Triage.</strong> Three calibrated heads predict type, queue and priority.</div></li>
       <li><span class="step-dot green"></span><div><strong>Precedents.</strong> Five similar historical tickets are retrieved, each with its answer.</div></li>
