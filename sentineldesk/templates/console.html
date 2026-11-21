@@ -108,7 +108,7 @@
       <span class="status">{{ d.status | replace("_", " ") }}</span>
       <span class="arrow">to</span>
       <span class="dest">{{ d.destination | replace("_", " ") }}</span>
-      <span class="pill quiet">language: {{ result.language }}</span>
+      <span class="pill quiet">language: {{ result.language | language_name }}</span>
     </div>
     {% if d.reasons %}
     <ul class="reasons">
@@ -209,7 +209,7 @@
       <div class="card-head">
         <span class="rank">{{ loop.index }}</span>
         <code>{{ p.ticket_id }}</code>
-        <span class="pill quiet">answer: {{ p.answer_language }}</span>
+        <span class="pill quiet">answer: {{ p.answer_language | language_name }}</span>
         {% if cited %}<span class="pill green">cited</span>{% endif %}
         <span class="score" title="similarity score">{{ "%.2f" | format(p.score) }}</span>
       </div>

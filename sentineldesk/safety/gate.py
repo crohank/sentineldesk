@@ -7,6 +7,7 @@ pipeline) so the gate is safe to call on its own. Rule 9 runs after drafting.
 """
 from __future__ import annotations
 
+from ..languages import language_name
 from . import contracts as c
 from .config import DEFAULT_CONFIG, SafetyConfig
 from .patterns import (
@@ -91,7 +92,7 @@ def gate(masked_ticket, language, triage, precedents, *, config: SafetyConfig = 
     # Rule 4: unsupported or undetermined language.
     lang = normalize_language(language)
     if lang not in SUPPORTED_LANGUAGES:
-        shown = "undetermined" if lang == "und" else lang
+        shown = "undetermined" if lang == "und" else f"{language_name(lang)} ({lang})"
         reasons.append(c.Reason(
             code=c.UNSUPPORTED_LANGUAGE,
             message=f"Detected language: {shown}. Drafts are written only in English or German.",

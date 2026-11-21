@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SentinelDesk Live Board</title>
+  <link rel="stylesheet" href="/static/console.css">
+  <link rel="stylesheet" href="/static/board.css">
+</head>
+<body class="board-page">
+<header class="board-top">
+  <div class="brand">
+    <a href="/" class="brand-link">SentinelDesk</a>
+    <span class="board-title">Live triage board</span>
+  </div>
+  <div class="modes">
+    <span class="chip" id="mode-retrieval">retrieval: {{ comps.retrieval_mode }}</span>
+    <span class="chip" id="mode-triage">triage: loading</span>
+    <span class="chip" id="feed-status">feed: loading</span>
+  </div>
+  <div class="controls">
+    <button id="btn-play" class="btn primary" disabled>Start stream</button>
+    <label class="speed">Every
+      <select id="speed">
+        <option value="3000">3 s</option>
+        <option value="1500" selected>1.5 s</option>
+        <option value="700">0.7 s</option>
+      </select>
+    </label>
+    <button id="btn-burst" class="btn danger" disabled>Simulate outage burst</button>
+    <button id="btn-reset" class="btn text">Reset</button>
+  </div>
+</header>
+
+<section id="incident-banner" class="incident-banner" hidden>
+  <div class="incident-pulse"></div>
+  <div class="incident-body">
+    <strong>Major incident detected</strong>
+    <span id="incident-text"></span>
+  </div>
+</section>
+
+<section class="kpis">
+  <div class="kpi"><span class="kpi-val" id="k-total">0</span><span class="kpi-label">tickets triaged</span></div>
+  <div class="kpi red"><span class="kpi-val" id="k-escalate">0</span><span class="kpi-label">on-call escalations</span></div>
+  <div class="kpi yellow"><span class="kpi-val" id="k-review">0</span><span class="kpi-label">human review</span></div>
+  <div class="kpi green"><span class="kpi-val" id="k-draft">0</span><span class="kpi-label">drafts ready</span></div>
+  <div class="kpi"><span class="kpi-val" id="k-acc">n/a</span><span class="kpi-label">queue label match</span></div>
+  <div class="kpi"><span class="kpi-val" id="k-ms">n/a</span><span class="kpi-label">median ms per ticket</span></div>
+</section>
+
+<main class="board-main">
+  <div class="lanes">
+    <section class="lane" data-lane="escalate"><h2><span class="dot red"></span>On-call <span class="count">0</span></h2><div class="cards"></div></section>
+    <section class="lane" data-lane="review"><h2><span class="dot yellow"></span>Human review <span class="count">0</span></h2><div class="cards"></div></section>
+    <section class="lane" data-lane="draft_ready"><h2><span class="dot green"></span>Draft ready <span class="count">0</span></h2><div class="cards"></div></section>
+    <section class="lane" data-lane="language_review"><h2><span class="dot blue"></span>Language / unreadable <span class="count">0</span></h2><div class="cards"></div></section>
+    <section class="lane" data-lane="needs_clarification"><h2><span class="dot grey"></span>Needs detail <span class="count">0</span></h2><div class="cards"></div></section>
+  </div>
+  <aside class="side">
+    <div class="panel-card">
+      <h3>Submit a ticket</h3>
+      <form id="compose" class="compose">
+        <input id="c-subject" placeholder="Subject (optional)" maxlength="200">
+        <textarea id="c-body" placeholder="Body" maxlength="4000"></textarea>
+        <div class="compose-row">
+          <button class="btn primary" type="submit">Send to board</button>
+          <button class="btn" type="button" id="btn-edge" disabled>Edge cases</button>
+        </div>
+      </form>
+    </div>
+    <div class="panel-card">
+      <h3>Queue load</h3>
+      <div id="queue-bars" class="bars"><p class="muted small">Waiting for tickets.</p></div>
+    </div>
+    <div class="panel-card">
+      <h3>Priority mix</h3>
+      <div id="prio-bars" class="bars"><p class="muted small">Waiting for tickets.</p></div>
+    </div>
+    <div class="panel-card">
+      <h3>Ticket detail</h3>
+      <div id="detail" class="detail"><p class="muted small">Click a card to see the ticket, the gate reasons and the known labels.</p></div>
+    </div>
+    <p class="muted small note">Feed replays KB validation tickets (labels known, never used to fit the board model).
+      The outage burst replays real tickets picked for similar wording and is marked SIMULATED.
+      Burst state lives in this one process for 10 minutes.</p>
+  </aside>
+</main>
+<script src="/static/board.js" defer></script>
+</body>
+</html>

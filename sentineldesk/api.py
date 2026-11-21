@@ -19,6 +19,12 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from pydantic import BaseModel
+
+from typing import Literal
+
+from .board import EDGE_CASES, Board
+from .languages import language_name
 from .components import FIXTURE_NAMES, load_components, load_fixture
 from .pipeline import Components, analyze
 from .schemas import AnalysisResult, Health, TicketInput
@@ -86,7 +92,16 @@ SAMPLES = (
 )
 SAMPLES_BY_KEY = {s.key: s for s in SAMPLES}
 
+class BoardItem(BaseModel):
+    ticket_id: str | None = None
+    subject: str = ""
+    body: str
+    simulated: bool = False
+    kind: Literal["feed", "burst", "edge", "manual"] = "feed"
+
+
 templates.env.filters["link_citations"] = _link_citations
+templates.env.filters["language_name"] = language_name
 templates.env.filters["highlight"] = _highlight
 
 
@@ -117,6 +132,37 @@ def create_app(components: Components | None = None) -> FastAPI:
         if name not in FIXTURE_NAMES:
             raise HTTPException(404, f"fixtures: {', '.join(FIXTURE_NAMES)}")
         return load_fixture(name)
+
+    board = Board(comps, Path(os.environ.get("SENTINELDESK_DATA_DIR", "data/processed")))
+
+    @app.get("/board", response_class=HTMLResponse)
+    def board_page(request: Request):
+        return templates.TemplateResponse(request, "board.html", {"comps": comps})
+
+    @app.get("/api/board/status")
+    def board_status():
+        return board.status()
+
+    @app.get("/api/board/next")
+    def board_next():
+        return board.next_ticket()
+
+    @app.post("/api/board/simulate")
+    def board_simulate():
+        return board.simulate_burst()
+
+    @app.post("/api/board/ingest")
+    def board_ingest(item: BoardItem):
+        return board.ingest(item.ticket_id, item.subject, item.body, item.simulated, item.kind)
+
+    @app.get("/api/board/edge-cases")
+    def board_edge_cases():
+        return [dict(e, kind="edge") for e in EDGE_CASES]
+
+    @app.post("/api/board/reset")
+    def board_reset():
+        board.reset()
+        return {"ok": True}
 
     @app.get("/", response_class=HTMLResponse)
     def console(request: Request, fixture: str | None = None, sample: str | None = None):
