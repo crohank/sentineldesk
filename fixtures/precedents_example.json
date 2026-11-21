@@ -1,0 +1,254 @@
+{
+  "_note": "Real output of the full-KB sparse index (D3-10). Fields follow PLAN.md Precedent. Scores are cosine similarity in [0, 1] and are only comparable within one retrieval mode. answer_snippet still contains dataset mask tokens such as <tel_num>; D4 decides how to render them. Full answers: Retriever.full_answer(ticket_id).",
+  "retrieval_mode": "sparse",
+  "index_manifest": {
+    "mode": "sparse",
+    "scope": "full",
+    "n_docs": 22852,
+    "first_id": "TKT-00000",
+    "last_id": "TKT-22856",
+    "word_vocab": 90180,
+    "char_vocab": 52953,
+    "build_seconds": 8.4,
+    "kb_sha256": "e7f5a0112bc3b4d40824502e6f4611ffbebbef3f64c460ba0f88376e00111a53",
+    "partition_file": null,
+    "excluded_empty_answers": 5
+  },
+  "cases": {
+    "routine_password_reset_en": {
+      "input": {
+        "subject": null,
+        "body": "I forgot my password and can still access my registered email. How can I reset my password for the customer portal?"
+      },
+      "detected_language": {
+        "code": "en",
+        "probability": 1.0
+      },
+      "precedents": [
+        {
+          "ticket_id": "TKT-17616",
+          "score": 0.2714,
+          "subject": "Problem with Account Access",
+          "answer_snippet": "Thank you for reaching out to us regarding the issue with accessing your account's billing payments. We are sorry to hear that you are experiencing these difficulties, especially after attempting a password reset and clearing your browser cache. To better assist you, could you please provide us …",
+          "answer_language": "en"
+        },
+        {
+          "ticket_id": "TKT-00899",
+          "score": 0.2339,
+          "subject": "Problem with Account Login",
+          "answer_snippet": "Thank you for reaching out to us regarding the issue with accessing your account's billing and payments. We are sorry to hear that you are experiencing difficulties, even after attempting a password reset and clearing your browser cache. To assist you further, could you please provide us with your …",
+          "answer_language": "en"
+        },
+        {
+          "ticket_id": "TKT-18593",
+          "score": 0.1891,
+          "subject": "Unable to Access the Account Management Portal",
+          "answer_snippet": "Thank you for reaching out to us regarding the difficulties in accessing the Account Management Portal. We appreciate your efforts in troubleshooting by clearing your browser cache, trying different devices, and resetting your password. Currently, there are known outages or maintenance activities …",
+          "answer_language": "en"
+        },
+        {
+          "ticket_id": "TKT-17249",
+          "score": 0.1774,
+          "subject": "",
+          "answer_snippet": "We appreciate the security measures that have been implemented, but we require assistance with the incident response. Please let us know how we can proceed with the next steps.",
+          "answer_language": "en"
+        },
+        {
+          "ticket_id": "TKT-20781",
+          "score": 0.176,
+          "subject": "HR Portal Access Problem",
+          "answer_snippet": "To assist with the HR portal access problem, please provide the employee's login details and the exact error message received. We will investigate further and contact <tel_num> if needed to resolve the issue promptly. Reference number: <acc_num>.",
+          "answer_language": "en"
+        }
+      ]
+    },
+    "outage_vpn_hospital_de": {
+      "input": {
+        "subject": "VPN-Ausfall im Krankenhaus",
+        "body": "Seit heute Morgen können sich alle Mitarbeitenden unserer Klinik nicht mehr per VPN verbinden. Telemedizin und der Zugriff auf die elektronische Patientenakte sind an allen Standorten ausgefallen."
+      },
+      "detected_language": {
+        "code": "de",
+        "probability": 1.0
+      },
+      "precedents": [
+        {
+          "ticket_id": "TKT-05677",
+          "score": 0.1783,
+          "subject": "Eilige Ausfallmeldung des Telemedizin-Services",
+          "answer_snippet": "Vielen Dank, dass Sie uns auf die dringende Störung aufmerksam gemacht haben. Wir verstehen die kritische Bedeutung der Telemedizin-Plattform und setzen alles daran, das Problem vorrangig zu behandeln. Unser Technikteam untersucht derzeit die Ursachen, einschließlich möglicher Netzwerk- oder …",
+          "answer_language": "de"
+        },
+        {
+          "ticket_id": "TKT-16649",
+          "score": 0.1652,
+          "subject": "Dringender Hinweis: Ausfall des Cloud SaaS-Services",
+          "answer_snippet": "Vielen Dank, dass Sie die Störung gemeldet haben. Unser Team untersucht momentan aktiv das Problem mit unserer Cloud SaaS-Plattform. Wir informieren Sie umgehend, sobald wir einen genauen Zeitrahmen für die Behebung haben. Bitte teilen Sie uns mit, welche Funktionen betroffen sind, damit wir …",
+          "answer_language": "de"
+        },
+        {
+          "ticket_id": "TKT-05004",
+          "score": 0.1526,
+          "subject": "Verlust von Patientendaten im Krankenhaus-System",
+          "answer_snippet": "Wir informieren uns über den vorliegenden Sachverhalt und werden unverzüglich Maßnahmen ergreifen, um die Software zu aktualisieren, das System sicherzustellen und weitere Datenverluste zu verhindern. Bitte kontaktieren Sie uns telefonisch unter <tel_num>, um weitere Diskussionen über …",
+          "answer_language": "de"
+        },
+        {
+          "ticket_id": "TKT-17908",
+          "score": 0.1478,
+          "subject": "Dienstunterbrechung",
+          "answer_snippet": "Ich danke Ihnen für die Meldung der Störung bei der Cloud SaaS-Plattform. Unser technisches Team untersucht derzeit aktiv die Ursachen der Ausfälle und der verzögerten Reaktionszeiten. Wir können momentan keinen genauen Zeitrahmen für die vollständige Behebung nennen, werden Sie jedoch umgehend …",
+          "answer_language": "de"
+        },
+        {
+          "ticket_id": "TKT-16906",
+          "score": 0.1474,
+          "subject": "Sperre im Krankenhaus-IT-System",
+          "answer_snippet": "Um die Sperre im Krankenhaus-IT-System zu untersuchen, kontaktieren Sie uns unter <tel_num>. Wir werden die weitere Vorgehensweise besprechen, einschließlich der Sicherung der medizinischen Akten und der Server-Konfiguration.",
+          "answer_language": "de"
+        }
+      ]
+    },
+    "refund_demand_en": {
+      "input": {
+        "subject": null,
+        "body": "Our service was interrupted. Confirm that we are entitled to a full refund and a guaranteed 25% SLA credit this month."
+      },
+      "detected_language": {
+        "code": "en",
+        "probability": 1.0
+      },
+      "precedents": [
+        {
+          "ticket_id": "TKT-21776",
+          "score": 0.1231,
+          "subject": "Disruption of SaaS Platform Service",
+          "answer_snippet": "We apologize for the disruption of our SaaS platform caused by server overload. The services have been restarted and are under observation to prevent future incidents.",
+          "answer_language": "en"
+        },
+        {
+          "ticket_id": "TKT-02167",
+          "score": 0.1225,
+          "subject": "Interruption in Data Analytics Platform",
+          "answer_snippet": "We acknowledge your email regarding the disruption in the data analytics platform. We are investigating the issue, particularly focusing on recent software updates as a possible cause. To assist you more effectively, could you please provide details of any error messages related to the software …",
+          "answer_language": "en"
+        },
+        {
+          "ticket_id": "TKT-20120",
+          "score": 0.1211,
+          "subject": "Message Regarding Service Interruptions",
+          "answer_snippet": "We apologize for the observed service interruptions, and note that several tools were impacted. Could you please provide more details, such as the timing of the interruptions and error messages received, to help us quickly investigate and resolve the issue? If necessary, please call at <tel_num> …",
+          "answer_language": "en"
+        },
+        {
+          "ticket_id": "TKT-16282",
+          "score": 0.1196,
+          "subject": "Issue with Service Interruption Reported Today",
+          "answer_snippet": "Apologize for the service interruption; we have recently analyzed it. We are currently investigating the cause of the problem. To assist in resolving the issue, we kindly request additional information about the interruption, such as the time it occurred and any error messages you received. If …",
+          "answer_language": "en"
+        },
+        {
+          "ticket_id": "TKT-06904",
+          "score": 0.1185,
+          "subject": "Service Interruption Following Latest Software Update",
+          "answer_snippet": "We apologize for the service interruption and will investigate it immediately.",
+          "answer_language": "en"
+        }
+      ]
+    },
+    "password_reset_de": {
+      "input": {
+        "subject": null,
+        "body": "Ich habe mein Passwort für das Kundenportal vergessen und habe noch Zugriff auf meine registrierte E-Mail-Adresse. Wie kann ich das Passwort zurücksetzen?"
+      },
+      "detected_language": {
+        "code": "de",
+        "probability": 1.0
+      },
+      "precedents": [
+        {
+          "ticket_id": "TKT-02182",
+          "score": 0.1652,
+          "subject": "Probleme bei Zugriff auf Discord-Server",
+          "answer_snippet": "Hier können Sie Hilfe bei Zugriff auf den Discord-Server erhalten. Bitte beschreiben Sie genauer, welches Problem Sie haben, damit ich Ihnen besser helfen kann, eine Lösung zu finden.",
+          "answer_language": "de"
+        },
+        {
+          "ticket_id": "TKT-07516",
+          "score": 0.1639,
+          "subject": "Probleme bei der Anmeldung in verschiedenen Produkten",
+          "answer_snippet": "Wir werden die Anmeldeprobleme bei Ihren verschiedenen Produkten untersuchen. Bitte geben Sie uns Ihre Kontoinformationen an, z.B. die Kontonummer des betroffenen Produkts, um Ihnen besser helfen zu können. Ein Anruf könnte erforderlich sein, um das Problem schnell zu lösen.",
+          "answer_language": "de"
+        },
+        {
+          "ticket_id": "TKT-13526",
+          "score": 0.1621,
+          "subject": "Probleme bei der Anmeldung bei verschiedenen Produkten",
+          "answer_snippet": "Wir werden die Anmelde-Probleme bei Ihren Produkten untersuchen. Bitte geben Sie uns Ihre Kontodaten und die Kontonummer des betroffenen Produkts an, damit wir Ihnen besser helfen können. Es kann erforderlich sein, dass wir Sie telefonisch erreichen, um das Problem schnell zu lösen.",
+          "answer_language": "de"
+        },
+        {
+          "ticket_id": "TKT-19387",
+          "score": 0.1611,
+          "subject": "",
+          "answer_snippet": "Untersuchen Sie den versuchten Unbefugten Zugriff auf das Krankenhaus-IT-System und kontaktieren Sie uns unter <tel_num>. Weitere Informationen zur Lösung sind verfügbar.",
+          "answer_language": "de"
+        },
+        {
+          "ticket_id": "TKT-04425",
+          "score": 0.1604,
+          "subject": "Issue mit dem Projektsteuerungsdashboard",
+          "answer_snippet": "Bitte kontaktieren Sie uns unter <tel_num> um das Problem schnell zu lösen.",
+          "answer_language": "de"
+        }
+      ]
+    },
+    "blank_body": {
+      "input": {
+        "subject": "Help",
+        "body": "   "
+      },
+      "detected_language": {
+        "code": "und",
+        "probability": 0.0
+      },
+      "precedents": [
+        {
+          "ticket_id": "TKT-01091",
+          "score": 0.2506,
+          "subject": "",
+          "answer_snippet": "To provide a suitable solution, could you please give more details about the issue you are experiencing? For your convenience, we prefer to discuss this over the phone. Please let us know a convenient time to call you at <tel_num>. Thank you.",
+          "answer_language": "en"
+        },
+        {
+          "ticket_id": "TKT-22752",
+          "score": 0.183,
+          "subject": "Requests for Help with Security Updates",
+          "answer_snippet": "Please provide the necessary steps to implement security updates to enhance data protection and restore functionalities. I will be available for a call to discuss this further at your convenience.",
+          "answer_language": "en"
+        },
+        {
+          "ticket_id": "TKT-10284",
+          "score": 0.159,
+          "subject": "Support Required for Data Analytics",
+          "answer_snippet": "Please contact us to discuss data analytics services for investment strategies optimization.",
+          "answer_language": "en"
+        },
+        {
+          "ticket_id": "TKT-21094",
+          "score": 0.155,
+          "subject": "Help Needed with IFTTT Docker Integration",
+          "answer_snippet": "I would be glad to assist with your IFTTT Docker integration problem. Please provide details about your setup and any specific error messages you are seeing. This information will help me provide better assistance.",
+          "answer_language": "en"
+        },
+        {
+          "ticket_id": "TKT-05261",
+          "score": 0.1521,
+          "subject": "Guidance for Ensuring Medical Data Security",
+          "answer_snippet": "I am pleased to provide guidance on ensuring the security of medical data for HelloSign Oracle Database 19c. To ensure the confidentiality and integrity of sensitive medical information, I recommend following best practices for encryption and access controls. For more detailed information, I advise …",
+          "answer_language": "en"
+        }
+      ]
+    }
+  }
+}

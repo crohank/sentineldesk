@@ -1,0 +1,4 @@
+# Optional: only for scripts/build_dense.py and --mode dense|hybrid (D3-10). Not needed to serve.
+-r requirements.txt
+sentence-transformers==6.3.0
+torch==2.15.0

@@ -1,0 +1,51 @@
+{
+  "mode": "dense",
+  "n_queries": 2286,
+  "n_index": 18280,
+  "k": 5,
+  "queue": {
+    "top1_agree": 0.6789,
+    "any_top5_agree": 0.8609,
+    "majority_vote_top5_acc": 0.4873,
+    "chance_top1": 0.1694
+  },
+  "type": {
+    "top1_agree": 0.8863,
+    "any_top5_agree": 0.9799,
+    "majority_vote_top5_acc": 0.8136,
+    "chance_top1": 0.297
+  },
+  "priority": {
+    "top1_agree": 0.7244,
+    "any_top5_agree": 0.9536,
+    "majority_vote_top5_acc": 0.5704,
+    "chance_top1": 0.3569
+  },
+  "top1_score": {
+    "5": 0.9103,
+    "25": 0.9297,
+    "50": 0.9413,
+    "75": 0.9523,
+    "95": 0.9642
+  },
+  "top5_score_median": 0.9196,
+  "cross_lingual_top1": {
+    "query_en_hit_de_body": 20,
+    "query_de_hit_en_body": 28,
+    "top1_answer_lang_differs_from_query": 0.0324
+  },
+  "by_query_language": {
+    "en": {
+      "n": 1580,
+      "queue_top1_agree": 0.7291
+    },
+    "de": {
+      "n": 688,
+      "queue_top1_agree": 0.5712
+    }
+  },
+  "latency_ms_single_query": {
+    "p50": 8.4,
+    "p95": 14.9
+  }
+}

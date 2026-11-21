@@ -1,0 +1,1 @@
+"""SentinelDesk core library."""
