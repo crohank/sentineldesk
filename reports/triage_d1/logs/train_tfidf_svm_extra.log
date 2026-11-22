@@ -1,0 +1,43 @@
+[13:47:36 +    0.0s] variant TF-IDF + LinearSVC +kb_extra (tfidf_svm_extra): features=tfidf head=svm scaled=False grid C=(0.03, 0.1, 0.3, 1.0) n_jobs=3
+[13:47:37 +    0.2s] data ok: partitions sha 7e70ffd4794b fit=18285 calib=2286 val=2286
+[13:47:46 +    9.2s] kb_extra: {'kb_extra_rows': 11489, 'exact_body_matches': 0, 'cosine_ge_0.8': 56, 'dropped': 56, 'kept': 11433} -> fit now 29718 rows (calib/val unchanged, pure kb_train)
+[13:48:16 +   39.2s]   … TF-IDF fit_transform: still running (30s) 
+[13:48:21 +   44.7s] TF-IDF features (29718, 173656) nnz=23,448,237 in 35.4s
+[13:48:21 +   44.7s] fit head=type C=0.03 (rows=29718)
+[13:48:25 +   48.8s]   head=type C=0.03: converged, convergence_warnings=0, iters=12 (4s), calib macro-F1=0.8318
+[13:48:25 +   48.8s] fit head=type C=0.1 (rows=29718)
+[13:48:29 +   53.1s]   head=type C=0.1: converged, convergence_warnings=0, iters=18 (4s), calib macro-F1=0.8503
+[13:48:29 +   53.1s] fit head=type C=0.3 (rows=29718)
+[13:48:35 +   58.6s]   head=type C=0.3: converged, convergence_warnings=0, iters=35 (5s), calib macro-F1=0.8615
+[13:48:35 +   58.6s] fit head=type C=1.0 (rows=29718)
+[13:48:46 +   69.3s]   head=type C=1.0: converged, convergence_warnings=0, iters=78 (11s), calib macro-F1=0.8736
+[13:48:46 +   69.6s] checkpoint saved: heads/type.joblib (C=1.0 (top of grid), converged=True)
+[13:48:46 +   69.6s] fit head=queue C=0.03 (rows=29718)
+[13:49:01 +   84.4s]   head=queue C=0.03: converged, convergence_warnings=0, iters=16 (15s), calib macro-F1=0.4039
+[13:49:01 +   84.4s] fit head=queue C=0.1 (rows=29718)
+[13:49:21 +  104.7s]   head=queue C=0.1: converged, convergence_warnings=0, iters=33 (20s), calib macro-F1=0.4592
+[13:49:21 +  104.7s] fit head=queue C=0.3 (rows=29718)
+[13:49:51 +  134.7s]   … head=queue C=0.3: still running (30s) 
+[13:49:52 +  136.0s]   head=queue C=0.3: converged, convergence_warnings=0, iters=81 (31s), calib macro-F1=0.5054
+[13:49:52 +  136.0s] fit head=queue C=1.0 (rows=29718)
+[13:50:22 +  166.0s]   … head=queue C=1.0: still running (30s) 
+[13:50:42 +  185.9s]   head=queue C=1.0: converged, convergence_warnings=0, iters=206 (50s), calib macro-F1=0.5609
+[13:50:43 +  186.9s] checkpoint saved: heads/queue.joblib (C=1.0 (top of grid), converged=True)
+[13:50:43 +  186.9s] fit head=priority C=0.03 (rows=29718)
+[13:50:49 +  192.6s]   head=priority C=0.03: converged, convergence_warnings=0, iters=12 (6s), calib macro-F1=0.4977
+[13:50:49 +  192.6s] fit head=priority C=0.1 (rows=29718)
+[13:50:56 +  199.7s]   head=priority C=0.1: converged, convergence_warnings=0, iters=17 (7s), calib macro-F1=0.5451
+[13:50:56 +  199.7s] fit head=priority C=0.3 (rows=29718)
+[13:51:07 +  210.9s]   head=priority C=0.3: converged, convergence_warnings=0, iters=33 (11s), calib macro-F1=0.5891
+[13:51:07 +  210.9s] fit head=priority C=1.0 (rows=29718)
+[13:51:31 +  234.5s]   head=priority C=1.0: converged, convergence_warnings=0, iters=85 (24s), calib macro-F1=0.6151
+[13:51:31 +  234.8s] checkpoint saved: heads/priority.joblib (C=1.0 (top of grid), converged=True)
+[13:51:31 +  234.8s] chosen heads: convergence_warnings total = 0
+[13:51:42 +  245.7s] temperatures: {"type": 0.491, "queue": 0.339, "priority": 0.692}
+[13:51:42 +  245.8s] val type: macro-F1=0.867 acc=0.860 ECE raw=0.156 cal=0.015
+[13:51:42 +  245.9s] val queue: macro-F1=0.585 acc=0.587 ECE raw=0.324 cal=0.023
+[13:51:42 +  246.0s] val priority: macro-F1=0.626 acc=0.638 ECE raw=0.092 cal=0.021
+[13:51:42 +  246.0s] Incident&high classifier recall=0.697 precision=0.598; rule 6 not met (best attainable recall): >= 0.3/0.3 recall=0.830 escalation=0.276
+[13:51:49 +  252.4s] final model saved: D:\projects\sentineldesk\artifacts\triage_d1\tfidf_svm_extra model_sha256=a7f31efb3bab
+[13:51:54 +  258.1s] latency per ticket: p50=10.5ms p95=18.7ms (n=100)
+[13:51:54 +  258.1s] done (diagnostics skipped). reports in D:\projects\sentineldesk\reports\triage_d1

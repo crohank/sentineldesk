@@ -1,0 +1,37 @@
+{
+  "embedder": {
+    "model_id": "google/embeddinggemma-300m",
+    "revision": "57c266a740f537b4dc058e1b0cda161fd15afa75",
+    "prompt_name": "Classification",
+    "prompt": "task: classification | query: ",
+    "max_len": 512,
+    "dim": 768
+  },
+  "device": "cuda",
+  "model_load_seconds": 16.105161800000133,
+  "splits": {
+    "train": {
+      "n": 32213,
+      "shape": [
+        32213,
+        768
+      ],
+      "key": "e94577b001cc7bb375009528",
+      "cache_hit": false,
+      "seconds": 168.92510380000022,
+      "encode_seconds": 167.82306810000046
+    },
+    "val": {
+      "n": 4027,
+      "shape": [
+        4027,
+        768
+      ],
+      "key": "5bff26dc9d254d90b66b3e0d",
+      "cache_hit": false,
+      "seconds": 21.279644199999893,
+      "encode_seconds": 21.12924109999949
+    }
+  },
+  "total_build_seconds": 188.95230919999995
+}

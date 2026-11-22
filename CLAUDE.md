@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-SentinelDesk: multilingual (en/de) support-ticket triage (type / queue / priority), an escalation gate, and precedent-grounded reply drafting (RAG over past tickets) on the Hugging Face `Tobi-Bueck/customer-support-tickets` dataset (CC-BY-NC-4.0). Current state is data prep + EDA only; no package, tests, or linter are configured yet.
+SentinelDesk: multilingual (en/de) support-ticket triage (type / queue / priority), an escalation gate, and precedent-grounded reply drafting (RAG over past tickets) on the Hugging Face `Tobi-Bueck/customer-support-tickets` dataset (CC-BY-NC-4.0). Code: `sentineldesk/` package (triage models, data loaders, embedding wrapper) plus `scripts/`; no tests or linter configured yet.
 
 ## Commands
 
@@ -16,15 +16,21 @@ python scripts/make_split.py      # -> data/processed/ (locked 80/20, seed 42)
 python scripts/eda.py             # -> docs/eda_stats.txt, docs/figures/*.png (also prints baseline scores)
 ```
 
-D2 (triage) currently works on a separate 80/10/10 split built from the official `load_dataset(...)` snippet (`datadownloadsnippet.txt`): rows lacking `type`/`answer` are dropped, then subject+body duplicates are removed before shuffling (seed 42). It does not overwrite D1's split.
+### D2 triage on D1's split (current)
+
+D2 trains on D1's canonical split from `origin/d1/data-eval`, copied (not merged) into the gitignored `data/processed/`: `kb_train.parquet` + `kb_partitions.parquet` (fit 18,285 / calib 2,286 / val 2,286; SHA checked in `sentineldesk/data_d1.py`) and `kb_extra.parquet` (20k-file extension; `load_kb_extra()` drops twins of calib/val tickets and adds the rest to fit only). Fit → train, calib → hyperparameters + temperatures, val → all reported metrics and rule-6 thresholds. Test files are never read.
 
 ```bash
-python scripts/load_split_811.py  # -> data/split811/{train,val,test_inputs,test_labels}.parquet
-python scripts/train_triage.py    # ~7 min; -> artifacts/triage/ (model + manifest), reports/triage/val_*
-python scripts/eval_triage.py     # only reader of split811 test_labels; -> reports/triage/test_*
+git show origin/d1/data-eval:data/processed/kb_train.parquet > data/processed/kb_train.parquet   # same for kb_partitions, kb_extra
+python -u scripts/train_triage_variants.py --features tfidf [--head svm|lgbm] [--extra] [--lang en] [--no-diagnostics] \
+    > reports/triage_d1/logs/train_<variant>.log 2>&1      # live log: Get-Content -Wait <log>
+python -u scripts/svm_search.py > reports/triage_d1/logs/svm_search.log 2>&1   # TF-IDF+LinearSVC grid -> reports/triage_d1/svm_search.md
+python scripts/compare_triage.py --split d1               # all finished variants -> reports/triage_d1/compare.md
 ```
 
-Triage lives in `sentineldesk/triage.py` (`TriagePredictor.load("artifacts/triage").predict(subject, body)` → `{type|queue|priority: {label, confidence, probabilities}}`). Temperatures and gate thresholds are stored in `artifacts/triage/manifest.json`.
+Variants live in `artifacts/triage_d1/<variant>/` (gitignored). `tfidf` = variant A (`TriagePredictor`); TF-IDF+SVM/LightGBM and EmbeddingGemma variants use `DenseTriagePredictor` (`sentineldesk/triage_dense.py`), which returns the same `{type|queue|priority: {label, confidence, probabilities}}` schema; temperatures and gate thresholds are in each `manifest.json`. Findings so far: EmbeddingGemma (`sentineldesk/embed.py`, cached under `artifacts/embeddings/`) is far behind TF-IDF even when standardized; kb_extra did not help LR; English-only training did not help; TF-IDF + LinearSVC + kb_extra is the first variant to pass the decision rule against A (see `reports/triage_d1/`).
+
+The older split811 work (`load_split_811.py`, `train_triage.py`, `eval_triage.py`, `train_triage_dense.py`) is kept for reference only.
 
 `data/` is gitignored; everyone regenerates the identical split from the scripts. Scripts resolve paths from the repo root via `Path(__file__).resolve().parents[1]`, so they can be run from any cwd.
 

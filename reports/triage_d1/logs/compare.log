@@ -1,0 +1,88 @@
+W1121 15:43:03.428000 9252 .venv\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Loading weights:   0%|          | 0/314 [00:00<?, ?it/s]Loading weights:   9%|8         | 27/314 [00:00<00:01, 265.85it/s]Loading weights:  25%|##5       | 80/314 [00:00<00:00, 410.29it/s]Loading weights:  39%|###8      | 121/314 [00:00<00:00, 254.95it/s]Loading weights:  48%|####8     | 152/314 [00:00<00:00, 246.11it/s]Loading weights: 100%|##########| 314/314 [00:00<00:00, 534.09it/s]
+skip B-scaled: D:\projects\sentineldesk\artifacts\triage_d1\embed_scaled missing
+skip B-SVM: D:\projects\sentineldesk\artifacts\triage_d1\embed_svm_scaled missing
+skip B-LGBM: D:\projects\sentineldesk\artifacts\triage_d1\embed_lgbm missing
+skip LGBM+extra: D:\projects\sentineldesk\artifacts\triage_d1\tfidf_lgbm_extra missing
+skip C: D:\projects\sentineldesk\artifacts\triage_d1\stacked missing
+A: type F1=0.873  queue F1=0.553  priority F1=0.606
+A+extra: type F1=0.864  queue F1=0.530  priority F1=0.606
+B: type F1=0.810  queue F1=0.314  priority F1=0.448
+SVM+extra: type F1=0.867  queue F1=0.585  priority F1=0.626
+SVM-tuned+extra: type F1=0.866  queue F1=0.609  priority F1=0.625
+# Triage variant comparison (D1 split, val partition)
+
+n = 2286. C (B) and temperatures chosen on calib; everything below on val.
+
+| metric | A · TF-IDF + LR | A+extra · TF-IDF + LR, fit + kb_extra | B · EmbeddingGemma + LR | SVM+extra · TF-IDF + LinearSVC, fit + kb_extra | SVM-tuned+extra · TF-IDF + LinearSVC (tuned), fit + kb_extra |
+|---|---|---|---|---|---|
+| macro-F1 type | 0.873 | 0.864 | 0.810 | 0.867 | 0.866 |
+| macro-F1 queue | 0.553 | 0.530 | 0.314 | 0.585 | 0.609 |
+| macro-F1 priority | 0.606 | 0.606 | 0.448 | 0.626 | 0.625 |
+| ECE type | 0.012 | 0.005 | 0.019 | 0.015 | 0.020 |
+| ECE queue | 0.019 | 0.012 | 0.040 | 0.023 | 0.029 |
+| ECE priority | 0.024 | 0.020 | 0.030 | 0.021 | 0.019 |
+| chosen C / num_leaves — type | C=4.0 | C=4.0 | C=10.0 | C=1.0 | C=3.0 |
+| chosen C / num_leaves — queue | C=4.0 | C=4.0 | C=10.0 | C=1.0 | C=3.0 |
+| chosen C / num_leaves — priority | C=4.0 | C=4.0 | C=10.0 | C=1.0 | C=30.0 |
+| macro-F1 type · de | 0.846 | 0.828 | 0.799 | 0.829 | 0.826 |
+| macro-F1 type · en | 0.893 | 0.889 | 0.818 | 0.894 | 0.893 |
+| macro-F1 queue · de | 0.454 | 0.428 | 0.298 | 0.455 | 0.468 |
+| macro-F1 queue · en | 0.609 | 0.589 | 0.326 | 0.666 | 0.696 |
+| macro-F1 priority · de | 0.549 | 0.556 | 0.432 | 0.568 | 0.558 |
+| macro-F1 priority · en | 0.647 | 0.642 | 0.459 | 0.668 | 0.674 |
+| Incident∧high recall (classifier) | 0.653 | 0.661 | 0.555 | 0.697 | 0.697 |
+| Incident∧high precision (classifier) | 0.577 | 0.591 | 0.502 | 0.598 | 0.602 |
+| rule 6 best recall | 0.833 (@0.3/0.3) | 0.843 (@0.3/0.3) | 0.787 (@0.3/0.3) | 0.830 (@0.3/0.3) | 0.848 (@0.3/0.3) |
+| rule 6 escalation rate | 29.3% | 29.2% | 32.5% | 27.6% | 27.3% |
+| latency p50 / p95 per ticket | 12 / 16 ms | 15 / 18 ms | 108 / 138 ms | 4 / 5 ms | 4 / 6 ms |
+| one-time embedding build | — | — | 2.2 min | — | — |
+
+Language rows use the dataset's `language` column (noisy: ~26% of `de` rows have English bodies). Val counts: {'en': 1330, 'de': 956}.
+
+## Decision
+
+Rule: type or queue gain >= 0.02, no head drop > 0.01, p95 < 150.0 ms.
+
+- A+extra: Δ type -0.009, Δ queue -0.023, Δ priority -0.001, p95 18 ms → does not qualify
+- B: Δ type -0.063, Δ queue -0.239, Δ priority -0.159, p95 138 ms → does not qualify
+- SVM+extra: Δ type -0.006, Δ queue +0.031, Δ priority +0.020, p95 5 ms → qualifies
+- SVM-tuned+extra: Δ type -0.008, Δ queue +0.056, Δ priority +0.019, p95 6 ms → qualifies
+
+**Release model: SVM-tuned+extra**
+
+## Probe tickets
+
+| variant | ticket | type | queue | priority |
+|---|---|---|---|---|
+| A | VPN down for all hospital staff since this morning… | Incident (0.71) | Customer Service (0.37) | medium (0.57) |
+| A | VPN-Ausfall im Krankenhaus Seit heute Morgen könne… | Incident (0.71) | Technical Support (0.26) | high (0.60) |
+| A | Where can I view my invoice?… | Request (0.37) | Billing and Payments (0.96) | medium (0.68) |
+| A+extra | VPN down for all hospital staff since this morning… | Incident (0.65) | Customer Service (0.61) | low (0.62) |
+| A+extra | VPN-Ausfall im Krankenhaus Seit heute Morgen könne… | Incident (0.91) | Customer Service (0.32) | high (0.43) |
+| A+extra | Where can I view my invoice?… | Incident (0.68) | Billing and Payments (0.98) | medium (0.82) |
+| B | VPN down for all hospital staff since this morning… | Incident (0.87) | IT Support (0.45) | high (0.52) |
+| B | VPN-Ausfall im Krankenhaus Seit heute Morgen könne… | Incident (0.88) | IT Support (0.40) | medium (0.50) |
+| B | Where can I view my invoice?… | Request (0.91) | Billing and Payments (1.00) | medium (0.67) |
+| SVM+extra | VPN down for all hospital staff since this morning… | Incident (0.75) | Customer Service (0.79) | low (0.61) |
+| SVM+extra | VPN-Ausfall im Krankenhaus Seit heute Morgen könne… | Incident (0.94) | Customer Service (0.23) | high (0.48) |
+| SVM+extra | Where can I view my invoice?… | Incident (0.58) | Billing and Payments (0.98) | medium (0.84) |
+| SVM-tuned+extra | VPN down for all hospital staff since this morning… | Incident (0.81) | Customer Service (0.82) | low (0.64) |
+| SVM-tuned+extra | VPN-Ausfall im Krankenhaus Seit heute Morgen könne… | Incident (0.94) | Customer Service (0.24) | low (0.46) |
+| SVM-tuned+extra | Where can I view my invoice?… | Incident (0.63) | Billing and Payments (0.94) | medium (0.73) |
+
+## Queue per-class F1
+
+```
+                                     A  A+extra      B  SVM+extra  SVM-tuned+extra  support
+Technical Support                0.558    0.553  0.356      0.614            0.634      655
+Product Support                  0.488    0.495  0.260      0.547            0.570      441
+Customer Service                 0.482    0.484  0.255      0.534            0.543      301
+IT Support                       0.462    0.450  0.280      0.514            0.527      297
+Billing and Payments             0.770    0.740  0.652      0.774            0.794      227
+Returns and Exchanges            0.476    0.438  0.259      0.475            0.503      105
+Service Outages and Maintenance  0.731    0.703  0.558      0.724            0.761      103
+Sales and Pre-Sales              0.449    0.422  0.264      0.480            0.521       82
+Human Resources                  0.519    0.459  0.105      0.552            0.571       48
+General Inquiry                  0.600    0.557  0.150      0.633            0.667       27
+```

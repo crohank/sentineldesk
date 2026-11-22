@@ -1,0 +1,149 @@
+[14:11:50 +    8.1s] data: partitions sha 7e70ffd4794b; kb_extra {'kb_extra_rows': 11489, 'exact_body_matches': 0, 'cosine_ge_0.8': 56, 'dropped': 56, 'kept': 11433}; fit=29718 calib=2286 val=2286
+[14:12:20 +   38.6s] TF-IDF (unchanged config) (29718, 173656) nnz=23,448,237
+[14:12:21 +   38.8s] running 60 fits, n_jobs=6
+[14:12:31 +   48.8s]   [1/60] type     C=0.1   cw=None     loss=squared_hinge calib macro-F1=0.8330 (max_iter=2000, iters=15, 6s)
+[14:12:31 +   48.9s]   [2/60] type     C=0.1   cw=balanced loss=squared_hinge calib macro-F1=0.8503 (max_iter=2000, iters=18, 6s)
+[14:12:32 +   50.0s]   [3/60] type     C=0.1   cw=None     loss=hinge         calib macro-F1=0.7225 (max_iter=2000, iters=146, 7s)
+[14:12:32 +   50.2s]   [4/60] type     C=0.1   cw=balanced loss=hinge         calib macro-F1=0.7981 (max_iter=2000, iters=179, 7s)
+[14:12:32 +   50.3s]   [5/60] type     C=0.3   cw=None     loss=squared_hinge calib macro-F1=0.8572 (max_iter=2000, iters=24, 7s)
+[14:12:37 +   55.0s]   [6/60] type     C=0.3   cw=None     loss=hinge         calib macro-F1=0.8146 (max_iter=2000, iters=194, 12s)
+[14:12:38 +   56.5s]   [7/60] type     C=0.3   cw=balanced loss=squared_hinge calib macro-F1=0.8615 (max_iter=2000, iters=35, 8s)
+[14:12:44 +   62.4s]   [8/60] type     C=1.0   cw=None     loss=squared_hinge calib macro-F1=0.8760 (max_iter=2000, iters=55, 12s)
+[14:12:44 +   62.6s]   [9/60] type     C=0.3   cw=balanced loss=hinge         calib macro-F1=0.8426 (max_iter=2000, iters=283, 14s)
+[14:12:48 +   66.1s]   [10/60] type     C=1.0   cw=balanced loss=squared_hinge calib macro-F1=0.8736 (max_iter=2000, iters=78, 16s)
+[14:12:51 +   68.8s]   … grid: 10/60 done
+[14:13:09 +   86.7s]   [11/60] type     C=3.0   cw=None     loss=squared_hinge calib macro-F1=0.8787 (max_iter=2000, iters=144, 30s)
+[14:13:18 +   96.3s]   [12/60] type     C=3.0   cw=balanced loss=squared_hinge calib macro-F1=0.8801 (max_iter=2000, iters=157, 34s)
+[14:13:21 +   98.8s]   … grid: 12/60 done
+[14:13:29 +  107.4s]   [13/60] type     C=1.0   cw=None     loss=hinge         calib macro-F1=0.8630 (max_iter=2000, iters=963, 57s)
+[14:13:38 +  116.1s]   [14/60] type     C=1.0   cw=balanced loss=hinge         calib macro-F1=0.8670 (max_iter=2000, iters=593, 61s)
+[14:13:51 +  128.8s]   … grid: 14/60 done
+[14:14:00 +  137.8s]   [15/60] type     C=10.0  cw=None     loss=squared_hinge calib macro-F1=0.8797 (max_iter=2000, iters=363, 51s)
+[14:14:15 +  153.1s]   [16/60] queue    C=0.1   cw=None     loss=squared_hinge calib macro-F1=0.4089 (max_iter=2000, iters=15, 15s)
+[14:14:21 +  158.8s]   … grid: 16/60 done
+[14:14:22 +  160.2s]   [17/60] type     C=10.0  cw=balanced loss=squared_hinge calib macro-F1=0.8793 (max_iter=2000, iters=411, 53s)
+[14:14:42 +  180.1s]   [18/60] type     C=3.0   cw=None     loss=hinge         calib macro-F1=0.8790 (max_iter=2000, iters=1122, 118s)
+[14:14:46 +  184.2s]   [19/60] queue    C=0.1   cw=balanced loss=squared_hinge calib macro-F1=0.4592 (max_iter=2000, iters=33, 24s)
+[14:14:51 +  188.8s]   … grid: 19/60 done
+[14:15:12 +  210.5s]   [20/60] queue    C=0.3   cw=None     loss=squared_hinge calib macro-F1=0.4882 (max_iter=2000, iters=25, 26s)
+[14:15:21 +  218.8s]   … grid: 20/60 done
+[14:15:34 +  232.0s]   [21/60] type     C=3.0   cw=balanced loss=hinge         calib macro-F1=0.8756 (max_iter=2000, iters=1325, 166s)
+[14:15:45 +  243.6s]   [22/60] type     C=10.0  cw=None     loss=hinge         calib macro-F1=0.8793 (max_iter=2000, iters=1335, 147s)
+[14:15:51 +  248.8s]   … grid: 22/60 done
+[14:15:52 +  250.0s]   [23/60] queue    C=0.1   cw=None     loss=hinge         calib macro-F1=0.4589 (max_iter=2000, iters=819, 97s)
+[14:16:05 +  263.1s]   [24/60] queue    C=0.3   cw=balanced loss=squared_hinge calib macro-F1=0.5054 (max_iter=2000, iters=81, 31s)
+[14:16:07 +  264.7s]   [25/60] type     C=10.0  cw=balanced loss=hinge         calib macro-F1=0.8778 (max_iter=2000, iters=1290, 148s)
+[14:16:11 +  269.2s]   [26/60] queue    C=0.1   cw=balanced loss=hinge         calib macro-F1=0.3725 (max_iter=2000, iters=390, 89s)
+[14:16:21 +  278.8s]   … grid: 26/60 done
+[14:16:29 +  286.8s]   [27/60] queue    C=1.0   cw=None     loss=squared_hinge calib macro-F1=0.5579 (max_iter=2000, iters=58, 37s)
+[14:16:51 +  308.8s]   … grid: 27/60 done
+[14:16:55 +  313.6s]   [28/60] queue    C=1.0   cw=balanced loss=squared_hinge calib macro-F1=0.5609 (max_iter=2000, iters=206, 49s)
+[14:17:08 +  326.1s]   [29/60] queue    C=0.3   cw=None     loss=hinge         calib macro-F1=0.4805 (max_iter=2000, iters=928, 115s)
+[14:17:21 +  338.8s]   … grid: 29/60 done
+[14:17:29 +  347.0s]   [30/60] queue    C=0.3   cw=balanced loss=hinge         calib macro-F1=0.4120 (max_iter=2000, iters=428, 103s)
+[14:17:51 +  368.8s]   … grid: 30/60 done
+[14:17:53 +  371.5s]   [31/60] queue    C=3.0   cw=None     loss=squared_hinge calib macro-F1=0.5655 (max_iter=2000, iters=143, 85s)
+[14:18:21 +  398.8s]   … grid: 31/60 done
+[14:18:51 +  428.8s]   … grid: 31/60 done
+[14:18:55 +  432.8s]   [32/60] queue    C=3.0   cw=balanced loss=squared_hinge calib macro-F1=0.5728 (max_iter=2000, iters=254, 107s)
+[14:19:10 +  448.5s]   [33/60] queue    C=1.0   cw=balanced loss=hinge         calib macro-F1=0.4827 (max_iter=2000, iters=904, 179s)
+[14:19:21 +  458.8s]   … grid: 33/60 done
+[14:19:51 +  488.8s]   … grid: 33/60 done
+[14:20:01 +  499.2s]   [34/60] queue    C=1.0   cw=None     loss=hinge         calib macro-F1=0.5229 (max_iter=2000, iters=1712, 236s)
+[14:20:21 +  518.9s]   … grid: 34/60 done
+[14:20:51 +  548.9s]   … grid: 34/60 done
+[14:21:21 +  578.9s]   … grid: 34/60 done
+[14:21:30 +  588.4s]   [35/60] queue    C=10.0  cw=None     loss=squared_hinge calib macro-F1=0.5722 (max_iter=2000, iters=395, 217s)
+[14:21:38 +  595.8s]   [36/60] priority C=0.1   cw=None     loss=squared_hinge calib macro-F1=0.5131 (max_iter=2000, iters=15, 7s)
+[14:21:51 +  608.9s]   … grid: 36/60 done
+[14:21:51 +  609.5s]   [37/60] priority C=0.1   cw=None     loss=hinge         calib macro-F1=0.4488 (max_iter=2000, iters=204, 14s)
+[14:21:58 +  616.0s]   [38/60] priority C=0.1   cw=balanced loss=squared_hinge calib macro-F1=0.5451 (max_iter=2000, iters=17, 6s)
+[14:22:13 +  631.3s]   [39/60] priority C=0.1   cw=balanced loss=hinge         calib macro-F1=0.5210 (max_iter=2000, iters=233, 15s)
+[14:22:16 +  634.3s]   [40/60] queue    C=3.0   cw=balanced loss=hinge         calib macro-F1=0.5532 (max_iter=2000, iters=908, 287s)
+[14:22:21 +  638.9s]   … grid: 40/60 done
+[14:22:23 +  640.9s]   [41/60] priority C=0.3   cw=None     loss=squared_hinge calib macro-F1=0.5754 (max_iter=2000, iters=26, 9s)
+[14:22:32 +  650.4s]   [42/60] queue    C=10.0  cw=balanced loss=squared_hinge calib macro-F1=0.5721 (max_iter=2000, iters=487, 202s)
+[14:22:33 +  651.5s]   [43/60] priority C=0.3   cw=balanced loss=squared_hinge calib macro-F1=0.5891 (max_iter=2000, iters=33, 10s)
+[14:22:45 +  663.1s]   [44/60] priority C=0.3   cw=None     loss=hinge         calib macro-F1=0.4884 (max_iter=2000, iters=357, 29s)
+[14:22:51 +  668.9s]   … grid: 44/60 done
+[14:22:59 +  677.5s]   [45/60] priority C=1.0   cw=None     loss=squared_hinge calib macro-F1=0.6133 (max_iter=2000, iters=61, 26s)
+[14:23:07 +  684.8s]   [46/60] priority C=0.3   cw=balanced loss=hinge         calib macro-F1=0.5437 (max_iter=2000, iters=376, 34s)
+[14:23:09 +  686.7s]   [47/60] queue    C=3.0   cw=None     loss=hinge         calib macro-F1=0.5569 (max_iter=2000, iters=1084, 373s)
+[14:23:21 +  698.9s]   … grid: 47/60 done
+[14:23:28 +  706.6s]   [48/60] priority C=1.0   cw=balanced loss=squared_hinge calib macro-F1=0.6151 (max_iter=2000, iters=85, 29s)
+[14:23:51 +  728.9s]   … grid: 48/60 done
+[14:24:13 +  751.2s]   [49/60] priority C=3.0   cw=None     loss=squared_hinge calib macro-F1=0.6259 (max_iter=2000, iters=166, 64s)
+[14:24:21 +  758.9s]   … grid: 49/60 done
+[14:24:50 +  788.1s]   [50/60] priority C=1.0   cw=balanced loss=hinge         calib macro-F1=0.5820 (max_iter=2000, iters=785, 103s)
+[14:24:51 +  788.9s]   … grid: 50/60 done
+[14:24:52 +  790.5s]   [51/60] priority C=1.0   cw=None     loss=hinge         calib macro-F1=0.5776 (max_iter=2000, iters=1053, 127s)
+[14:25:20 +  818.3s]   [52/60] priority C=3.0   cw=balanced loss=squared_hinge calib macro-F1=0.6254 (max_iter=2000, iters=215, 67s)
+[14:25:21 +  818.9s]   … grid: 52/60 done
+[14:25:51 +  848.9s]   … grid: 52/60 done
+[14:26:21 +  878.9s]   … grid: 52/60 done
+[14:26:51 +  908.9s]   … grid: 52/60 done
+[14:26:52 +  910.6s]   [53/60] queue    C=10.0  cw=None     loss=hinge         calib macro-F1=0.5698 (max_iter=2000, iters=1582, 478s)
+[14:27:21 +  938.9s]   … grid: 53/60 done
+[14:27:34 +  951.9s]   [54/60] priority C=10.0  cw=None     loss=squared_hinge calib macro-F1=0.6268 (max_iter=2000, iters=504, 161s)
+[14:27:48 +  966.6s]   [55/60] priority C=3.0   cw=None     loss=hinge         calib macro-F1=0.6195 (max_iter=2000, iters=1329, 260s)
+[14:27:51 +  968.9s]   … grid: 55/60 done
+[14:28:21 +  998.9s]   … grid: 55/60 done
+[14:28:51 + 1028.9s]   … grid: 55/60 done
+[14:29:21 + 1059.0s]   … grid: 55/60 done
+[14:29:34 + 1072.5s]   [56/60] priority C=3.0   cw=balanced loss=hinge         calib macro-F1=0.6236 (max_iter=2000, iters=1140, 284s)
+[14:29:40 + 1077.8s]   [57/60] priority C=10.0  cw=balanced loss=squared_hinge calib macro-F1=0.6251 (max_iter=2000, iters=618, 167s)
+[14:29:51 + 1089.0s]   … grid: 57/60 done
+[14:30:21 + 1119.0s]   … grid: 57/60 done
+[14:30:51 + 1149.0s]   … grid: 57/60 done
+[14:31:21 + 1179.0s]   … grid: 57/60 done
+[14:31:51 + 1209.0s]   … grid: 57/60 done
+[14:32:21 + 1239.0s]   … grid: 57/60 done
+[14:32:51 + 1269.0s]   … grid: 57/60 done
+[14:33:21 + 1299.0s]   … grid: 57/60 done
+[14:33:51 + 1329.0s]   … grid: 57/60 done
+[14:34:21 + 1359.0s]   … grid: 57/60 done
+[14:34:51 + 1389.1s]   … grid: 57/60 done
+[14:35:21 + 1419.1s]   … grid: 57/60 done
+[14:35:51 + 1449.1s]   … grid: 57/60 done
+[14:36:21 + 1479.1s]   … grid: 57/60 done
+[14:36:51 + 1509.1s]   … grid: 57/60 done
+[14:37:18 + 1535.7s]   [58/60] queue    C=10.0  cw=balanced loss=hinge         calib macro-F1=0.5654 (max_iter=4000, iters=2583, 1036s)
+[14:37:21 + 1539.1s]   … grid: 58/60 done
+[14:37:51 + 1569.1s]   … grid: 58/60 done
+[14:38:21 + 1599.1s]   … grid: 58/60 done
+[14:38:51 + 1629.1s]   … grid: 58/60 done
+[14:39:21 + 1659.1s]   … grid: 58/60 done
+[14:39:51 + 1689.1s]   … grid: 58/60 done
+[14:40:21 + 1719.1s]   … grid: 58/60 done
+[14:40:34 + 1732.4s]   [59/60] priority C=10.0  cw=None     loss=hinge         calib macro-F1=0.6280 (max_iter=4000, iters=3650, 914s)
+[14:40:51 + 1749.1s]   … grid: 59/60 done
+[14:41:07 + 1765.1s]   [60/60] priority C=10.0  cw=balanced loss=hinge         calib macro-F1=0.6263 (max_iter=4000, iters=2509, 813s)
+[14:41:07 + 1765.3s] selected type: C=3.0 class_weight=balanced loss=squared_hinge calib macro-F1=0.8801
+[14:41:07 + 1765.3s] selected queue: C=3.0 class_weight=balanced loss=squared_hinge calib macro-F1=0.5728
+[14:41:07 + 1765.3s] priority: selected C=10.0 is at the grid edge -> extending with C=30.0
+[14:41:07 + 1765.3s] running 4 fits, n_jobs=6
+[14:41:37 + 1795.3s]   … grid: 0/4 done
+[14:42:07 + 1825.4s]   … grid: 0/4 done
+[14:42:37 + 1855.4s]   … grid: 0/4 done
+[14:43:07 + 1885.4s]   … grid: 0/4 done
+[14:43:37 + 1915.4s]   … grid: 0/4 done
+[14:44:07 + 1945.4s]   … grid: 0/4 done
+[14:44:37 + 1975.4s]   … grid: 0/4 done
+[14:45:07 + 2005.4s]   … grid: 0/4 done
+[14:45:20 + 2017.9s]   [1/4] priority C=30.0  cw=None     loss=squared_hinge calib macro-F1=0.6282 (max_iter=2000, iters=1251, 252s)
+[14:45:21 + 2018.9s]   [2/4] priority C=30.0  cw=balanced loss=squared_hinge calib macro-F1=0.6282 (max_iter=2000, iters=1226, 253s)
+[14:45:37 + 2035.4s]   … grid: 2/4 done
+[14:46:07 + 2065.4s]   … grid: 2/4 done
+[14:46:37 + 2095.4s]   … grid: 2/4 done
+[14:47:07 + 2125.4s]   … grid: 2/4 done
+[14:47:37 + 2155.4s]   … grid: 2/4 done
+[14:48:07 + 2185.4s]   … grid: 2/4 done
+[14:48:37 + 2215.4s]   … grid: 2/4 done
+[14:49:07 + 2245.5s]   … grid: 2/4 done
+[14:49:37 + 2275.5s]   … grid: 2/4 done
+[14:50:07 + 2305.5s]   … grid: 2/4 done
+[14:50:37 + 2335.5s]   … grid: 2/4 done
+[14:51:07 + 2365.5s]   … grid: 2/4 done
+[14:51:37 + 2395.5s]   … grid: 2/4 done
+[14:52:07 + 2425.5s]   … grid: 2/4 done
+[14:52:37 + 2455.5s]   … grid: 2/4 done

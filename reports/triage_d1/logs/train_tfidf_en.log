@@ -1,0 +1,23 @@
+[14:04:25 +    0.0s] variant A [en only] (tfidf_en): features=tfidf head=lr scaled=False grid C=(4.0,) n_jobs=3
+[14:04:26 +    0.3s] data ok: partitions sha 7e70ffd4794b fit=18285 calib=2286 val=2286
+[14:04:26 +    0.3s] language filter `language == 'en'` (dataset column, noisy): fit=10399 calib=1314 val=1330
+[14:04:40 +   14.7s] TF-IDF features (10399, 64940) nnz=7,759,310 in 14.4s
+[14:04:40 +   14.7s] fit head=type C=4.0 (rows=10399)
+[14:04:50 +   24.4s]   head=type C=4.0: converged, convergence_warnings=0, iters=55 (10s), calib macro-F1=0.8878
+[14:04:50 +   24.6s] checkpoint saved: heads/type.joblib (C=4.0, converged=True)
+[14:04:50 +   24.6s] fit head=queue C=4.0 (rows=10399)
+[14:05:20 +   54.6s]   … head=queue C=4.0: still running (30s) 
+[14:05:34 +   68.5s]   head=queue C=4.0: converged, convergence_warnings=0, iters=140 (44s), calib macro-F1=0.5939
+[14:05:34 +   68.8s] checkpoint saved: heads/queue.joblib (C=4.0, converged=True)
+[14:05:34 +   68.8s] fit head=priority C=4.0 (rows=10399)
+[14:05:49 +   83.3s]   head=priority C=4.0: converged, convergence_warnings=0, iters=117 (14s), calib macro-F1=0.6599
+[14:05:49 +   83.4s] checkpoint saved: heads/priority.joblib (C=4.0, converged=True)
+[14:05:49 +   83.4s] chosen heads: convergence_warnings total = 0
+[14:05:52 +   86.7s] temperatures: {"type": 0.824, "queue": 0.8, "priority": 0.994}
+[14:05:52 +   86.7s] val type: macro-F1=0.883 acc=0.872 ECE raw=0.029 cal=0.017
+[14:05:52 +   86.8s] val queue: macro-F1=0.607 acc=0.586 ECE raw=0.093 cal=0.031
+[14:05:52 +   86.8s] val priority: macro-F1=0.637 acc=0.650 ECE raw=0.017 cal=0.018
+[14:05:52 +   86.8s] Incident&high classifier recall=0.679 precision=0.609; rule 6 not met (best attainable recall): >= 0.3/0.3 recall=0.821 escalation=0.277
+[14:05:54 +   88.6s] final model saved: D:\projects\sentineldesk\artifacts\triage_d1\tfidf_en model_sha256=31f579feca98
+[14:05:56 +   90.7s] latency per ticket: p50=8.7ms p95=11.6ms (n=100)
+[14:05:56 +   90.7s] done (diagnostics skipped). reports in D:\projects\sentineldesk\reports\triage_d1

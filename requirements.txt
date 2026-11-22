@@ -8,3 +8,7 @@ scipy
 scikit-learn==1.8.0
 datasets
 joblib
+# GPU build: pip install torch --index-url https://download.pytorch.org/whl/cu128
+torch
+sentence-transformers>=5.1
+lightgbm

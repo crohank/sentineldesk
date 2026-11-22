@@ -1,0 +1,11 @@
+,A,A+extra,B,SVM+extra,SVM-tuned+extra,support
+Technical Support,0.558,0.553,0.356,0.614,0.634,655
+Product Support,0.488,0.495,0.26,0.547,0.57,441
+Customer Service,0.482,0.484,0.255,0.534,0.543,301
+IT Support,0.462,0.45,0.28,0.514,0.527,297
+Billing and Payments,0.77,0.74,0.652,0.774,0.794,227
+Returns and Exchanges,0.476,0.438,0.259,0.475,0.503,105
+Service Outages and Maintenance,0.731,0.703,0.558,0.724,0.761,103
+Sales and Pre-Sales,0.449,0.422,0.264,0.48,0.521,82
+Human Resources,0.519,0.459,0.105,0.552,0.571,48
+General Inquiry,0.6,0.557,0.15,0.633,0.667,27

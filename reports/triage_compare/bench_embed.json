@@ -1,0 +1,56 @@
+{
+  "build_device": "cuda",
+  "gpu": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+  "torch": "2.11.0+cu128",
+  "runs": [
+    {
+      "device": "cuda",
+      "max_len": 512,
+      "dim": 768,
+      "revision": "57c266a740f537b4dc058e1b0cda161fd15afa75",
+      "prompt": "task: classification | query: ",
+      "n": 256,
+      "seconds": 1.708001000000877,
+      "tickets_per_sec": 149.8828162277824,
+      "projected_minutes": {
+        "d1_split_28572": 3.177148735157881,
+        "split811_train_val_36240": 4.029814859377069
+      },
+      "single_latency_ms": {
+        "p50": 136.00265000059153,
+        "p95": 158.06668499972147,
+        "n": 100
+      },
+      "vector_shape": [
+        256,
+        768
+      ],
+      "norm_check": 1.0
+    },
+    {
+      "device": "cpu",
+      "max_len": 512,
+      "dim": 768,
+      "revision": "57c266a740f537b4dc058e1b0cda161fd15afa75",
+      "prompt": "task: classification | query: ",
+      "n": 256,
+      "seconds": 35.847580699999526,
+      "tickets_per_sec": 7.141346640444368,
+      "projected_minutes": {
+        "d1_split_28572": 66.6821012864835,
+        "split811_train_val_36240": 84.5778857140614
+      },
+      "single_latency_ms": {
+        "p50": 157.05549999984214,
+        "p95": 234.85482500145736,
+        "n": 100
+      },
+      "vector_shape": [
+        256,
+        768
+      ],
+      "norm_check": 1.0
+    }
+  ],
+  "primary_within_budget": true
+}

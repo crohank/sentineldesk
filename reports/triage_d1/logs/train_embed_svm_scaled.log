@@ -1,0 +1,80 @@
+[13:15:16 +    0.0s] variant B-SVM (embed_svm_scaled): features=embed head=svm scaled=True grid C=(0.001, 0.01, 0.1, 1.0, 10.0) n_jobs=3
+[13:15:16 +    0.4s] data ok: partitions sha 7e70ffd4794b fit=18285 calib=2286 val=2286
+W1121 13:15:30.766000 21152 .venv\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Loading weights:   0%|          | 0/314 [00:00<?, ?it/s]Loading weights:  14%|#3        | 43/314 [00:00<00:00, 427.19it/s]Loading weights:  31%|###       | 96/314 [00:00<00:00, 479.73it/s]Loading weights:  46%|####5     | 144/314 [00:00<00:00, 469.86it/s]Loading weights: 100%|##########| 314/314 [00:00<00:00, 864.94it/s]
+D:\projects\sentineldesk\sentineldesk\embed.py:57: FutureWarning: The `get_sentence_embedding_dimension` method has been renamed to `get_embedding_dimension`.
+  self.dim = dim or self.model.get_sentence_embedding_dimension()
+[13:15:42 +   26.0s] embedder google/embeddinggemma-300m@57c266a7 prompt='task: classification | query: ' dim=768 max_len=512 device=cuda
+[13:15:43 +   27.0s] embedded fit: (18285, 768) cache_hit=True encode=104.7s
+[13:15:43 +   27.1s] embedded calib: (2286, 768) cache_hit=True encode=13.9s
+[13:15:43 +   27.2s] embedded val: (2286, 768) cache_hit=True encode=14.0s
+[13:15:43 +   27.5s] StandardScaler fit on fit partition: mean|μ|=0.0190 mean σ=0.0251 -> applied to calib/val (and live inputs via the predictor)
+[13:15:44 +   27.5s] fit head=type C=0.001 (rows=18285)
+[13:16:01 +   44.7s]   head=type C=0.001: converged, convergence_warnings=0, iters=8 (17s), calib macro-F1=0.8153
+[13:16:01 +   44.7s] fit head=type C=0.01 (rows=18285)
+[13:16:31 +   74.7s]   … head=type C=0.01: still running (30s) 
+[13:16:34 +   77.9s]   head=type C=0.01: converged, convergence_warnings=0, iters=9 (33s), calib macro-F1=0.8264
+[13:16:34 +   77.9s] fit head=type C=0.1 (rows=18285)
+[13:17:04 +  108.0s]   … head=type C=0.1: still running (30s) 
+[13:17:29 +  132.9s]   head=type C=0.1: converged, convergence_warnings=0, iters=17 (55s), calib macro-F1=0.8270
+[13:17:29 +  132.9s] fit head=type C=1.0 (rows=18285)
+[13:17:59 +  162.9s]   … head=type C=1.0: still running (30s) 
+[13:18:29 +  192.9s]   … head=type C=1.0: still running (60s) 
+[13:18:59 +  222.9s]   … head=type C=1.0: still running (90s) 
+[13:19:23 +  246.8s]   head=type C=1.0: converged, convergence_warnings=0, iters=253 (114s), calib macro-F1=0.8294
+[13:19:23 +  246.8s] fit head=type C=10.0 (rows=18285)
+[13:19:53 +  276.9s]   … head=type C=10.0: still running (30s) 
+[13:20:23 +  306.9s]   … head=type C=10.0: still running (60s) 
+[13:20:53 +  336.9s]   … head=type C=10.0: still running (90s) 
+[13:21:23 +  366.9s]   … head=type C=10.0: still running (120s) 
+[13:21:53 +  396.9s]   … head=type C=10.0: still running (150s) 
+[13:22:23 +  427.0s]   … head=type C=10.0: still running (180s) 
+[13:22:53 +  457.0s]   … head=type C=10.0: still running (210s) 
+[13:23:23 +  487.0s]   … head=type C=10.0: still running (240s) 
+[13:23:53 +  517.0s]   … head=type C=10.0: still running (270s) 
+[13:24:23 +  547.0s]   … head=type C=10.0: still running (300s) 
+[13:24:53 +  577.0s]   … head=type C=10.0: still running (330s) 
+[13:25:02 +  586.4s]   head=type C=10.0: converged, convergence_warnings=0, iters=42 (340s), calib macro-F1=0.8275
+[13:25:02 +  586.4s] checkpoint saved: heads/type.joblib (C=1.0, converged=True)
+[13:25:02 +  586.4s] fit head=queue C=0.001 (rows=18285)
+[13:25:32 +  616.4s]   … head=queue C=0.001: still running (30s) 
+[13:26:02 +  646.4s]   … head=queue C=0.001: still running (60s) 
+[13:26:24 +  668.2s]   head=queue C=0.001: converged, convergence_warnings=0, iters=7 (82s), calib macro-F1=0.3325
+[13:26:24 +  668.2s] fit head=queue C=0.01 (rows=18285)
+[13:26:54 +  698.2s]   … head=queue C=0.01: still running (30s) 
+[13:27:24 +  728.3s]   … head=queue C=0.01: still running (60s) 
+[13:27:54 +  758.3s]   … head=queue C=0.01: still running (90s) 
+[13:28:24 +  788.3s]   … head=queue C=0.01: still running (120s) 
+[13:28:54 +  818.3s]   … head=queue C=0.01: still running (150s) 
+[13:28:58 +  821.6s]   head=queue C=0.01: converged, convergence_warnings=0, iters=9 (153s), calib macro-F1=0.3302
+[13:28:58 +  821.6s] fit head=queue C=0.1 (rows=18285)
+[13:29:28 +  851.6s]   … head=queue C=0.1: still running (30s) 
+[13:29:58 +  881.6s]   … head=queue C=0.1: still running (60s) 
+[13:30:28 +  911.7s]   … head=queue C=0.1: still running (90s) 
+[13:30:58 +  941.7s]   … head=queue C=0.1: still running (120s) 
+[13:31:28 +  971.7s]   … head=queue C=0.1: still running (150s) 
+[13:31:58 + 1001.7s]   … head=queue C=0.1: still running (180s) 
+[13:32:28 + 1031.8s]   … head=queue C=0.1: still running (210s) 
+[13:32:58 + 1061.8s]   … head=queue C=0.1: still running (240s) 
+[13:33:28 + 1091.8s]   … head=queue C=0.1: still running (270s) 
+[13:33:58 + 1121.8s]   … head=queue C=0.1: still running (300s) 
+[13:34:20 + 1143.9s]   head=queue C=0.1: converged, convergence_warnings=0, iters=10 (322s), calib macro-F1=0.3261
+[13:34:20 + 1143.9s] fit head=queue C=1.0 (rows=18285)
+[13:34:50 + 1174.0s]   … head=queue C=1.0: still running (30s) 
+[13:35:20 + 1204.0s]   … head=queue C=1.0: still running (60s) 
+[13:35:50 + 1234.0s]   … head=queue C=1.0: still running (90s) 
+[13:36:20 + 1264.0s]   … head=queue C=1.0: still running (120s) 
+[13:36:50 + 1294.0s]   … head=queue C=1.0: still running (150s) 
+[13:37:20 + 1324.0s]   … head=queue C=1.0: still running (180s) 
+[13:37:50 + 1354.0s]   … head=queue C=1.0: still running (210s) 
+[13:38:20 + 1384.0s]   … head=queue C=1.0: still running (240s) 
+[13:38:50 + 1414.0s]   … head=queue C=1.0: still running (270s) 
+[13:39:20 + 1444.0s]   … head=queue C=1.0: still running (300s) 
+[13:39:50 + 1474.0s]   … head=queue C=1.0: still running (330s) 
+[13:40:20 + 1504.0s]   … head=queue C=1.0: still running (360s) 
+[13:40:50 + 1534.1s]   … head=queue C=1.0: still running (390s) 
+[13:41:20 + 1564.1s]   … head=queue C=1.0: still running (420s) 
+[13:41:50 + 1594.1s]   … head=queue C=1.0: still running (450s) 
+[13:42:20 + 1624.1s]   … head=queue C=1.0: still running (480s) 
+[13:42:50 + 1654.1s]   … head=queue C=1.0: still running (510s) 
+[13:43:20 + 1684.1s]   … head=queue C=1.0: still running (540s) 

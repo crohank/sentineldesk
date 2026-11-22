@@ -1,0 +1,80 @@
+[12:59:54 +    0.0s] variant B (embed) on D1 split; n_jobs=4
+[12:59:54 +    0.3s] data ok: partitions sha 7e70ffd4794b fit=18285 calib=2286 val=2286
+W1121 13:00:06.929000 3728 .venv\Lib\site-packages\torch\distributed\elastic\multiprocessing\redirects.py:29] NOTE: Redirects are currently not supported in Windows or MacOs.
+Loading weights:   0%|          | 0/314 [00:00<?, ?it/s]Loading weights:  12%|#2        | 38/314 [00:00<00:00, 373.09it/s]Loading weights:  24%|##4       | 76/314 [00:00<00:00, 310.47it/s]Loading weights:  38%|###7      | 118/314 [00:00<00:00, 353.15it/s]Loading weights:  49%|####9     | 155/314 [00:00<00:00, 325.44it/s]Loading weights: 100%|##########| 314/314 [00:00<00:00, 634.26it/s]
+D:\projects\sentineldesk\sentineldesk\embed.py:57: FutureWarning: The `get_sentence_embedding_dimension` method has been renamed to `get_embedding_dimension`.
+  self.dim = dim or self.model.get_sentence_embedding_dimension()
+[13:00:19 +   25.9s] embedder google/embeddinggemma-300m@57c266a7 prompt='task: classification | query: ' dim=768 max_len=512 device=cuda
+[13:00:49 +   55.9s]   … embedding fit: still running (30s) 
+[13:01:19 +   85.9s]   … embedding fit: still running (60s) 
+[13:01:49 +  115.9s]   … embedding fit: still running (90s) 
+[13:02:05 +  131.3s] embedded fit: (18285, 768) cache_hit=False encode=104.7s
+[13:02:19 +  145.3s] embedded calib: (2286, 768) cache_hit=False encode=13.9s
+[13:02:33 +  159.4s] embedded val: (2286, 768) cache_hit=False encode=14.0s
+[13:02:33 +  159.4s] fit head=type C=0.1 (rows=18285)
+[13:02:37 +  163.5s]   head=type C=0.1: converged after 27 iters (4s), calib macro-F1=0.8036
+[13:02:37 +  163.5s] fit head=type C=1.0 (rows=18285)
+[13:02:44 +  170.1s]   head=type C=1.0: converged after 51 iters (7s), calib macro-F1=0.8068
+[13:02:44 +  170.1s] fit head=type C=10.0 (rows=18285)
+[13:03:00 +  186.2s]   head=type C=10.0: converged after 122 iters (16s), calib macro-F1=0.8119
+[13:03:00 +  186.2s] checkpoint saved: heads/type.joblib (C=10.0, converged=True)
+[13:03:00 +  186.2s] fit head=queue C=0.1 (rows=18285)
+[13:03:07 +  193.6s]   head=queue C=0.1: converged after 41 iters (7s), calib macro-F1=0.2739
+[13:03:07 +  193.6s] fit head=queue C=1.0 (rows=18285)
+[13:03:33 +  219.6s]   head=queue C=1.0: converged after 114 iters (26s), calib macro-F1=0.2970
+[13:03:33 +  219.6s] fit head=queue C=10.0 (rows=18285)
+[13:04:03 +  249.6s]   … head=queue C=10.0: still running (30s) 
+[13:04:33 +  279.7s]   … head=queue C=10.0: still running (60s) 
+[13:05:03 +  309.7s]   … head=queue C=10.0: still running (90s) 
+[13:05:33 +  339.7s]   … head=queue C=10.0: still running (120s) 
+[13:06:03 +  369.7s]   … head=queue C=10.0: still running (150s) 
+[13:06:31 +  397.1s]   head=queue C=10.0: converged after 283 iters (177s), calib macro-F1=0.3180
+[13:06:31 +  397.1s] checkpoint saved: heads/queue.joblib (C=10.0, converged=True)
+[13:06:31 +  397.1s] fit head=priority C=0.1 (rows=18285)
+[13:06:43 +  409.4s]   head=priority C=0.1: converged after 39 iters (12s), calib macro-F1=0.4175
+[13:06:43 +  409.4s] fit head=priority C=1.0 (rows=18285)
+[13:07:13 +  439.4s]   … head=priority C=1.0: still running (30s) 
+[13:07:43 +  469.4s]   … head=priority C=1.0: still running (60s) 
+[13:07:51 +  477.6s]   head=priority C=1.0: converged after 92 iters (68s), calib macro-F1=0.4415
+[13:07:51 +  477.6s] fit head=priority C=10.0 (rows=18285)
+[13:08:21 +  507.6s]   … head=priority C=10.0: still running (30s) 
+[13:08:51 +  537.6s]   … head=priority C=10.0: still running (60s) 
+[13:09:21 +  567.6s]   … head=priority C=10.0: still running (90s) 
+[13:09:51 +  597.6s]   … head=priority C=10.0: still running (120s) 
+[13:10:21 +  627.6s]   … head=priority C=10.0: still running (150s) 
+[13:10:51 +  657.7s]   … head=priority C=10.0: still running (180s) 
+[13:11:21 +  687.7s]   … head=priority C=10.0: still running (210s) 
+[13:11:51 +  717.7s]   … head=priority C=10.0: still running (240s) 
+[13:12:21 +  747.7s]   … head=priority C=10.0: still running (270s) 
+[13:12:48 +  774.8s]   head=priority C=10.0: converged after 189 iters (297s), calib macro-F1=0.4426
+[13:12:48 +  774.8s] checkpoint saved: heads/priority.joblib (C=10.0, converged=True)
+[13:12:49 +  775.1s] temperatures: {"type": 1.035, "queue": 1.224, "priority": 1.32}
+[13:12:49 +  775.1s] val type: macro-F1=0.810 acc=0.785 ECE raw=0.019 cal=0.019
+[13:12:49 +  775.2s] val queue: macro-F1=0.314 acc=0.327 ECE raw=0.084 cal=0.040
+[13:12:49 +  775.2s] val priority: macro-F1=0.448 acc=0.455 ECE raw=0.058 cal=0.030
+[13:12:49 +  775.2s] Incident&high classifier recall=0.555 precision=0.502; rule 6 not met (best attainable recall): >= 0.3/0.3 recall=0.787 escalation=0.325
+[13:12:49 +  775.2s] final model saved: D:\projects\sentineldesk\artifacts\triage_d1\embed model_sha256=a88405129e78
+[13:13:01 +  787.4s] latency per ticket: p50=110.8ms p95=134.6ms (n=100)
+[13:13:01 +  787.4s] underfitting diagnostics: fit/calib/val gap, capacity sweep, learning curve
+[13:13:01 +  787.6s]   type: macro-F1 fit=0.848 calib=0.812 val=0.810 (gap +0.038); log-loss fit=0.354 val=0.402
+[13:13:01 +  787.8s]   queue: macro-F1 fit=0.405 calib=0.318 val=0.314 (gap +0.091); log-loss fit=1.577 val=1.776
+[13:13:02 +  788.0s]   priority: macro-F1 fit=0.510 calib=0.443 val=0.448 (gap +0.062); log-loss fit=0.966 val=1.032
+[13:13:02 +  788.2s]   12 diagnostic fits, n_jobs=4
+[13:13:07 +  793.8s]   [1/12] learning curve type 25% of fit: val macro-F1=0.7895 (1s)
+[13:13:10 +  795.9s]   [2/12] learning curve type 50% of fit: val macro-F1=0.8033 (4s)
+[13:13:15 +  801.1s]   [3/12] sweep type C=100.0: calib macro-F1=0.8093 (129 iters, 9s)
+[13:13:16 +  802.6s]   [4/12] sweep type C=1000.0: calib macro-F1=0.8076 (152 iters, 10s)
+[13:13:19 +  805.4s]   [5/12] learning curve queue 25% of fit: val macro-F1=0.2941 (4s)
+[13:13:24 +  810.7s]   [6/12] learning curve queue 50% of fit: val macro-F1=0.2945 (8s)
+[13:13:32 +  818.2s]   … diagnostic fits: still running (30s) 6/12 done
+[13:13:39 +  825.6s]   [7/12] sweep priority C=100.0: calib macro-F1=0.4563 (308 iters, 20s)
+[13:13:41 +  827.6s]   [8/12] sweep priority C=1000.0: calib macro-F1=0.4546 (252 iters, 17s)
+[13:13:42 +  828.9s]   [9/12] learning curve priority 25% of fit: val macro-F1=0.4345 (3s)
+[13:13:45 +  831.4s]   [10/12] learning curve priority 50% of fit: val macro-F1=0.4411 (4s)
+[13:13:48 +  834.0s]   [11/12] sweep queue C=100.0: calib macro-F1=0.3211 (536 iters, 40s)
+[13:14:02 +  848.2s]   … diagnostic fits: still running (60s) 11/12 done
+[13:14:04 +  850.6s]   [12/12] sweep queue C=1000.0: calib macro-F1=0.3140 (1039 iters, 54s)
+[13:14:04 +  850.6s]   verdict type: ok
+[13:14:04 +  850.6s]   verdict queue: data-limited
+[13:14:04 +  850.6s]   verdict priority: ok
+[13:14:04 +  850.6s] done. reports in D:\projects\sentineldesk\reports\triage_d1

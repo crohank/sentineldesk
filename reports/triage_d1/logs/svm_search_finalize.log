@@ -1,0 +1,22 @@
+[14:54:06 +    7.8s] data: partitions sha 7e70ffd4794b; kb_extra {'kb_extra_rows': 11489, 'exact_body_matches': 0, 'cosine_ge_0.8': 56, 'dropped': 56, 'kept': 11433}; fit=29718 calib=2286 val=2286
+[14:54:34 +   35.8s] TF-IDF (unchanged config) (29718, 173656) nnz=23,448,237
+[14:54:34 +   35.8s] read 62 finished grid fits from reports/triage_d1/logs/svm_search.log (search stopped early by request)
+[14:54:34 +   35.8s] selected type: C=3.0 class_weight=balanced loss=squared_hinge calib macro-F1=0.8801
+[14:54:34 +   35.8s] selected queue: C=3.0 class_weight=balanced loss=squared_hinge calib macro-F1=0.5728
+[14:54:34 +   35.8s] selected priority: C=30.0 class_weight=balanced loss=squared_hinge calib macro-F1=0.6282
+[14:55:04 +   65.8s]   … refit selected heads: running
+[14:55:34 +   95.8s]   … refit selected heads: running
+[14:56:04 +  125.9s]   … refit selected heads: running
+[14:56:34 +  155.9s]   … refit selected heads: running
+[14:57:04 +  185.9s]   … refit selected heads: running
+[14:57:34 +  215.9s]   … refit selected heads: running
+[14:58:04 +  245.9s]   … refit selected heads: running
+[14:58:13 +  254.4s] refit type: calib macro-F1=0.8801 (search log 0.8801), max_iter=2000, iters=157, warnings=0
+[14:58:13 +  254.4s] refit queue: calib macro-F1=0.5728 (search log 0.5728), max_iter=2000, iters=254, warnings=0
+[14:58:13 +  254.4s] refit priority: calib macro-F1=0.6282 (search log 0.6282), max_iter=2000, iters=1226, warnings=0
+[14:58:15 +  256.4s] temperatures (calib, decision_function): {"type": 0.559, "queue": 0.427, "priority": 1.079}
+A: type F1=0.873  queue F1=0.553  priority F1=0.606
+SVM-tuned: type F1=0.866  queue F1=0.609  priority F1=0.625
+[14:58:25 +  266.8s] saved D:\projects\sentineldesk\artifacts\triage_d1\tfidf_svm_tuned_extra model_sha256=751f71873b3c
+[14:58:30 +  271.1s] delta vs A: {"type": -0.0076, "queue": 0.0557, "priority": 0.0189}; p95 6.7 ms -> QUALIFIES
+[14:58:30 +  271.1s] done. report: D:\projects\sentineldesk\reports\triage_d1\svm_search.md

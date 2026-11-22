@@ -1,0 +1,11 @@
+true,Billing and Payments,Customer Service,General Inquiry,Human Resources,IT Support,Product Support,Returns and Exchanges,Sales and Pre-Sales,Service Outages and Maintenance,Technical Support
+Billing and Payments,437,45,1,6,10,25,12,6,1,25
+Customer Service,28,439,8,4,55,111,40,30,9,116
+General Inquiry,1,13,33,2,9,10,2,1,1,5
+Human Resources,2,8,0,65,8,12,2,1,1,16
+IT Support,7,70,5,0,337,67,12,10,19,127
+Product Support,18,137,9,8,96,474,40,32,21,185
+Returns and Exchanges,12,49,4,4,19,45,143,9,1,29
+Sales and Pre-Sales,3,34,2,1,9,23,6,93,5,17
+Service Outages and Maintenance,0,5,2,0,17,9,1,3,169,19
+Technical Support,38,201,6,3,215,210,47,30,48,910

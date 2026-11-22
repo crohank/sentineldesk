@@ -1,0 +1,681 @@
+{
+  "results": {
+    "A": {
+      "heads": {
+        "type": {
+          "macro_f1": 0.873327579632853,
+          "ece": 0.011795685101765688,
+          "macro_f1_by_language": {
+            "de": 0.8459765537450958,
+            "en": 0.8928714417737529
+          },
+          "per_class_f1": {
+            "Change": 0.9786324786324786,
+            "Incident": 0.8327868852459016,
+            "Problem": 0.6880165289256198,
+            "Request": 0.9938744257274119
+          }
+        },
+        "queue": {
+          "macro_f1": 0.5534040550605778,
+          "ece": 0.01865601094281685,
+          "macro_f1_by_language": {
+            "de": 0.4537067376178405,
+            "en": 0.609371365823177
+          },
+          "per_class_f1": {
+            "Billing and Payments": 0.7702702702702703,
+            "Customer Service": 0.48214285714285715,
+            "General Inquiry": 0.6,
+            "Human Resources": 0.5185185185185185,
+            "IT Support": 0.46204620462046203,
+            "Product Support": 0.4878587196467991,
+            "Returns and Exchanges": 0.47572815533980584,
+            "Sales and Pre-Sales": 0.44871794871794873,
+            "Service Outages and Maintenance": 0.7307692307692307,
+            "Technical Support": 0.5579886455798865
+          }
+        },
+        "priority": {
+          "macro_f1": 0.6062640036640771,
+          "ece": 0.024069344197623875,
+          "macro_f1_by_language": {
+            "de": 0.5493802922162583,
+            "en": 0.6468875587628896
+          },
+          "per_class_f1": {
+            "high": 0.6583850931677019,
+            "low": 0.5487077534791253,
+            "medium": 0.611699164345404
+          }
+        }
+      },
+      "outage": {
+        "gold_n": 389,
+        "classifier_recall": 0.6529562982005142,
+        "classifier_precision": 0.5772727272727273,
+        "target_status": "not met (best attainable recall)",
+        "chosen": {
+          "p_incident": 0.3,
+          "p_high": 0.3,
+          "recall": 0.8329048843187661,
+          "precision": 0.484304932735426,
+          "escalation_rate": 0.2926509186351706
+        }
+      },
+      "latency": {
+        "n": 100,
+        "p50_ms": 12.322049999852425,
+        "p95_ms": 15.71195499990381,
+        "mean_ms": 12.74539299998878
+      },
+      "embedding_build_seconds": 0.0,
+      "chosen": {
+        "type": 4.0,
+        "queue": 4.0,
+        "priority": 4.0
+      },
+      "param_name": "C",
+      "probes": [
+        {
+          "subject": "",
+          "body": "VPN down for all hospital staff since this morning; telemedi",
+          "type": [
+            "Incident",
+            0.714
+          ],
+          "queue": [
+            "Customer Service",
+            0.374
+          ],
+          "priority": [
+            "medium",
+            0.575
+          ]
+        },
+        {
+          "subject": "VPN-Ausfall im Krankenhaus",
+          "body": "Seit heute Morgen k\u00f6nnen sich alle Mitarbeitenden unserer Kl",
+          "type": [
+            "Incident",
+            0.709
+          ],
+          "queue": [
+            "Technical Support",
+            0.255
+          ],
+          "priority": [
+            "high",
+            0.6
+          ]
+        },
+        {
+          "subject": "",
+          "body": "Where can I view my invoice?",
+          "type": [
+            "Request",
+            0.371
+          ],
+          "queue": [
+            "Billing and Payments",
+            0.957
+          ],
+          "priority": [
+            "medium",
+            0.682
+          ]
+        }
+      ]
+    },
+    "A+extra": {
+      "heads": {
+        "type": {
+          "macro_f1": 0.8638760766332065,
+          "ece": 0.005065102877730511,
+          "macro_f1_by_language": {
+            "de": 0.8280596869602266,
+            "en": 0.8893035122748778
+          },
+          "per_class_f1": {
+            "Change": 0.9745762711864406,
+            "Incident": 0.8218579234972677,
+            "Problem": 0.6659772492244054,
+            "Request": 0.9930928626247122
+          }
+        },
+        "queue": {
+          "macro_f1": 0.5301279444100846,
+          "ece": 0.012298448887373204,
+          "macro_f1_by_language": {
+            "de": 0.4275817663486311,
+            "en": 0.5891894585864266
+          },
+          "per_class_f1": {
+            "Billing and Payments": 0.7396061269146609,
+            "Customer Service": 0.4835820895522388,
+            "General Inquiry": 0.5573770491803278,
+            "Human Resources": 0.4594594594594595,
+            "IT Support": 0.44983818770226536,
+            "Product Support": 0.4948921679909194,
+            "Returns and Exchanges": 0.4380952380952381,
+            "Sales and Pre-Sales": 0.422360248447205,
+            "Service Outages and Maintenance": 0.7027027027027027,
+            "Technical Support": 0.5533661740558292
+          }
+        },
+        "priority": {
+          "macro_f1": 0.6057229314269993,
+          "ece": 0.01960740872507106,
+          "macro_f1_by_language": {
+            "de": 0.5558882543060565,
+            "en": 0.6415079823653539
+          },
+          "per_class_f1": {
+            "high": 0.6629339305711086,
+            "low": 0.5375494071146245,
+            "medium": 0.616685456595265
+          }
+        }
+      },
+      "outage": {
+        "gold_n": 389,
+        "classifier_recall": 0.6606683804627249,
+        "classifier_precision": 0.5908045977011495,
+        "target_status": "not met (best attainable recall)",
+        "chosen": {
+          "p_incident": 0.3,
+          "p_high": 0.3,
+          "recall": 0.8431876606683805,
+          "precision": 0.4917541229385307,
+          "escalation_rate": 0.29177602799650043
+        }
+      },
+      "latency": {
+        "n": 100,
+        "p50_ms": 14.628850000008242,
+        "p95_ms": 18.489375000058317,
+        "mean_ms": 15.65995100000464
+      },
+      "embedding_build_seconds": 0.0,
+      "chosen": {
+        "type": 4.0,
+        "queue": 4.0,
+        "priority": 4.0
+      },
+      "param_name": "C",
+      "probes": [
+        {
+          "subject": "",
+          "body": "VPN down for all hospital staff since this morning; telemedi",
+          "type": [
+            "Incident",
+            0.648
+          ],
+          "queue": [
+            "Customer Service",
+            0.615
+          ],
+          "priority": [
+            "low",
+            0.623
+          ]
+        },
+        {
+          "subject": "VPN-Ausfall im Krankenhaus",
+          "body": "Seit heute Morgen k\u00f6nnen sich alle Mitarbeitenden unserer Kl",
+          "type": [
+            "Incident",
+            0.912
+          ],
+          "queue": [
+            "Customer Service",
+            0.322
+          ],
+          "priority": [
+            "high",
+            0.432
+          ]
+        },
+        {
+          "subject": "",
+          "body": "Where can I view my invoice?",
+          "type": [
+            "Incident",
+            0.675
+          ],
+          "queue": [
+            "Billing and Payments",
+            0.984
+          ],
+          "priority": [
+            "medium",
+            0.823
+          ]
+        }
+      ]
+    },
+    "B": {
+      "heads": {
+        "type": {
+          "macro_f1": 0.8100677411034621,
+          "ece": 0.018561306253751863,
+          "macro_f1_by_language": {
+            "de": 0.7992221651184865,
+            "en": 0.8175232856449711
+          },
+          "per_class_f1": {
+            "Change": 0.9663865546218487,
+            "Incident": 0.7198124267291911,
+            "Problem": 0.563302752293578,
+            "Request": 0.9907692307692307
+          }
+        },
+        "queue": {
+          "macro_f1": 0.31397976849055587,
+          "ece": 0.04019395642887904,
+          "macro_f1_by_language": {
+            "de": 0.2978550426650147,
+            "en": 0.32559180230477924
+          },
+          "per_class_f1": {
+            "Billing and Payments": 0.6523605150214592,
+            "Customer Service": 0.2546816479400749,
+            "General Inquiry": 0.14977973568281938,
+            "Human Resources": 0.10526315789473684,
+            "IT Support": 0.28,
+            "Product Support": 0.25970149253731345,
+            "Returns and Exchanges": 0.2591362126245847,
+            "Sales and Pre-Sales": 0.2638888888888889,
+            "Service Outages and Maintenance": 0.5584905660377358,
+            "Technical Support": 0.3564954682779456
+          }
+        },
+        "priority": {
+          "macro_f1": 0.4477574182691037,
+          "ece": 0.030356199895252234,
+          "macro_f1_by_language": {
+            "de": 0.4316330670819835,
+            "en": 0.4586947566937145
+          },
+          "per_class_f1": {
+            "high": 0.5421965317919075,
+            "low": 0.3900481540930979,
+            "medium": 0.41102756892230574
+          }
+        }
+      },
+      "outage": {
+        "gold_n": 389,
+        "classifier_recall": 0.5552699228791774,
+        "classifier_precision": 0.5023255813953489,
+        "target_status": "not met (best attainable recall)",
+        "chosen": {
+          "p_incident": 0.3,
+          "p_high": 0.3,
+          "recall": 0.7866323907455013,
+          "precision": 0.4123989218328841,
+          "escalation_rate": 0.32458442694663164
+        }
+      },
+      "latency": {
+        "n": 100,
+        "p50_ms": 107.9743000000235,
+        "p95_ms": 137.5244200000111,
+        "mean_ms": 111.81105599997863
+      },
+      "embedding_build_seconds": 132.57562000000144,
+      "chosen": {
+        "type": 10.0,
+        "queue": 10.0,
+        "priority": 10.0
+      },
+      "param_name": "C",
+      "probes": [
+        {
+          "subject": "",
+          "body": "VPN down for all hospital staff since this morning; telemedi",
+          "type": [
+            "Incident",
+            0.868
+          ],
+          "queue": [
+            "IT Support",
+            0.454
+          ],
+          "priority": [
+            "high",
+            0.524
+          ]
+        },
+        {
+          "subject": "VPN-Ausfall im Krankenhaus",
+          "body": "Seit heute Morgen k\u00f6nnen sich alle Mitarbeitenden unserer Kl",
+          "type": [
+            "Incident",
+            0.881
+          ],
+          "queue": [
+            "IT Support",
+            0.398
+          ],
+          "priority": [
+            "medium",
+            0.504
+          ]
+        },
+        {
+          "subject": "",
+          "body": "Where can I view my invoice?",
+          "type": [
+            "Request",
+            0.912
+          ],
+          "queue": [
+            "Billing and Payments",
+            1.0
+          ],
+          "priority": [
+            "medium",
+            0.667
+          ]
+        }
+      ]
+    },
+    "SVM+extra": {
+      "heads": {
+        "type": {
+          "macro_f1": 0.8674031532188132,
+          "ece": 0.014740702034866486,
+          "macro_f1_by_language": {
+            "de": 0.8290536330174187,
+            "en": 0.8940503910914832
+          },
+          "per_class_f1": {
+            "Change": 0.9829787234042553,
+            "Incident": 0.8333333333333334,
+            "Problem": 0.6578947368421053,
+            "Request": 0.9954058192955589
+          }
+        },
+        "queue": {
+          "macro_f1": 0.58481308241411,
+          "ece": 0.02254528684890283,
+          "macro_f1_by_language": {
+            "de": 0.4545546658783583,
+            "en": 0.6664213763901224
+          },
+          "per_class_f1": {
+            "Billing and Payments": 0.7743362831858407,
+            "Customer Service": 0.5337423312883436,
+            "General Inquiry": 0.6333333333333333,
+            "Human Resources": 0.5517241379310345,
+            "IT Support": 0.5143824027072758,
+            "Product Support": 0.5473204104903079,
+            "Returns and Exchanges": 0.4752475247524752,
+            "Sales and Pre-Sales": 0.48,
+            "Service Outages and Maintenance": 0.7239819004524887,
+            "Technical Support": 0.6140625
+          }
+        },
+        "priority": {
+          "macro_f1": 0.6262644922258248,
+          "ece": 0.020813460056423552,
+          "macro_f1_by_language": {
+            "de": 0.5681649055035437,
+            "en": 0.6683878743860273
+          },
+          "per_class_f1": {
+            "high": 0.6787878787878788,
+            "low": 0.5654008438818565,
+            "medium": 0.6346047540077391
+          }
+        }
+      },
+      "outage": {
+        "gold_n": 389,
+        "classifier_recall": 0.6966580976863753,
+        "classifier_precision": 0.5982339955849889,
+        "target_status": "not met (best attainable recall)",
+        "chosen": {
+          "p_incident": 0.3,
+          "p_high": 0.3,
+          "recall": 0.8303341902313625,
+          "precision": 0.5118858954041204,
+          "escalation_rate": 0.27602799650043747
+        }
+      },
+      "latency": {
+        "n": 100,
+        "p50_ms": 4.119000000059714,
+        "p95_ms": 5.103664999933243,
+        "mean_ms": 4.172794000000977
+      },
+      "embedding_build_seconds": 0.0,
+      "chosen": {
+        "type": 1.0,
+        "queue": 1.0,
+        "priority": 1.0
+      },
+      "param_name": "C",
+      "probes": [
+        {
+          "subject": "",
+          "body": "VPN down for all hospital staff since this morning; telemedi",
+          "type": [
+            "Incident",
+            0.749
+          ],
+          "queue": [
+            "Customer Service",
+            0.785
+          ],
+          "priority": [
+            "low",
+            0.607
+          ]
+        },
+        {
+          "subject": "VPN-Ausfall im Krankenhaus",
+          "body": "Seit heute Morgen k\u00f6nnen sich alle Mitarbeitenden unserer Kl",
+          "type": [
+            "Incident",
+            0.935
+          ],
+          "queue": [
+            "Customer Service",
+            0.235
+          ],
+          "priority": [
+            "high",
+            0.476
+          ]
+        },
+        {
+          "subject": "",
+          "body": "Where can I view my invoice?",
+          "type": [
+            "Incident",
+            0.576
+          ],
+          "queue": [
+            "Billing and Payments",
+            0.98
+          ],
+          "priority": [
+            "medium",
+            0.837
+          ]
+        }
+      ]
+    },
+    "SVM-tuned+extra": {
+      "heads": {
+        "type": {
+          "macro_f1": 0.8656971475318886,
+          "ece": 0.019734527652339587,
+          "macro_f1_by_language": {
+            "de": 0.8264462552366832,
+            "en": 0.893073404053764
+          },
+          "per_class_f1": {
+            "Change": 0.9851380042462845,
+            "Incident": 0.8310454065469906,
+            "Problem": 0.6504424778761062,
+            "Request": 0.9961627014581734
+          }
+        },
+        "queue": {
+          "macro_f1": 0.6090897971891158,
+          "ece": 0.028860712694191756,
+          "macro_f1_by_language": {
+            "de": 0.46757469203713997,
+            "en": 0.6958310898350499
+          },
+          "per_class_f1": {
+            "Billing and Payments": 0.7936507936507936,
+            "Customer Service": 0.543247344461305,
+            "General Inquiry": 0.6666666666666666,
+            "Human Resources": 0.5714285714285714,
+            "IT Support": 0.5266781411359724,
+            "Product Support": 0.5701559020044543,
+            "Returns and Exchanges": 0.5026737967914439,
+            "Sales and Pre-Sales": 0.5211267605633803,
+            "Service Outages and Maintenance": 0.7609756097560976,
+            "Technical Support": 0.6342943854324734
+          }
+        },
+        "priority": {
+          "macro_f1": 0.6251372322380487,
+          "ece": 0.018606040329495244,
+          "macro_f1_by_language": {
+            "de": 0.5579438781457731,
+            "en": 0.6738115710561786
+          },
+          "per_class_f1": {
+            "high": 0.6824175824175824,
+            "low": 0.5543478260869565,
+            "medium": 0.638646288209607
+          }
+        }
+      },
+      "outage": {
+        "gold_n": 389,
+        "classifier_recall": 0.6966580976863753,
+        "classifier_precision": 0.6022222222222222,
+        "target_status": "not met (best attainable recall)",
+        "chosen": {
+          "p_incident": 0.3,
+          "p_high": 0.3,
+          "recall": 0.8483290488431876,
+          "precision": 0.5288461538461539,
+          "escalation_rate": 0.27296587926509186
+        }
+      },
+      "latency": {
+        "n": 100,
+        "p50_ms": 4.246749999992971,
+        "p95_ms": 6.4062199999852965,
+        "mean_ms": 4.392460999997638
+      },
+      "embedding_build_seconds": 0.0,
+      "chosen": {
+        "type": 3.0,
+        "queue": 3.0,
+        "priority": 30.0
+      },
+      "param_name": "C",
+      "probes": [
+        {
+          "subject": "",
+          "body": "VPN down for all hospital staff since this morning; telemedi",
+          "type": [
+            "Incident",
+            0.806
+          ],
+          "queue": [
+            "Customer Service",
+            0.823
+          ],
+          "priority": [
+            "low",
+            0.643
+          ]
+        },
+        {
+          "subject": "VPN-Ausfall im Krankenhaus",
+          "body": "Seit heute Morgen k\u00f6nnen sich alle Mitarbeitenden unserer Kl",
+          "type": [
+            "Incident",
+            0.936
+          ],
+          "queue": [
+            "Customer Service",
+            0.245
+          ],
+          "priority": [
+            "low",
+            0.455
+          ]
+        },
+        {
+          "subject": "",
+          "body": "Where can I view my invoice?",
+          "type": [
+            "Incident",
+            0.632
+          ],
+          "queue": [
+            "Billing and Payments",
+            0.945
+          ],
+          "priority": [
+            "medium",
+            0.732
+          ]
+        }
+      ]
+    }
+  },
+  "decision": {
+    "rule": "type or queue gain >= 0.02, no head drop > 0.01, p95 < 150.0 ms",
+    "candidates": {
+      "A+extra": {
+        "delta_macro_f1": {
+          "type": -0.009451502999646477,
+          "queue": -0.023276110650493176,
+          "priority": -0.0005410722370777776
+        },
+        "p95_ms": 18.489375000058317,
+        "qualifies": false
+      },
+      "B": {
+        "delta_macro_f1": {
+          "type": -0.06325983852939088,
+          "queue": -0.2394242865700219,
+          "priority": -0.15850658539497336
+        },
+        "p95_ms": 137.5244200000111,
+        "qualifies": false
+      },
+      "SVM+extra": {
+        "delta_macro_f1": {
+          "type": -0.005924426414039785,
+          "queue": 0.03140902735353224,
+          "priority": 0.020000488561747742
+        },
+        "p95_ms": 5.103664999933243,
+        "qualifies": true
+      },
+      "SVM-tuned+extra": {
+        "delta_macro_f1": {
+          "type": -0.007630432100964368,
+          "queue": 0.05568574212853805,
+          "priority": 0.018873228573971668
+        },
+        "p95_ms": 6.4062199999852965,
+        "qualifies": true
+      }
+    },
+    "release": "SVM-tuned+extra"
+  }
+}
